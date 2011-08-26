@@ -1,23 +1,23 @@
-*pandoc.txt*                                         Pandoc Vim Plugin
+*pandoc.txt*                                        Pandoc Vim Plugin  
 *pandoc*
 
-# Pandoc for Vim
+# Vim Plugin for Pandoc
 
 This is a bundle of pandoc-related stuff that I've thrown together for
 my own use. I don't really know what I am doing, so use at your own
 risk! If you make any changes or improvements, let me know.
 
-This documentation is only nominally formatted as a vim help
-file; really it is just markdown with a few vim help file tags between
-asterisks. (Someone want to write a vim-help writer module for pandoc?) 
+This documentation is only nominally formatted as a vim help file;
+really it is just markdown with a few vim help file tags between
+asterisks. (Someone want to write a vim-help writer module for pandoc?)
 
-I'd recommend that, in addition to reading this help file, you take
-a look at the heavily commented ftplugin/pandoc.vim file.
+I'd recommend that, in addition to reading this help file, you take a
+look at the heavily commented ftplugin/pandoc.vim file.
 
 ## Known Gotchas
 
 1.  Filetype detection does not play well with the [markdown-vim
-    plugin](http://plasticboy.com/markdown-vim-mode/).
+    plugin][].
 2.  Conversion commands assume you are using OS X (should be easy to
     fix).
 3.  At various places, I assume that paths are POSIX paths, which will
@@ -26,25 +26,22 @@ a look at the heavily commented ftplugin/pandoc.vim file.
 
 ## Help From Others
 
-Thanks to both [Felipe Morales](https://github.com/fmoralesc) and [Wei
-Dai](https://github.com/clvv) for lots of bug fixes and improvements.
-Special thanks to Felipe, who has made dramatic improvements to the
-syntax file.
+Thanks to both [Felipe Morales][] and [Wei Dai][] for lots of bug fixes
+and improvements. Special thanks to Felipe, who has made dramatic
+improvements to the syntax file.
 
 ## Stuff From Elsewhere
 
-The syntax file was originally by jeremy schultz (found
-[here](http://www.vim.org/scripts/script.php?script_id=2389)) as
-githubbed by [wunki](https://github.com/wunki/vim-pandoc).
+The syntax file was originally by jeremy schultz (found [here][]) as
+githubbed by [wunki][]. Originally, this repository was a fork of
+wunki's repository. But now that it has grown significantly beyond that,
+I've "de-forked" it.
 
-The snippets file, for use with
-[snipMate](http://www.vim.org/scripts/script.php?script_id=2540), is a
-slight extension of the markdown.snippets file that is part of many of
-the [vim-markdown repositories on
-github](https://github.com/hallison/vim-markdown).
+The snippets file, for use with [snipMate][], is a slight extension of
+the markdown.snippets file that is part of many of the [vim-markdown
+repositories on github][].
 
-I implemented autocompletion by hacking away at [LaTeX
-Box](http://www.vim.org/scripts/script.php?script_id=3109)'s
+I implemented autocompletion by hacking away at [LaTeX Box][]'s
 implementation. The results don't look much like the original, but I
 learned a lot from copying.
 
@@ -120,7 +117,6 @@ So, for example, I have this in my vimrc:
 
 *pandoc-citation-completion* *PandocBibfile*
 
-
 If you have a bibtex file (or a symlink to a bibtex file) named
 'default.bib' in one of these folders,
 
@@ -153,9 +149,8 @@ Regular expressions work too (but not with SuperTab for some reason):
 should suggest both '@leftow1990' and '@lewis1990', assuming those are
 both keys in your bibliography.
 
-The plugin also provides support for using this with
-[SuperTab](http://www.vim.org/scripts/script.php?script_id=1643). I have
-the following in my vimrc:
+The plugin also provides support for using this with [SuperTab][]. I
+have the following in my vimrc:
 
     let g:SuperTabDefaultCompletionType = "context"
 
@@ -213,13 +208,13 @@ it is easy to do something like
 
     :!markdown2pdf %
 
-If there is a particular conversion that you do all the time with a 
-particular set of options, you might want to define a <leader> mapping 
+If there is a particular conversion that you do all the time with a
+particular set of options, you might want to define a <leader> mapping
 in your vimrc.
 
-The plugin sets 
+The plugin sets
 
-	setlocal equalprg=pandoc\ -t\ markdown\ --reference-links
+    setlocal equalprg=pandoc\ -t\ markdown\ --reference-links
 
 In practice, this makes it easy to hard-wrap paragraphs nicely, using
 vim's `=` command. If you prefer soft wrapping, you might want to change
@@ -241,7 +236,7 @@ Advice welcome on how to work around these problems.
 
 ## Leader Mappings
 
-*pandoc-leader-mappings* *PandocLeaders*  
+*pandoc-leader-mappings* *PandocLeaders*
 
 If you define `g:PandocLeaders` in your vimrc,
 
@@ -255,3 +250,13 @@ the most are
     <leader>html
 
 which convert the buffer to the relevant format and open the results.
+
+  [markdown-vim plugin]: http://plasticboy.com/markdown-vim-mode/
+  [Felipe Morales]: https://github.com/fmoralesc
+  [Wei Dai]: https://github.com/clvv
+  [here]: http://www.vim.org/scripts/script.php?script_id=2389
+  [wunki]: https://github.com/wunki/vim-pandoc
+  [snipMate]: http://www.vim.org/scripts/script.php?script_id=2540
+  [vim-markdown repositories on github]: https://github.com/hallison/vim-markdown
+  [LaTeX Box]: http://www.vim.org/scripts/script.php?script_id=3109
+  [SuperTab]: http://www.vim.org/scripts/script.php?script_id=1643
