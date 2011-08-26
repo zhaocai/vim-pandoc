@@ -3,47 +3,42 @@
 
 # Vim Plugin for Pandoc
 
-This is a bundle of pandoc-related stuff that I've thrown together for
-my own use. I don't really know what I am doing, so use at your own
-risk! If you make any changes or improvements, let me know.
+This is a bundle for writing documents in [pandoc][]'s [extended
+markdown][].
 
 This documentation is only nominally formatted as a vim help file;
 really it is just markdown with a few vim help file tags between
 asterisks. (Someone want to write a vim-help writer module for pandoc?)
 
-I'd recommend that, in addition to reading this help file, you take a
-look at the heavily commented ftplugin/pandoc.vim file.
+In addition to reading this help file, you might take a look at the
+heavily commented ftplugin/pandoc.vim file.
 
 ## Known Gotchas
 
 1.  Filetype detection does not play well with the [markdown-vim
     plugin][].
-2.  Conversion commands assume you are using OS X (should be easy to
-    fix).
-3.  At various places, I assume that paths are POSIX paths, which will
-    cause trouble on Windows (should be easy to fix).
-4.  No vim help files.
+2.  At various places, assumes POSIX paths, which will cause trouble on
+    Windows (should be easy to fix).
 
-## Help From Others
+## Maintainers
 
-Thanks to both [Felipe Morales][] and [Wei Dai][] for lots of bug fixes
-and improvements. Special thanks to Felipe, who has made dramatic
-improvements to the syntax file.
++	[Felipe Morales](https://github.com/fmoralesc/)
++	[David Sanson](https://github.com/dsanson/) 
+
+Thanks also to [Wei Dai][] for bug fixes and improvements.
 
 ## Stuff From Elsewhere
 
 The syntax file was originally by jeremy schultz (found [here][]) as
-githubbed by [wunki][]. Originally, this repository was a fork of
-wunki's repository. But now that it has grown significantly beyond that,
-I've "de-forked" it.
+githubbed by [wunki][].
 
-The snippets file, for use with [snipMate][], is a slight extension of
-the markdown.snippets file that is part of many of the [vim-markdown
-repositories on github][].
+The snippets file, for use with [snipMate][], is a slight extension (and
+contraction) of the markdown.snippets file that is part of many of the
+[vim-markdown repositories on github][].
 
-I implemented autocompletion by hacking away at [LaTeX Box][]'s
-implementation. The results don't look much like the original, but I
-learned a lot from copying.
+Autocompletion was implemented by hacking away at [LaTeX Box][]'s
+implementation of bibtex citation completion, even if the results don't
+look much like the original.
 
 ## Features
 
@@ -71,12 +66,16 @@ Specifically:
 Additional tweaks welcome. Feedback also welcome on whether this is
 appropriate. It would be easy to make some or all of this optional.
 
+> **TODO**: configurable switch between "soft wrap" mode and "hard
+> wrap" mode.
+
 -   Syntax highlighting with support for definition lists, numbered
     examples, delimited code blocks, LaTeX and HTML, citations,
     footnotes, ....
 
--   Some snippets for use with snipMate (I never use these, so they
-    could probably use improvement. If you improve them, let me know).
+-   Some snippets for use with snipMate (David says: I never use these,
+    so they could probably use improvement. If you improve them, let
+	us know).
 
 -   Folding of ATX styled sections. (See `:help fold-commands` if you
     haven't used vim's folding before.). Quick tips:
@@ -106,7 +105,7 @@ So, for example, one might put something like this in your vimrc:
 
     let g:PandocBibfile = "/Users/david/Documents/mybib.xml"
 
--   g:PandocLeaders. If this variable exists, then this plugin will go
+-   g:PandocLeaders. If this variable exists, then the plugin will go
     ahead and define some leader mappings.
 
 So, for example, I have this in my vimrc:
@@ -142,41 +141,41 @@ matching keys, e.g.,
     @geach1970
     @geach1972
 
-Regular expressions work too (but not with SuperTab for some reason):
+Regular expressions work too:
 
     @le.*90
 
 should suggest both '@leftow1990' and '@lewis1990', assuming those are
 both keys in your bibliography.
 
-The plugin also provides support for using this with [SuperTab][]. I
-have the following in my vimrc:
+The plugin also provides support for using this with [SuperTab][]. You
+will want something like this in your vimrc: 
 
     let g:SuperTabDefaultCompletionType = "context"
 
-With this setting, I can just hit TAB in the middle of typing a citation
+Then you can just hit TAB in the middle of typing a citation
 to autocomplete the citation.
 
 > **KNOWN BUGS**:
 >
-> -   SuperTab autocompletion of citations only works after I use ctrl-x
+> -   SuperTab autocompletion of citations only works after you use ctrl-x
 >     ctrl-o autocompletion once within a given file.
 > -   Regular expressions don't work when using SuperTab.
 
-> **TODO**: I'd like to pandoc.vim to be smarter about finding
-> bibliography files. This includes:
+> **TODO**: pandoc.vim should be smarter about finding bibliography
+> files. This includes:
 >
 > -   finding the local texmf tree programatically
-> -   using (all?) bibtex files found in any of the search paths.
+> -   using (all?) bibtex files found in any of the search paths
 > -   including the directory that the file is in among the search paths
 > -   better support for other bibliography database formats (the parser
 >     currently works with bibtex and MODS xml files, but the script
->     doesn't look for MODS xml files).
+>     doesn't look for MODS xml files)
 
 ## Dictionary-Based Citation Completions
 
-I am leaving this in for now, but now that proper autocompletion is
-working, I'll probably get rid of it. If you create a text file,
+We are leaving this in for now, but now that proper autocompletion is
+working, we'll probably get rid of it. If you create a text file,
 
     ~/.pandoc/citationkeys.dict
 
@@ -201,15 +200,14 @@ and then hitting ctrl-x ctrl-k (or via SuperTab).
 *MarkdownTidy* *MarkdownTidyWrap* *MarkdownHtmlOpen* *MarkdownPdfOpen*
 *MarkdownOdtOpen*
 
-Look at the comments in ftpugin/pandoc.vim to see what is there. I've
-made no attempt to provide a complete set of commands. The more I use
-vim, the less inclined I am to provide basic conversion commands, since
-it is easy to do something like
+Look at the comments in ftpugin/pandoc.vim to see what is there. We've
+made no attempt to provide a complete set of commands, since it is easy
+to do something like
 
     :!markdown2pdf %
 
 If there is a particular conversion that you do all the time with a
-particular set of options, you might want to define a <leader> mapping
+particular set of options, you might want to define a leader mapping
 in your vimrc.
 
 The plugin sets
@@ -232,7 +230,8 @@ Either way, there are a few gotchas to be aware of:
 So keep your metadata and macros at the top of the file, and avoid
 filtering them with `=`.
 
-Advice welcome on how to work around these problems.
+If you know how to work around these problems, let us know (or better,
+fork and fix it).
 
 ## Leader Mappings
 
@@ -242,15 +241,16 @@ If you define `g:PandocLeaders` in your vimrc,
 
     let g:PandocLeaders = 1
 
-then the plugin will define some leader mappings for you. The ones I use
-the most are
+then the plugin will define some leader mappings for you. For example,
 
     <leader>pdf
     <leader>odt
     <leader>html
 
-which convert the buffer to the relevant format and open the results.
+which convert the buffer to given format and open the results.
 
+  [pandoc]: http://johnmacfarlane.net/pandoc/
+  [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
   [markdown-vim plugin]: http://plasticboy.com/markdown-vim-mode/
   [Felipe Morales]: https://github.com/fmoralesc
   [Wei Dai]: https://github.com/clvv
