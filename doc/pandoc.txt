@@ -21,8 +21,6 @@ heavily commented ftplugin/pandoc.vim file.
     plugin, then you want to use pandoc for you markdown needs. So we 
 	match the following extensions: .markdown, .md, .mkd, .pd, .pdk, 
 	.pandoc, and .text.
-3.  At various places, assumes POSIX paths, which will cause trouble on
-    Windows (should be easy to fix).
 
 ## Maintainers
 

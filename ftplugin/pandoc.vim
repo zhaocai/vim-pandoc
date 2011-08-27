@@ -19,9 +19,9 @@ elif sys.platform.startswith("win"):
 
 # we might use this for adjusting paths
 if sys.platform.startswith("win"):
-	vim.command('let g:os = "win"')
+	vim.command('let g:paths_style = "win"')
 else:
-	vim.command('let g:os = "posix"')
+	vim.command('let g:paths_style = "posix"')
 
 # On windows, we pass commands as an argument to `start`, which is a cmd.exe builtin, so we have to quote it
 if sys.platform.startswith("win"):
@@ -183,10 +183,15 @@ autocmd BufWinLeave * if expand(&filetype) == "pandoc" | mkview | endif
 autocmd BufWinEnter * if expand(&filetype) == "pandoc" | loadview | endif
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" # Use ctrl-X ctrl-K for dictionary completions. This adds citation keys from
-" ~/.pandoc/citationkeys.dict to the dictionary. 
+" # Use ctrl-X ctrl-K for dictionary completions.
+"
+" This adds citation keys from a file named citationkeys.dict in the pandoc data dir to the dictionary.
 " 
-setlocal dictionary+=~/.pandoc/citationkeys.dict
+if eval("g:paths_style") == "posix"
+	setlocal dictionary+=$HOME."/.pandoc/citationkeys.dict"
+else
+	setlocal dictionary+=%APPDATA%."\pandoc\citationkeys.dict"
+endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Autocomplete citationkeys using function
 "
@@ -220,14 +225,23 @@ endfunction
 function! Pandoc_BibComplete(regexp)
 
 	if !exists('g:PandocBibfile')
-		if filereadable($HOME . '/.pandoc/default.bib')
-			let g:PandocBibfile = $HOME . '/.pandoc/default.bib'
-		elseif filereadable($HOME . '/Library/texmf/bibtex/bib/default.bib')
-			let g:PandocBibfile = $HOME . '/Library/texmf/bibtex/bib/default.bib'
-		elseif filereadable($HOME . '/texmf/bibtex/bib/default.bib')
-			let g:PandocBibfile = $HOME . '/texmf/bibtex/bib/default.bib'
+		if eval("g:paths_style") == "posix"
+			if filereadable($HOME . '/.pandoc/default.bib')
+				let g:PandocBibfile = $HOME . '/.pandoc/default.bib'
+			elseif filereadable($HOME . '/Library/texmf/bibtex/bib/default.bib')
+				let g:PandocBibfile = $HOME . '/Library/texmf/bibtex/bib/default.bib'
+			elseif filereadable($HOME . '/texmf/bibtex/bib/default.bib')
+				let g:PandocBibfile = $HOME . '/texmf/bibtex/bib/default.bib'
+			else
+				return []
+			endif
 		else
-			return []
+			if filereadable(%APPDATA% . '\pandoc\default.bib')
+				let g:PandocBibfile = %APPDATA% . '\pandoc\default.bib'
+			" TODO check other possible paths
+			else
+				return []
+			endif
 		endif
 	endif
 
