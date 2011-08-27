@@ -201,8 +201,8 @@ and then hitting ctrl-x ctrl-k (or via SuperTab).
 
 ## Conversion and Tidying Up
 
-*MarkdownTidy* *MarkdownTidyWrap* *MarkdownHtmlOpen* *MarkdownPdfOpen*
-*MarkdownOdtOpen*
+*MarkdownTidy* *MarkdownTidyWrap* *PandocHtmlOpen* *PandocPdfOpen*
+*PandocOdtOpen*
 
 Look at the comments in ftpugin/pandoc.vim to see what is there. We've
 made no attempt to provide a complete set of commands, since it is easy
