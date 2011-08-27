@@ -202,18 +202,45 @@ let b:SuperTabNoCompleteAfter = ['\s', '^\s*\(-\|\*\|+\|>\|:\)', '^\s*(\=\d\+\(\
 "
 " Note that these commands depend on OS X's "open" command. Linux users will
 " want to rewrite them to use the "xdg-open" command.
-"
+
+python <<EOF
+import vim
+import sys
+from subprocess import Popen, PIPE
+# We create a variable in vim, not in python, so ruby can access it afterwards too
+open_command_tail = ''
+if sys.platform == "darwin":
+	vim.command("let s:pandoc_open_command = 'open'") # OSX
+elif sys.platform.startswith("linux"):
+	vim.command("let s:pandoc_open_command = 'xdg-open'") # freedesktop/linux
+elif sys.platform.startswith("win"): # Windows, TODO: cygwin
+	vim.command("let s:pandoc_open_command = 'cmd /x \"start'")
+	open_command_tail = '"' # we pass it as an argument to cmd, so we have to quote it
+
+open_command = vim.eval("s:pandoc_open_command")
+
+def pandoc_pdf_open():
+	out = vim.eval('expand("%:r")') + ".pdf"
+	vim.command("!markdown2pdf -o " + out + " %")
+	Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
+
+def pandoc_html_open():
+	out = vim.eval('expand("%:r")') + ".html"
+	vim.command("!pandoc -t html -sS -o " + out + " %")
+	Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
+
+def pandoc_odt_open():
+	out = vim.eval('expand("%:r")') + ".odt"
+	vim.command("!pandoc -t odt -o " + out + " %")
+	Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
+	
+EOF
 " Generate html and open in default html viewer
-
-	:command! MarkdownHtmlOpen !out="%";out="${out\%.*}.html";pandoc -t html -sS -o "$out" %;open "$out"
-
+command! PandocHtmlOpen exec 'py pandoc_html_open()'
 " Generate pdf and open in default pdf viewer
-
-  	:command! MarkdownPdfOpen !out="%";out="${out\%.*}.pdf";markdown2pdf -o "$out" %;open "$out"
-
+command! PandocPdfOpen exec 'py pandoc_pdf_open()'
 " Generate odt and open in default odt viewer
-
-	:command! MarkdownOdtOpen !out="%";out="${out\%.*}.odt";pandoc -t odt -sS -o "$out" %;open "$out"
+command! PandocOdtOpen exec 'py pandoc_odt_open()'
 
 " # Some suggested <Leader> mappings
 "
