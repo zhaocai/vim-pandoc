@@ -18,9 +18,7 @@ look at the heavily commented ftplugin/pandoc.vim file.
 
 1.  Filetype detection does not play well with the [markdown-vim
     plugin][].
-2.  Conversion commands assume you are using OS X (should be easy to
-    fix).
-3.  At various places, I assume that paths are POSIX paths, which will
+2.  At various places, I assume that paths are POSIX paths, which will
     cause trouble on Windows (should be easy to fix).
 4.  No vim help files.
 
@@ -198,8 +196,8 @@ and then hitting ctrl-x ctrl-k (or via SuperTab).
 
 ## Conversion and Tidying Up
 
-*MarkdownTidy* *MarkdownTidyWrap* *MarkdownHtmlOpen* *MarkdownPdfOpen*
-*MarkdownOdtOpen*
+*MarkdownTidy* *MarkdownTidyWrap* *PandocHtmlOpen* *PandocPdfOpen*
+*PandocOdtOpen*
 
 Look at the comments in ftpugin/pandoc.vim to see what is there. I've
 made no attempt to provide a complete set of commands. The more I use

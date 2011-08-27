@@ -200,9 +200,6 @@ let b:SuperTabNoCompleteAfter = ['\s', '^\s*\(-\|\*\|+\|>\|:\)', '^\s*(\=\d\+\(\
 
 " ## Complex commands
 "
-" Note that these commands depend on OS X's "open" command. Linux users will
-" want to rewrite them to use the "xdg-open" command.
-
 python <<EOF
 import vim
 import sys
@@ -220,43 +217,49 @@ elif sys.platform.startswith("win"): # Windows, TODO: cygwin
 
 open_command = vim.eval("s:pandoc_open_command")
 
-def pandoc_open(func):
+def pandoc_opener(func):
 	def wrapped():
 		out = vim.eval('expand("%:r")') + "." + func.func_name.split("_")[1]
-		output = func(out)
+		command_list = func(out)
+		output = Popen(command_list, stdout=PIPE, stderr=PIPE).communicate()
 		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
-		if lines:
-			splitbelow = bool(int(vim.eval("&splitbelow")))
-			if not splitbelow:
-				vim.command("set splitbelow")
-			vim.command("5new")
-			vim.current.buffer.append(lines)
-			vim.command("normal dd")
-			vim.command("setlocal nomodified")
-			vim.command("setlocal nomodifiable")
-			vim.command("map <buffer> <esc> :bd<cr>")
-			vim.command("syn match PandocOutputMarks /^>>/")
-			vim.command("hi! link PandocOutputMarks Operator")
-			if not splitbelow:
-				vim.command("set nosplitbelow")
+		lines.insert(0, "▶ " + " ".join(command_list))
+		lines.insert(0, "# Press <Esc> to close this ")
+
+		splitbelow = bool(int(vim.eval("&splitbelow")))
+		if not splitbelow:
+			vim.command("set splitbelow")
+		
+		vim.command("3new")
+		vim.current.buffer.append(lines)
+		vim.command("normal dd")
+		vim.command("setlocal nomodified")
+		vim.command("setlocal nomodifiable")
+		vim.command("map <buffer> <esc> :bd<cr>")
+		vim.command("syn match PandocOutputMarks /^>>/")
+		vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
+		vim.command("syn match PandocInstructions /^#.*$/")
+		vim.command("hi! link PandocOutputMarks Operator")
+		vim.command("hi! link PandocCommand Statement")
+		vim.command("hi! link PandocInstructions Comment")
+
+		if not splitbelow:
+			vim.command("set nosplitbelow")
 		if exists(out):
 			Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
 	return wrapped
 
-@pandoc_open
+@pandoc_opener
 def pandoc_pdf_open(out=None):
-	command = ["markdown2pdf",  "-o", out, vim.current.buffer.name]
-	return Popen(command, stdout=PIPE, stderr=PIPE).communicate()
+	return ["markdown2pdf",  "-o", out, vim.current.buffer.name]
 
-@pandoc_open
+@pandoc_opener
 def pandoc_html_open(out=None):
-	command = ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
-	return Popen(command, stdout=PIPE, stderr=PIPE).communicate()
+	return ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
 
-@pandoc_open
+@pandoc_opener
 def pandoc_odt_open(out=None):
-	command = ["pandoc", "-t", "odt",  "-o", out, vim.current.buffer.name]
-	return Popen(command, stdout=PIPE, stderr=PIPE).communicate()
+	return ["pandoc", "-t", "odt",  "-o", out, vim.current.buffer.name]
 	
 EOF
 " Generate html and open in default html viewer
