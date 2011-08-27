@@ -20,7 +20,6 @@ look at the heavily commented ftplugin/pandoc.vim file.
     plugin][].
 2.  At various places, I assume that paths are POSIX paths, which will
     cause trouble on Windows (should be easy to fix).
-4.  No vim help files.
 
 ## Help From Others
 
