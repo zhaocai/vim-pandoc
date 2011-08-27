@@ -280,9 +280,9 @@ command! PandocOdtOpen exec 'py pandoc_odt_open()'
 "
 if exists('g:PandocLeaders') 
 
-	map <silent> <Leader>html :MarkdownHtmlOpen<CR>
-	map <silent> <LEADER>pdf :MarkdownPdfCiteOpen<CR>
-	map <silent> <LEADER>odt :MarkdownOdtCiteOpen<CR>
+	map <silent> <Leader>html :PandocHtmlOpen<CR>
+	map <silent> <LEADER>pdf :PandocPdfOpen<CR>
+	map <silent> <LEADER>odt :PandocOdtOpen<CR>
 
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.
