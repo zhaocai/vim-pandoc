@@ -107,13 +107,6 @@ So, for example, one might put something like this in your vimrc:
 
     let g:PandocBibfile = "/Users/david/Documents/mybib.xml"
 
--   g:PandocLeaders. If this variable exists, then the plugin will go
-    ahead and define some leader mappings.
-
-So, for example, I have this in my vimrc:
-
-    let g:PandocLeaders = 1
-
 ## Citation Autocompletion
 
 *pandoc-citation-completion* *PandocBibfile*
@@ -235,19 +228,19 @@ filtering them with `=`.
 If you know how to work around these problems, let us know (or better,
 fork and fix it).
 
-## Leader Mappings
+## LocalLeader Mappings
 
-*pandoc-leader-mappings* *PandocLeaders*
+*pandoc-local-leader-mappings* *PandocLocalLeaders*
 
-If you define `g:PandocLeaders` in your vimrc,
+If you define maplocalleader in your vimrc,
 
-    let g:PandocLeaders = 1
+    let maplocalleader = ","
 
 then the plugin will define some leader mappings for you. For example,
 
-    <leader>pdf
-    <leader>odt
-    <leader>html
+    <localleader>pdf
+    <localleader>odt
+    <localleader>html
 
 which convert the buffer to given format and open the results.
 
