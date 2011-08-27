@@ -124,10 +124,10 @@ syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkURL contains
 " Ref links
 syn match pandocLinkArea /^\s*\[.\{-}\]:\s*http[^>]*$/
 syn match pandocLinkURL /:\s*http[^>]*$/hs=s+2 contained containedin=pandocLinkArea
-" explicit ref-text link
-syn match pandocLinkText /\[.\{-}\]\[.\{-}\]/
-" TODO: implicit ref-text link
-" syn match pandocLinkText /\[.\{-}\]/ containedin=pandocLinkArea
+" explicit and implicit ref-text link
+syn region pandocLinkText start=/\[/ skip=/\]\[/ end=/\]/
+" explicit ref-text link (kept just in case)
+" syn match pandocLinkText /\[.\{-}\]\[.\{-}\]/
 
 " Link URL for inline <> links:
 syn match pandocLinkURL /<http[^>]*>/
