@@ -3,8 +3,8 @@
 
 # Vim Plugin for Pandoc
 
-This is a bundle for writing documents in [pandoc][]'s [extended
-markdown][].
+This is a bundle for writing and editing documents in [pandoc][]'s
+[extended markdown][].
 
 This documentation is only nominally formatted as a vim help file;
 really it is just markdown with a few vim help file tags between
@@ -17,7 +17,11 @@ heavily commented ftplugin/pandoc.vim file.
 
 1.  Filetype detection does not play well with the [markdown-vim
     plugin][].
-2.  At various places, assumes POSIX paths, which will cause trouble on
+2.  Filetype detection is aggressive: we assume that if you use this 
+    plugin, then you want to use pandoc for you markdown needs. So we 
+	match the following extensions: .markdown, .md, .mkd, .pd, .pdk, 
+	.pandoc, and .text.
+3.  At various places, assumes POSIX paths, which will cause trouble on
     Windows (should be easy to fix).
 
 ## Maintainers
