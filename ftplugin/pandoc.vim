@@ -303,63 +303,57 @@ let b:SuperTabNoCompleteAfter = ['\s', '^\s*\(-\|\*\|+\|>\|:\)', '^\s*(\=\d\+\(\
 " (Note: this will insert an empty title block if no title block 
 " is present; it will wipe out any latex macro definitions)
 
-	command! MarkdownTidyWrap %!pandoc -t markdown -s
+	command! -buffer MarkdownTidyWrap %!pandoc -t markdown -s
 
 " Markdown tidy without hard wraps
 " (Note: this will insert an empty title block if no title block 
 " is present; it will wipe out any latex macro definitions)
 
-	command! MarkdownTidy %!pandoc -t markdown --no-wrap -s
+	command! -buffer MarkdownTidy %!pandoc -t markdown --no-wrap -s
 
 " Generate html and open in default html viewer
 	
-	command! PandocHtmlOpen exec 'py pandoc_html_open()'
+	command! -buffer PandocHtmlOpen exec 'py pandoc_html_open()'
 
 " Generate pdf and open in default pdf viewer
 
-	command! PandocPdfOpen exec 'py pandoc_pdf_open()'
+	command! -buffer PandocPdfOpen exec 'py pandoc_pdf_open()'
 
 " Generate odt and open in default odt viewer
 	
-	command! PandocOdtOpen exec 'py pandoc_odt_open()'
+	command! -buffer PandocOdtOpen exec 'py pandoc_odt_open()'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" # Some suggested <Leader> mappings
+" # Some <LocalLeader> mappings
 "
-" It is bad form to put <Leader> mappings in ftplugins. If you want to enable
-" these mappings, put something like
-" 
-"   let g:PandocLeaders = 1
+" It <LocalLeader> is defined (with 'let maplocalleader') we will map some commands.
 "
-" in your .vimrc. Or just copy any you are interested in using into your vimrc.
-"
-if exists('g:PandocLeaders') 
+if exists('maplocalleader')
 
-	map <silent> <Leader>html :PandocHtmlOpen<CR>
-	map <silent> <LEADER>pdf :PandocPdfOpen<CR>
-	map <silent> <LEADER>odt :PandocOdtOpen<CR>
+	map <buffer> <silent> <LocalLeader>html :PandocHtmlOpen<CR>
+	map <buffer> <silent> <LocalLeader>pdf :PandocPdfOpen<CR>
+	map <buffer> <silent> <LocalLeader>odt :PandocOdtOpen<CR>
 
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.
 "
 " Open link in browser (based on Gruber's url regex)
-"
 " (This isn't very pandoc-specific, but I use it in the next mapping below.)
 "
-	map <Leader>www :py pandoc_open_uri()<cr>
+	map <buffer> <LocalLeader>www :py pandoc_open_uri()<cr>
 
 "" Open reference link in browser (depends on above mapping of <LEADER>w)
-	map <Leader>wr ya[#<LEADER>www*
+	map <buffer> <LocalLeader>wr ya[#<LEADER>www*
 
 "" Jump forward to existing reference link (or footnote link)
-	map <Leader>fr ya[#E
+	map <buffer> <LocalLeader>fr ya[#E
 
 "" Jump back to existing reference link (or fn link)
-	map <Leader>br {jwya[*E
+	map <buffer> <LocalLeader>br {jwya[*E
 
 "" Add new reference link (or footnote link) after current paragraph. (This
 "" works better than the snipmate snippet for doing this.)
 
-	map <Leader>nr ya[o<CR><ESC>p$a:
+	map <buffer> <LocalLeader>nr ya[o<CR><ESC>p$a:
 
 endif
