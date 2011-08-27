@@ -287,32 +287,34 @@ if exists('g:PandocLeaders')
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.
 "
-" Open link in browser (OS X only; based on Gruber's url regex)
+" Open link in browser (based on Gruber's url regex)
 "
 " (This isn't very pandoc-specific, but I use it in the next mapping below.)
 "
-ruby << EOF
-	  def open_uri
-		re = %r{(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))}
+python<<EOF
+import string, re
+from subprocess import Popen, PIPE
 
-		line = VIM::Buffer.current.line
+open_command = vim.eval("s:pandoc_open_command")
 
-		if url = line[re]
-		  system("open", url)
-		  VIM::message(url)
-		else
-		  VIM::message("No URI found in line.")
-		end
-	  end
+def open_uri():
+	# graciously taken from
+	# http://stackoverflow.com/questions/1986059/grubers-url-regular-expression-in-python/1986151#1986151
+	pat = r'\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^%s\s]|/)))'
+	pat = pat % re.escape(string.punctuation)
+
+	line = vim.current.line
+	search = re.search(pat, line)
+	if search:
+		url = search.group()
+		Popen([open_command, url], stdout=PIPE, stderr=PIPE)
+		print url
+	else:
+		print "No URI found in line."
+	
 EOF
+	map <Leader>www :py open_uri()<cr>
 
-	if !exists("*OpenURI")
-	  function! OpenURI()
-		:ruby open_uri
-	  endfunction
-	endif
-
-	map <Leader>www :call OpenURI()<CR>
 
 "" Open reference link in browser (depends on above mapping of <LEADER>w)
 	map <Leader>wr ya[#<LEADER>www*
