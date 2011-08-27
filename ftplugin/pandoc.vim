@@ -1,12 +1,111 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " ftplugin/pandoc.vim
 "
-" Thrown together by David Sanson <https://github.com/dsanson>, who is
-" a complete newbie when it comes to vim, so doesn't really know what 
-" he is doing.
-"
-"
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+python<<EOF
+import vim
+import sys
+import re, string
+from os.path import exists
+from subprocess import Popen, PIPE
+
+# platform dependent variables
+if sys.platform == "darwin":
+	open_command = "open" #OSX
+elif sys.platform.startswith("linux"):
+	open_command = "xdg-open" # freedesktop/linux
+elif sys.platform.startswith("win"):
+	open_command = 'cmd /x \"start' # Windows
+
+# we might use this for adjusting paths
+if sys.platform.startswith("win"):
+	vim.command('let g:os = "win"')
+else:
+	vim.command('let g:os = "posix"')
+
+# On windows, we pass commands as an argument to `start`, which is a cmd.exe builtin, so we have to quote it
+if sys.platform.startswith("win"):
+	open_command_tail = '"'
+else:
+	open_command_tail = ''
+
+# This decorator takes a function named 'pandoc_FORMAT_open' which returns a list describing a command
+# and returns a function that will open a file created by running that command.
+def pandoc_opener(func):
+	def wrapped():
+		# the output file name is inferred from the name of the buffer and the name of the decorated function.
+		out = vim.eval('expand("%:r")') + "." + func.func_name.split("_")[1]
+		command_list = func(out) # the decorated function returns a list describing what to run
+		# we run the command and retrieve its output
+		output = Popen(command_list, stdout=PIPE, stderr=PIPE).communicate()
+
+		# we create a temporary buffer where the command and its output will be shown
+		
+		# this builds a list of lines we are going to write to the buffer
+		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
+		lines.insert(0, "▶ " + " ".join(command_list))
+		lines.insert(0, "# Press <Esc> to close this ")
+
+		# we always splitbelow
+		splitbelow = bool(int(vim.eval("&splitbelow")))
+		if not splitbelow:
+			vim.command("set splitbelow")
+		
+		vim.command("3new")
+		vim.current.buffer.append(lines)
+		vim.command("normal dd")
+		vim.command("setlocal nomodified")
+		vim.command("setlocal nomodifiable")
+		# pressing <esc> on the buffer will delete it
+		vim.command("map <buffer> <esc> :bd<cr>")
+		# we will highlight some elements in the buffer
+		vim.command("syn match PandocOutputMarks /^>>/")
+		vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
+		vim.command("syn match PandocInstructions /^#.*$/")
+		vim.command("hi! link PandocOutputMarks Operator")
+		vim.command("hi! link PandocCommand Statement")
+		vim.command("hi! link PandocInstructions Comment")
+
+		# we revert splitbelow to its original value
+		if not splitbelow:
+			vim.command("set nosplitbelow")
+
+		# finally, we open the created file
+		if exists(out):
+			Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
+	return wrapped
+
+@pandoc_opener
+def pandoc_pdf_open(out=None):
+	return ["markdown2pdf",  "-o", out, vim.current.buffer.name]
+
+@pandoc_opener
+def pandoc_html_open(out=None):
+	return ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
+
+@pandoc_opener
+def pandoc_odt_open(out=None):
+	return ["pandoc", "-t", "odt",  "-o", out, vim.current.buffer.name]
+	
+def pandoc_open_uri():
+	# graciously taken from
+	# http://stackoverflow.com/questions/1986059/grubers-url-regular-expression-in-python/1986151#1986151
+	pat = r'\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^%s\s]|/)))'
+	pat = pat % re.escape(string.punctuation)
+
+	line = vim.current.line
+	search = re.search(pat, line)
+	if search:
+		url = search.group()
+		Popen([open_command, url], stdout=PIPE, stderr=PIPE)
+		print url
+	else:
+		print "No URI found in line."
+
+EOF
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" # Formatting options
+
 " Soft word wrapping
 setlocal formatoptions=1
 setlocal linebreak
@@ -190,85 +289,27 @@ let b:SuperTabNoCompleteAfter = ['\s', '^\s*\(-\|\*\|+\|>\|:\)', '^\s*(\=\d\+\(\
 " (Note: this will insert an empty title block if no title block 
 " is present; it will wipe out any latex macro definitions)
 
-	:command! MarkdownTidyWrap %!pandoc -t markdown -s
+	command! MarkdownTidyWrap %!pandoc -t markdown -s
 
 " Markdown tidy without hard wraps
 " (Note: this will insert an empty title block if no title block 
 " is present; it will wipe out any latex macro definitions)
 
-	:command! MarkdownTidy %!pandoc -t markdown --no-wrap -s
+	command! MarkdownTidy %!pandoc -t markdown --no-wrap -s
 
-" ## Complex commands
-"
-python <<EOF
-import vim
-import sys
-from os.path import exists
-from subprocess import Popen, PIPE
-# We create a variable in vim, not in python, so ruby can access it afterwards too
-open_command_tail = ''
-if sys.platform == "darwin":
-	vim.command("let s:pandoc_open_command = 'open'") # OSX
-elif sys.platform.startswith("linux"):
-	vim.command("let s:pandoc_open_command = 'xdg-open'") # freedesktop/linux
-elif sys.platform.startswith("win"): # Windows, TODO: cygwin
-	vim.command("let s:pandoc_open_command = 'cmd /x \"start'")
-	open_command_tail = '"' # we pass it as an argument to cmd, so we have to quote it
-
-open_command = vim.eval("s:pandoc_open_command")
-
-def pandoc_opener(func):
-	def wrapped():
-		out = vim.eval('expand("%:r")') + "." + func.func_name.split("_")[1]
-		command_list = func(out)
-		output = Popen(command_list, stdout=PIPE, stderr=PIPE).communicate()
-		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
-		lines.insert(0, "▶ " + " ".join(command_list))
-		lines.insert(0, "# Press <Esc> to close this ")
-
-		splitbelow = bool(int(vim.eval("&splitbelow")))
-		if not splitbelow:
-			vim.command("set splitbelow")
-		
-		vim.command("3new")
-		vim.current.buffer.append(lines)
-		vim.command("normal dd")
-		vim.command("setlocal nomodified")
-		vim.command("setlocal nomodifiable")
-		vim.command("map <buffer> <esc> :bd<cr>")
-		vim.command("syn match PandocOutputMarks /^>>/")
-		vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
-		vim.command("syn match PandocInstructions /^#.*$/")
-		vim.command("hi! link PandocOutputMarks Operator")
-		vim.command("hi! link PandocCommand Statement")
-		vim.command("hi! link PandocInstructions Comment")
-
-		if not splitbelow:
-			vim.command("set nosplitbelow")
-		if exists(out):
-			Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
-	return wrapped
-
-@pandoc_opener
-def pandoc_pdf_open(out=None):
-	return ["markdown2pdf",  "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_html_open(out=None):
-	return ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_odt_open(out=None):
-	return ["pandoc", "-t", "odt",  "-o", out, vim.current.buffer.name]
-	
-EOF
 " Generate html and open in default html viewer
-command! PandocHtmlOpen exec 'py pandoc_html_open()'
-" Generate pdf and open in default pdf viewer
-command! PandocPdfOpen exec 'py pandoc_pdf_open()'
-" Generate odt and open in default odt viewer
-command! PandocOdtOpen exec 'py pandoc_odt_open()'
+	
+	command! PandocHtmlOpen exec 'py pandoc_html_open()'
 
+" Generate pdf and open in default pdf viewer
+
+	command! PandocPdfOpen exec 'py pandoc_pdf_open()'
+
+" Generate odt and open in default odt viewer
+	
+	command! PandocOdtOpen exec 'py pandoc_odt_open()'
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Some suggested <Leader> mappings
 "
 " It is bad form to put <Leader> mappings in ftplugins. If you want to enable
@@ -291,30 +332,7 @@ if exists('g:PandocLeaders')
 "
 " (This isn't very pandoc-specific, but I use it in the next mapping below.)
 "
-python<<EOF
-import string, re
-from subprocess import Popen, PIPE
-
-open_command = vim.eval("s:pandoc_open_command")
-
-def open_uri():
-	# graciously taken from
-	# http://stackoverflow.com/questions/1986059/grubers-url-regular-expression-in-python/1986151#1986151
-	pat = r'\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^%s\s]|/)))'
-	pat = pat % re.escape(string.punctuation)
-
-	line = vim.current.line
-	search = re.search(pat, line)
-	if search:
-		url = search.group()
-		Popen([open_command, url], stdout=PIPE, stderr=PIPE)
-		print url
-	else:
-		print "No URI found in line."
-	
-EOF
-	map <Leader>www :py open_uri()<cr>
-
+	map <Leader>www :py pandoc_open_uri()<cr>
 
 "" Open reference link in browser (depends on above mapping of <LEADER>w)
 	map <Leader>wr ya[#<LEADER>www*
