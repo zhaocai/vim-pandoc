@@ -97,7 +97,7 @@ def pandoc_open_uri():
 	search = re.search(pat, line)
 	if search:
 		url = search.group()
-		Popen([open_command, url], stdout=PIPE, stderr=PIPE)
+		Popen([open_command, url + open_command_tail], stdout=PIPE, stderr=PIPE)
 		print url
 	else:
 		print "No URI found in line."
