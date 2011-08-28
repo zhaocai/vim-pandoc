@@ -117,12 +117,36 @@ syn match pandocHRule  /\s\{0,3}\(\*\s*\)\{3,}\n/	contained nextgroup=pandocHRul
 """""""""""""""""""""""""""""""""""""""
 " Links:
 "
-syn region pandocLinkArea start=/\[/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle
+syn region pandocLinkArea start=/\[.\{-}\]\@<=\(:\|(\|\[\)/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle
 syn match pandocLinkText /\[\@<=.\{-}\]\@=/ containedin=pandocLinkArea contained contains=@Spell
 " TODO: adapt gruber's regex to match URLs; the current regex is quite limited
 syn match pandocLinkURL /https\{0,1}:.\{-}\()\|\s\|\n\)\@=/ containedin=pandocLinkArea contained
 syn match pandocLinkTextRef /\(\]\(\[\|(\)\)\@<=.\{-}\(\]\|)\)\@=/ containedin=pandocLinkText contained
 syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkArea contains=@Spell
+
+" will highlight implicit references only if, on reading the file, it can find
+" a matching reference label. This way, square parenthesis in a file won't be
+" highlighted unless they will be turned into links by pandoc.
+" So in:
+"
+"     This is a test (a test [a test]) for [implicit refs].
+
+"     [implicit refs]: http://johnmacfarlane.net/pandoc/README.html#reference-links
+"
+" only [implicit links] will be highlighted.
+" If labels change, the file must be reloaded in order to highlight their
+" implicit reference links.
+python <<EOF
+import re
+ref_label_pat = "^\s?\[.*(?=]:)"
+labels = []
+for line in vim.current.buffer:
+	match = re.match(ref_label_pat, line)
+	if match:
+		labels.append(match.group()[1:])
+regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
+vim.command("syn match pandocLinkArea /" + regex + "\s/")
+EOF
 
 """""""""""""""""""""""""""""""""""""""
 " Strong:
