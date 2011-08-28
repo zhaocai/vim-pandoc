@@ -115,10 +115,12 @@ syn match pandocHRule  /\s\{0,3}\(\*\s*\)\{3,}\n/	contained nextgroup=pandocHRul
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""""""""""""""""
-" links:
+" Links:
+"
 syn region pandocLinkArea start=/\[/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle
 syn match pandocLinkText /\[\@<=.\{-}\]\@=/ containedin=pandocLinkArea contained contains=@Spell
-syn match pandocLinkURL /http:.\{-}\(\s\|\n\)\@=/ containedin=pandocLinkArea contained
+" TODO: adapt gruber's regex to match URLs; the current regex is quite limited
+syn match pandocLinkURL /https\{0,1}:.\{-}\()\|\s\|\n\)\@=/ containedin=pandocLinkArea contained
 syn match pandocLinkTextRef /\(\]\(\[\|(\)\)\@<=.\{-}\(\]\|)\)\@=/ containedin=pandocLinkText contained
 syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkArea contains=@Spell
 
