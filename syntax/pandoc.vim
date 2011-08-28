@@ -145,7 +145,7 @@ for line in vim.current.buffer:
 	if match:
 		labels.append(match.group()[1:])
 regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
-vim.command("syn match pandocLinkArea /" + regex + "\s/")
+vim.command("syn match pandocLinkArea /" + regex + "\(\s\|\.\|,\|;\)\@=/")
 EOF
 
 """""""""""""""""""""""""""""""""""""""
