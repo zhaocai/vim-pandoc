@@ -94,19 +94,6 @@ appropriate. It would be easy to make some or all of this optional.
 ftplugin/pandoc.vim is fairly well-commented. Take a look at it to see
 what it does in detail.
 
-## Global Settings
-
-The plugin recognizes two global settings, which can be set in your
-vimrc:
-
--   g:PandocBibfile. If this is set to the path to a bibtex file (a MODs
-    file should also work), then that file will be used for citation
-    autocompletion.
-
-So, for example, one might put something like this in your vimrc:
-
-    let g:PandocBibfile = "/Users/david/Documents/mybib.xml"
-
 ## Citation Autocompletion
 
 *pandoc-citation-completion* *PandocBibfile*
