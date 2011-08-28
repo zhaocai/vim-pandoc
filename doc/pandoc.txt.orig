@@ -1,6 +1,7 @@
-*pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Aug 28
+*pandoc.txt*                                        Pandoc Vim Plugin  
+*pandoc*
 
-# Vim Plugin for Pandoc                                              *pandoc*
+# Vim Plugin for Pandoc
 
 This is a bundle for writing and editing documents in [pandoc][]'s
 [extended markdown][].
@@ -16,10 +17,17 @@ heavily commented ftplugin/pandoc.vim file.
 
 1.  Filetype detection does not play well with the [markdown-vim
     plugin][].
+<<<<<<< HEAD
 2.  Filetype detection is aggressive: we assume that if you use this 
     plugin, then you want to use pandoc for you markdown needs. So we 
 	match the following extensions: .markdown, .md, .mkd, .pd, .pdk, 
 	.pandoc, and .text.
+3.  At various places, assumes POSIX paths, which will cause trouble on
+    Windows (should be easy to fix).
+=======
+2.  At various places, I assume that paths are POSIX paths, which will
+    cause trouble on Windows (should be easy to fix).
+>>>>>>> 7ef4e012c81d51be788ef9ab4f86d33fde3e97b8
 
 ## Maintainers
 
@@ -78,8 +86,8 @@ appropriate. It would be easy to make some or all of this optional.
     so they could probably use improvement. If you improve them, let
 	us know).
 
--   Folding of sections. (See `:help fold-commands` if you haven't used
-    vim's folding before.). Quick tips:
+-   Folding of ATX styled sections. (See `:help fold-commands` if you
+    haven't used vim's folding before.). Quick tips:
 
     -   `za` toggles folds open and closed (`zA` toggles fold and all
         its children open and closed)
@@ -93,7 +101,29 @@ appropriate. It would be easy to make some or all of this optional.
 ftplugin/pandoc.vim is fairly well-commented. Take a look at it to see
 what it does in detail.
 
-## Citation Autocompletion                       *pandoc-citation-completion*
+## Global Settings
+
+The plugin recognizes two global settings, which can be set in your
+vimrc:
+
+-   g:PandocBibfile. If this is set to the path to a bibtex file (a MODs
+    file should also work), then that file will be used for citation
+    autocompletion.
+
+So, for example, one might put something like this in your vimrc:
+
+    let g:PandocBibfile = "/Users/david/Documents/mybib.xml"
+
+-   g:PandocLeaders. If this variable exists, then the plugin will go
+    ahead and define some leader mappings.
+
+So, for example, I have this in my vimrc:
+
+    let g:PandocLeaders = 1
+
+## Citation Autocompletion
+
+*pandoc-citation-completion* *PandocBibfile*
 
 If you have a bibtex file (or a symlink to a bibtex file) named
 'default.bib' in one of these folders,
@@ -176,11 +206,8 @@ and then hitting ctrl-x ctrl-k (or via SuperTab).
 
 ## Conversion and Tidying Up
 
-								*MarkdownTidy*
-							    *MarkdownTidyWrap*
-							      *PandocHtmlOpen*
-							       *PandocPdfOpen*
-							       *PandocOdtOpen*
+*MarkdownTidy* *MarkdownTidyWrap* *PandocHtmlOpen* *PandocPdfOpen*
+*PandocOdtOpen*
 
 Look at the comments in ftpugin/pandoc.vim to see what is there. We've
 made no attempt to provide a complete set of commands, since it is easy
@@ -215,21 +242,21 @@ filtering them with `=`.
 If you know how to work around these problems, let us know (or better,
 fork and fix it).
 
-## LocalLeader Mappings                        *pandoc-local-leader-mappings*
+## Leader Mappings
 
-If you define maplocalleader in your vimrc,
+*pandoc-leader-mappings* *PandocLeaders*
 
-    let maplocalleader = ","
+If you define `g:PandocLeaders` in your vimrc,
+
+    let g:PandocLeaders = 1
 
 then the plugin will define some leader mappings for you. For example,
 
-    <localleader>pdf
-    <localleader>odt
-    <localleader>html
+    <leader>pdf
+    <leader>odt
+    <leader>html
 
 which convert the buffer to given format and open the results.
-
-=============================================================================
 
   [pandoc]: http://johnmacfarlane.net/pandoc/
   [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
@@ -242,7 +269,3 @@ which convert the buffer to given format and open the results.
   [vim-markdown repositories on github]: https://github.com/hallison/vim-markdown
   [LaTeX Box]: http://www.vim.org/scripts/script.php?script_id=3109
   [SuperTab]: http://www.vim.org/scripts/script.php?script_id=1643
-
-
-<!-- vim:tw=78:ts=8:ft=pandoc:norl: 
--->

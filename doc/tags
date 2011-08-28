@@ -1,8 +1,6 @@
 MarkdownTidy	pandoc.txt	/*MarkdownTidy*
 MarkdownTidyWrap	pandoc.txt	/*MarkdownTidyWrap*
-PandocBibfile	pandoc.txt	/*PandocBibfile*
 PandocHtmlOpen	pandoc.txt	/*PandocHtmlOpen*
-PandocLocalLeaders	pandoc.txt	/*PandocLocalLeaders*
 PandocOdtOpen	pandoc.txt	/*PandocOdtOpen*
 PandocPdfOpen	pandoc.txt	/*PandocPdfOpen*
 pandoc	pandoc.txt	/*pandoc*
