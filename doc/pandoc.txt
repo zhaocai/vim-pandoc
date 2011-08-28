@@ -79,8 +79,8 @@ appropriate. It would be easy to make some or all of this optional.
     so they could probably use improvement. If you improve them, let
 	us know).
 
--   Folding of ATX styled sections. (See `:help fold-commands` if you
-    haven't used vim's folding before.). Quick tips:
+-   Folding of sections. (See `:help fold-commands` if you haven't used
+    vim's folding before.). Quick tips:
 
     -   `za` toggles folds open and closed (`zA` toggles fold and all
         its children open and closed)
