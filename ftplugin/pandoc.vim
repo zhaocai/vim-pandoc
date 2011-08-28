@@ -171,6 +171,12 @@ function! MarkdownLevel()
     if getline(v:lnum) =~ '^###### .*$'
         return ">6"
     endif
+	if getline(v:lnum) =~ '^[^-=].\+$' && getline(v:lnum+1) =~ '^=\+$'
+		return ">1"
+	endif
+	if getline(v:lnum) =~ '^[^-=].\+$' && getline(v:lnum+1) =~ '^-\+$'
+		return ">2"
+	endif
     return "="
 endfunction
 setlocal foldexpr=MarkdownLevel()
