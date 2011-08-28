@@ -109,6 +109,7 @@ EOF
 " Soft word wrapping
 setlocal formatoptions=1
 setlocal linebreak
+setlocal breakat-=*
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Remappings that make j and k behave properly with
