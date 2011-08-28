@@ -1,6 +1,6 @@
 *pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Aug 28
 
-# Vim Plugin for Pandoc                                              *pandoc*
+# Vim Plugin for Pandoc                                            | *pandoc*
 
 This is a bundle for writing and editing documents in [pandoc][]'s
 [extended markdown][].
@@ -93,7 +93,7 @@ appropriate. It would be easy to make some or all of this optional.
 ftplugin/pandoc.vim is fairly well-commented. Take a look at it to see
 what it does in detail.
 
-## Citation Autocompletion                       *pandoc-citation-completion*
+## Citation Autocompletion                     | *pandoc-citation-completion*
 
 If you have a bibtex file (or a symlink to a bibtex file) named
 'default.bib' in one of these folders,
@@ -174,13 +174,7 @@ autocompletion by typing part of a citekey, e.g.,
 
 and then hitting ctrl-x ctrl-k (or via SuperTab).
 
-## Conversion and Tidying Up
-
-								*MarkdownTidy*
-							    *MarkdownTidyWrap*
-							      *PandocHtmlOpen*
-							       *PandocPdfOpen*
-							       *PandocOdtOpen*
+## Conversion and Tidying Up | *MarkdownTidy* *MarkdownTidyWrap* *PandocHtmlOpen* *PandocPdfOpen* *PandocOdtOpen*
 
 Look at the comments in ftpugin/pandoc.vim to see what is there. We've
 made no attempt to provide a complete set of commands, since it is easy
@@ -215,7 +209,7 @@ filtering them with `=`.
 If you know how to work around these problems, let us know (or better,
 fork and fix it).
 
-## LocalLeader Mappings                        *pandoc-local-leader-mappings*
+## LocalLeader Mappings                      | *pandoc-local-leader-mappings*
 
 If you define maplocalleader in your vimrc,
 
@@ -229,7 +223,7 @@ then the plugin will define some leader mappings for you. For example,
 
 which convert the buffer to given format and open the results.
 
-=============================================================================
+* * * *
 
   [pandoc]: http://johnmacfarlane.net/pandoc/
   [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
