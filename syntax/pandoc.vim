@@ -115,24 +115,12 @@ syn match pandocHRule  /\s\{0,3}\(\*\s*\)\{3,}\n/	contained nextgroup=pandocHRul
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""""""""""""""""
-" inline links:
-syn match pandocLinkArea /\[.\{-}\](.\{-})/ 
-syn match pandocLinkText /\[.\{-}\]/hs=s+1,he=e-1 containedin=pandocLinkArea contained contains=@Spell
-syn match pandocLinkURL /(.\{-})/hs=s+1,he=e-1 containedin=pandocLinkArea contained
-syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkURL contains=@Spell
-
-" Ref links
-syn match pandocLinkArea /^\s*\[.\{-}\]:\s*http[^>]*$/
-syn match pandocLinkURL /:\s*http[^>]*$/hs=s+2 contained containedin=pandocLinkArea
-" explicit and implicit ref-text links
-syn region pandocLinkText start=/\(^\s*\)\@<!\[/ skip=/\]\(\[\|(\)/ end=/\(\]\|)\)/ contains=pandocLinkTextRef
-" only explicit ref-text links (kept just in case)
-"syn match pandocLinkText /\[.\{-}\]\[.\{-}\]/
+" links:
+syn region pandocLinkArea start=/\[/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle
+syn match pandocLinkText /\[\@<=.\{-}\]\@=/ containedin=pandocLinkArea contained contains=@Spell
+syn match pandocLinkURL /http:.\{-}\(\s\|\n\)\@=/ containedin=pandocLinkArea contained
 syn match pandocLinkTextRef /\(\]\(\[\|(\)\)\@<=.\{-}\(\]\|)\)\@=/ containedin=pandocLinkText contained
-
-" Link URL for inline <> links:
-syn match pandocLinkURL /<http[^>]*>/
-syn match pandocLinkURL /<[^>]*@[^>]*.[^>]*>/
+syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkArea contains=@Spell
 
 """""""""""""""""""""""""""""""""""""""
 " Strong:
@@ -260,8 +248,9 @@ hi link pandocStrikeout	 	Special
 hi link pandocLinkArea		Special
 hi link pandocLinkText		Type
 hi link pandocLinkURL	Underlined
-hi link pandocLinkTitle Identifier
 hi link pandocLinkTextRef Underlined
+hi link pandocLinkTitle Identifier
+
 
 hi link pandocFootnoteID		Identifier
 hi link pandocFootnoteDef		Comment
