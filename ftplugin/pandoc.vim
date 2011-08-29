@@ -9,7 +9,10 @@ if exists("g:pandoc_use_hard_wraps") && g:pandoc_use_hard_wraps
 	if &textwidth == 0
 		setlocal textwidth=79
 	endif
-	setlocal formatoptions=tcqn
+	setlocal formatoptions=tn
+	if exists("g:pandoc_auto_format") && g:pandoc_auto_format
+		setlocal formatoptions+=wa
+	endif
 else
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	" soft wrapping
