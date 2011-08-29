@@ -114,30 +114,26 @@ command! -buffer PandocOdtOpen exec 'py pandoc_odt_open()'
 "
 if exists('maplocalleader')
 
-	map <buffer> <silent> <LocalLeader>html :PandocHtmlOpen<CR>
-	map <buffer> <silent> <LocalLeader>pdf :PandocPdfOpen<CR>
-	map <buffer> <silent> <LocalLeader>odt :PandocOdtOpen<CR>
+	map! <buffer> <silent> <LocalLeader>html :PandocHtmlOpen<CR>
+	map! <buffer> <silent> <LocalLeader>pdf :PandocPdfOpen<CR>
+	map! <buffer> <silent> <LocalLeader>odt :PandocOdtOpen<CR>
 
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.
 "
-" Open link in browser (based on Gruber's url regex)
-" (This isn't very pandoc-specific, but it is used it in the next mapping below.)
+" Open link under cursor in browser
 "
-	map <buffer> <LocalLeader>www :py pandoc_open_uri()<cr>
-
-"" Open reference link in browser (depends on above mapping of <LEADER>w)
-	map <buffer> <LocalLeader>wr ya[#<LEADER>www*
+	map! <buffer> <silent> <LocalLeader>www :py pandoc_open_uri()<cr>
 
 "" Jump forward to existing reference link (or footnote link)
-	map <buffer> <LocalLeader>fr ya[#E
+	map! <buffer> <silent> <LocalLeader>gr :py pandoc_go_to_ref()<cr>
 
 "" Jump back to existing reference link (or fn link)
-	map <buffer> <LocalLeader>br {jwya[*E
+	map! <buffer> <silent> <LocalLeader>br {jwya[*E
 
 "" Add new reference link (or footnote link) after current paragraph. (This
 "" works better than the snipmate snippet for doing this.)
 
-	map <buffer> <LocalLeader>nr ya[o<CR><ESC>p$a:
+	map! <buffer> <LocalLeader>nr ya[o<CR><ESC>p$a:
 
 endif

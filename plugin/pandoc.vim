@@ -90,19 +90,65 @@ def pandoc_odt_open(out=None):
 	return ["pandoc", "-t", "odt",  "-o", out, vim.current.buffer.name]
 	
 def pandoc_open_uri():
+	line = vim.current.line
+	pos = vim.current.window.cursor[1] - 1
+	url = ""
+	
 	# graciously taken from
 	# http://stackoverflow.com/questions/1986059/grubers-url-regular-expression-in-python/1986151#1986151
 	pat = r'\b(([\w-]+://?|www[.])[^\s()<>]+(?:\([\w\d]+\)|([^%s\s]|/)))'
 	pat = pat % re.escape(string.punctuation)
-
-	line = vim.current.line
-	search = re.search(pat, line)
-	if search:
-		url = search.group()
+	for match in re.finditer(pat, line):
+		if match.start() - 1 <= pos and match.end() - 2 >= pos:
+			url = match.group()
+			break
+	if url != '':
 		Popen([open_command, url + open_command_tail], stdout=PIPE, stderr=PIPE)
 		print url
 	else:
-		print "No URI found in line."
+		print "No URI found."
+
+def pandoc_go_to_ref():
+	pos = vim.current.window.cursor
+	current_line = vim.current.line
+	cursor_idx = pos[1] - 1
+	ref = ""
+	
+	# we first search for explicit and non empty implicit refs
+	label_regex = "\[.*\]"
+	for label_found in re.finditer(label_regex, current_line):
+		if label_found.start() -1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
+			label = label_found.group()
+			if re.match("\[.*?\]\[.*?]", label):
+				ref = label.split("][")[1][:-1]
+				if ref == '':
+					ref = label.split("][")[0][1:]
+				break
+	
+	# we now search for empty implicit refs or footnotes
+	if ref == '':
+		label_regex = "\[.*?\]"
+		for label_found in re.finditer(label_regex, current_line):
+			if label_found.start() - 1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
+				label = label_found.group()
+				if label[:1] == "[^": # footnote
+					ref = label[2:-1]
+				else:
+					ref = label[1:-1]
+				break
+	
+	if ref != '':
+		# we build a list of the labels and their position in the file
+		labels = {}
+		lineno = 0
+		for line in vim.current.buffer:
+			match = re.match("^\s?\[.*(?=]:)", line)
+			lineno += 1
+			if match:
+				labels[match.group()[1:]] = lineno
+
+		if labels.has_key(ref):
+			vim.command(str(labels[ref]))
 
 EOF
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
