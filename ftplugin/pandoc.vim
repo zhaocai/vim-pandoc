@@ -5,26 +5,30 @@
 " # Formatting options
 
 " Soft/hard word wrapping
-if g:pandoc_use_hard_wraps
-	setlocal textwidth=79
+if exists("g:pandoc_use_hard_wraps") && g:pandoc_use_hard_wraps
+	if &textwidth == 0
+		setlocal textwidth=79
+	endif
 	setlocal formatoptions=tcqn
 else
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	" soft wrapping
 	setlocal formatoptions=1
+	setlocal linebreak
+	setlocal breakat-=*
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	" Remappings that make j and k behave properly with
+	" soft wrapping.
+	nnoremap <buffer> j gj
+	nnoremap <buffer> k gk
+	vnoremap <buffer> j gj
+	vnoremap <buffer> k gk
+
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	" Show partial wrapped lines
+	setlocal display=lastline
 endif
-setlocal linebreak
-setlocal breakat-=*
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Remappings that make j and k behave properly with
-" soft wrapping.
-nnoremap <buffer> j gj
-nnoremap <buffer> k gk
-vnoremap <buffer> j gj
-vnoremap <buffer> k gk
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Show partial wrapped lines
-setlocal display=lastline
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Do not add two spaces at end of punctuation when joining lines
