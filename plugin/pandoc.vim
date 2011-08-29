@@ -216,7 +216,9 @@ endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Save folding between sessions
-"
+" 
+" FM: I recommend `viewoptions` set to "folds,cursor" only. 
+"  
 autocmd BufWinLeave * if expand(&filetype) == "pandoc" | mkview | endif
 autocmd BufWinEnter * if expand(&filetype) == "pandoc" | loadview | endif
 
