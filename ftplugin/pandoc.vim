@@ -6,6 +6,7 @@
 
 " Soft/hard word wrapping
 if g:pandoc_use_hard_wraps
+	setlocal textwidth=79
 	setlocal formatoptions=tcqn
 else
 	setlocal formatoptions=1
