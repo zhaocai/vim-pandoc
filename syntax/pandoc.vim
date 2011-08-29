@@ -118,10 +118,11 @@ syn match pandocHRule  /\s\{0,3}\(\*\s*\)\{3,}\n/	contained nextgroup=pandocHRul
 """""""""""""""""""""""""""""""""""""""
 " Links:
 "
-syn region pandocLinkArea start=/\[.\{-}\]\@<=\(:\|(\|\[\)/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle
+syn region pandocLinkArea start=/\[.\{-}\]\@<=\(:\|(\|\[\)/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle,pandocAutomaticLink
 syn match pandocLinkText /\[\@<=.\{-}\]\@=/ containedin=pandocLinkArea contained contains=@Spell
 " TODO: adapt gruber's regex to match URLs; the current regex is quite limited
 syn match pandocLinkURL /https\{0,1}:.\{-}\()\|\s\|\n\)\@=/ containedin=pandocLinkArea contained
+syn match pandocAutomaticLink /<\(https\{0,1}.\{-}\|.\{-}@.\{-}\..\{-}\)>/
 syn match pandocLinkTextRef /\(\]\(\[\|(\)\)\@<=.\{-}\(\]\|)\)\@=/ containedin=pandocLinkText contained
 syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkArea contains=@Spell
 
@@ -146,7 +147,7 @@ for line in vim.current.buffer:
 	if match:
 		labels.append(match.group()[1:])
 regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
-vim.command("syn match pandocLinkArea /" + regex + "\(\s\|\.\|,\|;\)\@=/")
+vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
 
 """""""""""""""""""""""""""""""""""""""
@@ -277,7 +278,7 @@ hi link pandocLinkText		Type
 hi link pandocLinkURL	Underlined
 hi link pandocLinkTextRef Underlined
 hi link pandocLinkTitle Identifier
-
+hi link pandocAutomaticLink Underlined
 
 hi link pandocFootnoteID		Identifier
 hi link pandocFootnoteDef		Comment
