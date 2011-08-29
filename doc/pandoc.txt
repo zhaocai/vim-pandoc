@@ -14,12 +14,11 @@ heavily commented ftplugin/pandoc.vim file.
 
 ## Known Gotchas
 
-1.  Filetype detection does not play well with the [markdown-vim
-    plugin][].
-2.  Filetype detection is aggressive: we assume that if you use this 
-    plugin, then you want to use pandoc for you markdown needs. So we 
-	match the following extensions: .markdown, .md, .mkd, .pd, .pdk, 
-	.pandoc, and .text.
+1. Filetype detection does not play well with the [markdown-vim plugin][].
+
+2. Filetype detection is aggressive: we assume that if you use this plugin,
+   then you want to use pandoc for you markdown needs. So we match the
+   following extensions: .markdown, .md, .mkd, .pd, .pdk, .pandoc, and .text.
 
 ## Maintainers
 
@@ -46,7 +45,7 @@ look much like the original.
 Here are some key features:
 
 -   Applies settings to make vim a pleasant writing environment.
-    -   soft word wrapping
+    -   soft/hard word wrapping (configurable)
     -   intelligent line joining
     -   pandoc-powered tidying up
     -   other little tweaks along these lines
@@ -67,8 +66,8 @@ Specifically:
 Additional tweaks welcome. Feedback also welcome on whether this is
 appropriate. It would be easy to make some or all of this optional.
 
-> **TODO**: configurable switch between "soft wrap" mode and "hard
-> wrap" mode.
+Hard word wrapping can be used by setting `g:pandoc_use_hard_wraps` to 1
+in the .vimrc. It will set `formatoptions` to `qct` instead of `1`.
 
 -   Syntax highlighting with support for definition lists, numbered
     examples, delimited code blocks, LaTeX and HTML, citations,

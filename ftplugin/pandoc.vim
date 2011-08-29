@@ -4,9 +4,9 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Formatting options
 
-" Soft word wrapping
+" Soft/hard word wrapping
 if g:pandoc_use_hard_wraps
-	setlocal formatoptions=tcqa
+	setlocal formatoptions=tcqn
 else
 	setlocal formatoptions=1
 endif
