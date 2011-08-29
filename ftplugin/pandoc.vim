@@ -5,7 +5,11 @@
 " # Formatting options
 
 " Soft word wrapping
-setlocal formatoptions=1
+if g:pandoc_use_hard_wraps
+	setlocal formatoptions=tcqa
+else
+	setlocal formatoptions=1
+endif
 setlocal linebreak
 setlocal breakat-=*
 
