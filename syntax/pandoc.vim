@@ -50,7 +50,8 @@ syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/
 " Headers:
 
 "   Underlined, using == or --
-syn match  pandocHeader    /^.\+\n[=-]\+$/ contains=@Spell,pandocLatex nextgroup=pandocHeader contained skipnl
+syn match  pandocHeader    /^.\+\n[=]\+$/ contains=@Spell,pandocLatex nextgroup=pandocHeader contained skipnl
+syn match  pandocHeader    /^.\+\n[-]\+$/ contains=@Spell,pandocLatex nextgroup=pandocHeader contained skipnl
 "   Atx-style, Hash marks
 syn region pandocHeader    start="^\s*#\{1,6}[^#]*" end="\($\|#\+\)" contains=@Spell,pandocLatex contained nextgroup=pandocHeader skipnl
 
