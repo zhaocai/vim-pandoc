@@ -125,7 +125,9 @@ syn match pandocLinkURL /https\{0,1}:.\{-}\()\|\s\|\n\)\@=/ containedin=pandocLi
 syn match pandocAutomaticLink /<\(https\{0,1}.\{-}\|.\{-}@.\{-}\..\{-}\)>/
 syn match pandocLinkTextRef /\(\]\(\[\|(\)\)\@<=.\{-}\(\]\|)\)\@=/ containedin=pandocLinkText contained
 syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkArea contains=@Spell
-
+" This can be expensive on very lalrge files, so we should be able to disable
+" it:
+if !exists("g:pandoc_no_empty_implicits") || !g:pandoc_no_empty_implicits
 " will highlight implicit references only if, on reading the file, it can find
 " a matching reference label. This way, square parenthesis in a file won't be
 " highlighted unless they will be turned into links by pandoc.
@@ -149,7 +151,7 @@ for line in vim.current.buffer:
 regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
 vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
-
+endif
 """""""""""""""""""""""""""""""""""""""
 " Strong:
 "

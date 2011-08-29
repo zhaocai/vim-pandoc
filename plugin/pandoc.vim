@@ -219,8 +219,10 @@ endfunction
 " 
 " FM: I recommend `viewoptions` set to "folds,cursor" only. 
 "  
-autocmd BufWinLeave * if expand(&filetype) == "pandoc" | mkview | endif
-autocmd BufWinEnter * if expand(&filetype) == "pandoc" | loadview | endif
+if !exists("g:pandoc_no_folding") || !g:pandoc_no_folding
+	autocmd BufWinLeave * if expand(&filetype) == "pandoc" | mkview | endif
+	autocmd BufWinEnter * if expand(&filetype) == "pandoc" | loadview | endif
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 3. Completion

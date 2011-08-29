@@ -57,8 +57,10 @@ setlocal comments=s:<!--,m:\ \ \ \ ,e:-->
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Folding sections with ATX style headers.
 "
-setlocal foldexpr=MarkdownLevel()
-setlocal foldmethod=expr
+if !exists("g:pandoc_no_folding") || !g:pandoc_no_folding
+	setlocal foldexpr=MarkdownLevel()
+	setlocal foldmethod=expr
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Use ctrl-X ctrl-K for dictionary completions.

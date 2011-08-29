@@ -150,11 +150,27 @@ to autocomplete the citation.
 >     currently works with bibtex and MODS xml files, but the script
 >     doesn't look for MODS xml files)
 
+## Configuration
+
+Some global variables can modify the plugin's behaviour and performance:
+
+1. As mentioned before, soft or hard wrapping can be set with the
+   `g:pandoc_use_hard_wraps` variable set to 1.
+   If desired when using hard wrapping, vim-pandoc will activate
+   autoformatting is `g:pandoc_auto_format` is set to 1. Note that this can be
+   slow.
+
+2. Folding can be disabled by setting `g:pandoc_no_folding` to 1. This can
+   improve performance.
+
+3. Highlighting of empty implicit links can be expensive on large files. To
+   disable it, set `g:pandoc_no_empty_implicits` to 1.
+
 ## Dictionary-Based Citation Completions
 
 We are leaving this in for now, but now that proper autocompletion is
 working, we'll probably get rid of it. If you create a text file,
-
+`
     ~/.pandoc/citationkeys.dict
 
 that contains a list of citation keys, one per line, like so
