@@ -112,28 +112,24 @@ command! -buffer PandocOdtOpen exec 'py pandoc_odt_open()'
 "
 " It <LocalLeader> is defined (with 'let maplocalleader') we will map some commands.
 "
-if exists('maplocalleader')
-
-	map! <buffer> <silent> <LocalLeader>html :PandocHtmlOpen<CR>
-	map! <buffer> <silent> <LocalLeader>pdf :PandocPdfOpen<CR>
-	map! <buffer> <silent> <LocalLeader>odt :PandocOdtOpen<CR>
+map! <buffer> <LocalLeader>html :PandocHtmlOpen<CR>
+map! <buffer> <LocalLeader>pdf :PandocPdfOpen<CR>
+map! <buffer> <LocalLeader>odt :PandocOdtOpen<CR>
 
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.
 "
 " Open link under cursor in browser
 "
-	map! <buffer> <silent> <LocalLeader>www :py pandoc_open_uri()<cr>
+map! <buffer> <LocalLeader>www :py pandoc_open_uri()<cr>
 
 "" Jump forward to existing reference link (or footnote link)
-	map! <buffer> <silent> <LocalLeader>gr :py pandoc_go_to_ref()<cr>
+map! <buffer> <LocalLeader>gr :py pandoc_go_to_ref()<cr>
 
 "" Jump back to existing reference link (or fn link)
-	map! <buffer> <silent> <LocalLeader>br {jwya[*E
+map! <buffer> <LocalLeader>br :py pandoc_go_back_from_ref()<cr>
 
 "" Add new reference link (or footnote link) after current paragraph. (This
 "" works better than the snipmate snippet for doing this.)
+map! <buffer> <LocalLeader>nr ya[o<CR><ESC>p$a:
 
-	map! <buffer> <LocalLeader>nr ya[o<CR><ESC>p$a:
-
-endif

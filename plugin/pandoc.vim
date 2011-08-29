@@ -108,11 +108,12 @@ def pandoc_open_uri():
 	else:
 		print "No URI found."
 
-def pandoc_go_to_ref():
+def pandoc_get_reflabel():
 	pos = vim.current.window.cursor
 	current_line = vim.current.line
 	cursor_idx = pos[1] - 1
-	ref = ""
+	label = None
+	ref = None
 	
 	# we first search for explicit and non empty implicit refs
 	label_regex = "\[.*\]"
@@ -120,24 +121,27 @@ def pandoc_go_to_ref():
 		if label_found.start() -1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
 			label = label_found.group()
 			if re.match("\[.*?\]\[.*?]", label):
-				ref = label.split("][")[1][:-1]
 				if ref == '':
 					ref = label.split("][")[0][1:]
+				else:
+					ref = label.split("][")[1][:-1]
+				label = "[" + ref  + "]"
 				break
 	
 	# we now search for empty implicit refs or footnotes
-	if ref == '':
+	if not ref:
 		label_regex = "\[.*?\]"
 		for label_found in re.finditer(label_regex, current_line):
 			if label_found.start() - 1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
 				label = label_found.group()
-				if label[:1] == "[^": # footnote
-					ref = label[2:-1]
-				else:
-					ref = label[1:-1]
 				break
-	
-	if ref != '':
+
+	return label
+
+def pandoc_go_to_ref():
+	ref_label = pandoc_get_reflabel()
+	if ref_label:
+		ref = ref_label[1:-1]
 		# we build a list of the labels and their position in the file
 		labels = {}
 		lineno = 0
@@ -149,6 +153,30 @@ def pandoc_go_to_ref():
 
 		if labels.has_key(ref):
 			vim.command(str(labels[ref]))
+
+def pandoc_go_back_from_ref():
+	label_regex = ''
+	
+	match = re.match("^\s?\[.*](?=:)", vim.current.line)
+	if match:
+		label_regex = match.group().replace("[", "\[").replace("]", "\]").replace("^", "\^")
+	else:
+		label = pandoc_get_reflabel()
+		if label:
+			label_regex = label.replace("[", "\[").replace("]", "\]").replace("^", "\^")
+	
+	if label_regex != '':
+		found = False
+		lineno = vim.current.window.cursor[0]
+		for line in reversed(vim.current.buffer[:lineno-1]):
+			lineno = lineno - 1
+			matches_in_this_line = list(re.finditer(label_regex, line))
+			for ref in reversed(matches_in_this_line):
+				vim.command(str(lineno) + " normal" + str(ref.start()) + "l")
+				found = True
+				break
+			if found:
+				break
 
 EOF
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
