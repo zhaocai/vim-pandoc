@@ -1,5 +1,9 @@
 *pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Aug 28
 
+[This document is formatted as a markdown file _and_ as a vim helpfile.
+If viewing from within vim, set ft=help to view it as a helpfile, and
+set ft=pandoc to view it as a (pandoc) markdown file.]
+
 Vim Plugin for *pandoc*
 =======================
 
