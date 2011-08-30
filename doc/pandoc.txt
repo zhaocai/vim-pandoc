@@ -22,13 +22,14 @@ This is a bundle for writing and editing documents in [pandoc][]'s
 *pandoc-writing-enviroment*
 ===========================
 
-The bundle sets the following options, in an effort to provide a pleasant writing environment:
+The bundle sets the following options, in an effort to provide a
+pleasant writing environment:
 
     setlocal linebreak
     setlocal breakat-=*
 
-|linebreak| tells vim to break lines at word boundaries. The |breakat| setting
-is to account for asterisks used for emphasis.
+|linebreak| tells vim to break lines at word boundaries. The |breakat|
+setting is to account for asterisks used for emphasis.
 
     nnoremap <buffer> j gj
     nnoremap <buffer> k gk
@@ -252,55 +253,56 @@ custom latex macros. So you might not want to do something like `ggvG=`.
 *pandoc-localleader-mappings*
 =============================
 
-In addition to the localleader mappings for the convert-and-open
-functions, the bundle offers, there is
+If |maplocalleader| is defined, vim-pandoc defines a handful of
+localleader mappings in addition to |PandocHTMLOpen| et al.
+
+First,
 
     <localleader>www
 
-which, when invoked from within a url, will open that url in your
-default browser; and
+when invoked from within a url, like http://example.com, will open that
+url in your default browser.
+
+Second, there are two commands for jumping back and forth between a
+reference-style link and its definition:
 
     <localleader>gr
-
-which, when invoked from within a reference style link (or footnote),
-like
-
-    [this][id]
-
-attempts to jump forward to the line reference definition, like
-
-    [id]: http://example.com
-
-And
-
     <localleader>br
 
-which attempts to jump back from a reference definition to the
-corresponding link. Finally, there is
+`gr` jumps from the link to its definition; `br` jumps back. If you want
+to try this out on this document, and you are reading this within vim,
+first
+
+    :set maplocalleader = ","
+    :set ft=pandoc
+
+then move your cursor [somewhere in here][], and type `,gr`. Wasn't that
+fun?[^note] Now you probably want to go ahead and
+
+    :set ft=help
+
+to get back to viewing this as a help file.
+
+[somewhere in here]: http://example.com "Now type `,br` to jump back."
+[^note]: Also supports footnotes. Type `,br` to jump back.
+
+Finally, there is
 
     <localleader>nr
 
-which, when invoked from within a reference style link (or footnote),
-creates a new reference definition after the current paragraph. So, for
-example, you can type
+`,nr` creates a new reference definition from within a reference link.
+So if you have typed something like
 
-    Something like [this]
+    This is a [link][id]. And here is another sentence.
 
-and hit `,nr` to get
+and type `,nr` from somewhere within `[link][id]`, you will get
 
-    Something like [this]
+    This is a [link][id]. And here is another sentence.
 
-    [this]: 
+    [id]: <your cursor here>
 
-Or
-
-    Something like [this][id]
-
-to get
-
-    Something like [this][id]
-
-    [id]: 
+Of course, when you are done filling in the link, you can hit `,br` to
+jump back to where you were.
 
 Maintainers
 ===========
@@ -327,12 +329,12 @@ look much like the original.
 Known Issues
 ============
 
-1. Filetype detection does not play well with [markdown-vim][].
+1.  Filetype detection does not play well with [markdown-vim][].
 
-2. Filetype detection is aggressive: we assume that if you use this plugin,
-   then you want to use pandoc for you markdown needs. So we match the
-   following extensions: .markdown, .md, .mkd, .pd, .pdk, .pandoc, and .text.
-
+2.  Filetype detection is aggressive: we assume that if you use this
+    plugin, then you want to use pandoc for you markdown needs. So we
+    match the following extensions: .markdown, .md, .mkd, .pd, .pdk,
+    .pandoc, and .text.
 
 * * * *
 
