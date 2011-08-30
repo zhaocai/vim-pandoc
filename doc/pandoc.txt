@@ -248,6 +248,59 @@ this to
 Note that this will *remove* any title block, as well as processing any
 custom latex macros. So you might not want to `ggvG=`.
 
+*pandoc-localleader-mappings*
+=============================
+
+In addition to the localleader mappings for the convert-and-open
+functions, the bundle offers, there is
+
+    <localleader>www
+
+which, when invoked from within a url, will open that url in your
+default browser; and
+
+    <localleader>gr
+
+which, when invoked from within a reference style link (or footnote),
+like
+
+    [this][id]
+
+attempts to jump forward to the line reference definition, like
+
+    [id]: http://example.com
+
+And
+
+    <localleader>br
+
+which attempts to jump back from a reference definition to the
+corresponding link. Finally, there is
+
+    <localleader>nr
+
+which, when invoked from within a reference style link (or footnote),
+creates a new reference definition after the current paragraph. So, for
+example, you can type
+
+    Something like [this]
+
+and hit `,nr` to get
+
+    Something like [this]
+
+    [this]: 
+
+Or
+
+    Something like [this][id]
+
+to get
+
+    Something like [this][id]
+
+    [id]: 
+
 Maintainers
 ===========
 
