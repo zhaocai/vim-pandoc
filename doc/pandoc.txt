@@ -9,7 +9,7 @@ This is a bundle for writing and editing documents in [pandoc][]'s
 -   some settings to make vim a pleasant |pandoc-writing-environment|,
 -   |pandoc-syntax-highlighting|, with support for pandoc's extended
      markdown,
--   |pandoc-snippets| for use with snipMate,
+-   |pandoc-snippets| for use with [snipMate][],
 -   |pandoc-section-folding|,
 -   |pandoc-citation-completion|,
 -   some simple |pandoc-conversion-functions| and |pandoc-tidying-functions|,
@@ -36,7 +36,7 @@ a soft-wrapped line.
 
     setlocal display=lastline
 
-If you are using soft-wrapped line, this will tell vim to go ahead and
+If you are using soft-wrapping, this will tell vim to go ahead and
 show part of a long line that runs off the bottom of the screen.
 
     setlocal nojoinspaces
@@ -47,7 +47,7 @@ without adding extra unwanted spaces.
     setlocal commentstring=<!--%s-->
     setlocal comments=s:<!--,m:\ \ \ \ ,e:-->
 
-tells vim that, in your markdown files, use HTML-style commenting.
+tells vim to use HTML style comments in your markdown files.
 
 *pandoc-hard-wrapping*
 ----------------------
@@ -255,12 +255,12 @@ Thanks also to [Wei Dai][] for bug fixes and improvements.
 Borrowings
 ==========
 
-The syntax file was originally by jeremy schultz (found [here][]) as
+The syntax file derives from Jeremy Schultz's [pdc.vim][] as
 githubbed by [wunki][].
 
-The snippets file, for use with [snipMate][], is a slight extension (and
-contraction) of the markdown.snippets file that is part of many of the
-[vim-markdown repositories on github][].
+The snippets file is a slight extension (and contraction) of the
+markdown.snippets file that is part of many of the [vim-markdown
+repositories on github][].
 
 Autocompletion was implemented by hacking away at [LaTeX Box][]'s
 implementation of bibtex citation completion, even if the results don't
@@ -269,7 +269,7 @@ look much like the original.
 Known Issues
 ============
 
-1. Filetype detection does not play well with the [markdown-vim plugin][].
+1. Filetype detection does not play well with [markdown-vim][].
 
 2. Filetype detection is aggressive: we assume that if you use this plugin,
    then you want to use pandoc for you markdown needs. So we match the
@@ -280,15 +280,15 @@ Known Issues
 
   [pandoc]: http://johnmacfarlane.net/pandoc/
   [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
-  [markdown-vim plugin]: http://plasticboy.com/markdown-vim-mode/
-  [Wei Dai]: https://github.com/clvv
-  [here]: http://www.vim.org/scripts/script.php?script_id=2389
-  [wunki]: https://github.com/wunki/vim-pandoc
   [snipMate]: http://www.vim.org/scripts/script.php?script_id=2540
+  [Wei Dai]: https://github.com/clvv
+  [pdc.vim]: http://www.vim.org/scripts/script.php?script_id=2389
+  [wunki]: https://github.com/wunki/vim-pandoc
   [vim-markdown repositories on github]: https://github.com/hallison/vim-markdown
   [LaTeX Box]: http://www.vim.org/scripts/script.php?script_id=3109
   [SuperTab]: http://www.vim.org/scripts/script.php?script_id=1643
   [FoldList]: http://www.vim.org/scripts/script.php?script_id=500
+  [markdown-vim]: http://plasticboy.com/markdown-vim-mode/
 
 
  vim:tw=78:ts=8:ft=help:norl: 
