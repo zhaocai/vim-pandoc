@@ -6,12 +6,25 @@
 
 " Soft/hard word wrapping
 if exists("g:pandoc_use_hard_wraps") && g:pandoc_use_hard_wraps
+	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+	" hard wrapping at 79 chars (like in gq default)
 	if &textwidth == 0
 		setlocal textwidth=79
 	endif
+	" t: wrap on &textwidth
+	" n: keep inner indent for list items.
 	setlocal formatoptions=tn
+	" will detect numbers, letters, *, +, and - as list headers, according to
+	" pandoc syntax.
+	" TODO: add support for roman numerals
+	setlocal formatlistpat=^\\s*\\([*+-]\\\|\\((*\\d\\+[.)]\\+\\)\\\|\\((*\\a[.)]\\+\\)\\)\\s\\+
+	
 	if exists("g:pandoc_auto_format") && g:pandoc_auto_format
-		setlocal formatoptions+=wa
+		" a: auto-format
+		" w: lines with trailing spaces mark continuing
+		" paragraphs, and lines ending on non-spaces end paragraphs.
+		" we add `w` as a workaround to `a` joining compact lists.
+		setlocal formatoptions+=aw
 	endif
 else
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
