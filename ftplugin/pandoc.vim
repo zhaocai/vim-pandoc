@@ -17,7 +17,7 @@ if exists("g:pandoc_use_hard_wraps") && g:pandoc_use_hard_wraps
 	" will detect numbers, letters, *, +, and - as list headers, according to
 	" pandoc syntax.
 	" TODO: add support for roman numerals
-	setlocal formatlistpat=^\\s*\\([*+-]\\\|\\((*\\d\\+[.)]\\+\\)\\\|\\((*\\a[.)]\\+\\)\\)\\s\\+
+	setlocal formatlistpat=^\\s*\\([*+-]\\\|\\((*\\d\\+[.)]\\+\\)\\\|\\((*\\l[.)]\\+\\)\\)\\s\\+
 	
 	if exists("g:pandoc_auto_format") && g:pandoc_auto_format
 		" a: auto-format
