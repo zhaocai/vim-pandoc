@@ -27,8 +27,8 @@ The bundle sets the following options, in an effort to provide a pleasant writin
     setlocal linebreak
     setlocal breakat-=*
 
-`linebreak` tells vim to break lines at word boundaries. `breakat-=*`
-expands vim's sense of a word boundary to handle markdown `*emphasis*`.
+|linebreak| tells vim to break lines at word boundaries. The |breakat| setting
+is to account for asterisks used for emphasis.
 
     nnoremap <buffer> j gj
     nnoremap <buffer> k gk
@@ -45,13 +45,14 @@ show part of a long line that runs off the bottom of the screen.
 
     setlocal nojoinspaces
 
-allows you to use CTRL-J to join the next line with the current line
-without adding extra unwanted spaces.
+|nojoinspaces| allows you to use CTRL-J to join the next line with the
+current line without adding extra unwanted spaces.
 
     setlocal commentstring=<!--%s-->
     setlocal comments=s:<!--,m:\ \ \ \ ,e:-->
 
-tells vim to use HTML style comments in your markdown files.
+tells vim to use HTML style comments in your markdown files. For more, see
+|comments| and |commentstring|.
 
 *pandoc-hard-wrapping*
 ----------------------
@@ -74,7 +75,7 @@ If you also want autoformatting, set g:pandoc_auto_format:
 
     let g:pandoc_auto_format = 1
 
-in your vimrc. (Note that autoformatting can slow things down.)
+in your vimrc. For more information, see |formatoptions|. (Note that autoformatting can slow things down.)
 
 *pandoc-syntax-highlighting*
 ============================
@@ -90,7 +91,7 @@ g:pandoc_no_empty_implicits:
 *pandoc-snippets*
 =================
 
-If you use snipMate, take a look at snippets/pandoc.snippets to see what
+If you use |snipMate|, take a look at snippets/pandoc.snippets to see what
 is available. One nice example: at the start of a document, type
 `%%<TAB>` to generate a title block, with the filename as title, the
 value of `g:snips-author` as author, and the current date.
@@ -129,7 +130,7 @@ To use completion, start typing a citekey, e.g.,
     @geac
 
 and then, while still in insert mode, hit CTRL-X CTRL-O (vim's shortcut
-for omnicompletion), and you'll get a popup window with a list of
+for |omni-completion|), and you'll get a popup window with a list of
 matching keys, e.g.,
 
     @geach1970
@@ -182,8 +183,8 @@ that contains a list of citation keys, one per line, like so
     @adams1977
     @adams1986a
 
-these citekeys are added to vim's dictionary, allowing for
-autocompletion by typing part of a citekey, e.g.,
+these citekeys are added to vim's |dictionary|, allowing for
+completion by typing part of a citekey, e.g.,
 
     @adams19
 
@@ -202,12 +203,12 @@ If there is a particular conversion that you do all the time with a
 particular set of options, you might want to define a leader mapping
 in your vimrc.
 
-*PandocHtmlOpen*, *PandocPdfOpen* and *PandocOdtOpen*
+*PandocHtmlOpen* *PandocPdfOpen* and *PandocOdtOpen*
 -----------------------------------------------------
 
-We currently provide three convert-and-open functions. When you run *PandocPdfOpen*, for example, the file in the current buffer is converted to PDF and then opened in your default PDF viewer. (Linux users: these commands depend on xdg-open.)
+We currently provide three convert-and-open functions. When you run PandocPdfOpen, for example, the file in the current buffer is converted to PDF and then opened in your default PDF viewer. (Linux users: these commands depend on xdg-open.)
 
-If you have defined maplocalleader in your vimrc, e.g.,
+If you have defined |maplocalleader| in your vimrc, e.g.,
 
     let maplocalleader = ","
 
@@ -239,14 +240,14 @@ The plugin also sets
 
     setlocal equalprg=pandoc\ -t\ markdown\ --reference-links
 
-In practice, this makes it easy to hard-wrap paragraphs nicely, using
-vim's `=` command. If you prefer soft wrapping, you might want to change
-this to
+In practice, this value for |equalprg| makes it easy to hard-wrap
+paragraphs nicely, using vim's `=` command. If you prefer soft wrapping,
+you might want to change this to
 
     setlocal equalprg=pandoc\ -t\ markdown\ --reference-links\ --no-wrap
 
 Note that this will *remove* any title block, as well as processing any
-custom latex macros. So you might not want to `ggvG=`.
+custom latex macros. So you might not want to do something like `ggvG=`.
 
 *pandoc-localleader-mappings*
 =============================
