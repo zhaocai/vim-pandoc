@@ -257,20 +257,20 @@ endfunction
 
 function! Pandoc_BibComplete(regexp)
 
-	if !exists('g:PandocBibfile')
+	if !exists('g:pandoc_bibfile')
 		if eval("g:paths_style") == "posix"
 			if filereadable($HOME . '/.pandoc/default.bib')
-				let g:PandocBibfile = $HOME . '/.pandoc/default.bib'
+				let g:pandoc_bibfile = $HOME . '/.pandoc/default.bib'
 			elseif filereadable($HOME . '/Library/texmf/bibtex/bib/default.bib')
-				let g:PandocBibfile = $HOME . '/Library/texmf/bibtex/bib/default.bib'
+				let g:pandoc_bibfile = $HOME . '/Library/texmf/bibtex/bib/default.bib'
 			elseif filereadable($HOME . '/texmf/bibtex/bib/default.bib')
-				let g:PandocBibfile = $HOME . '/texmf/bibtex/bib/default.bib'
+				let g:pandoc_bibfile = $HOME . '/texmf/bibtex/bib/default.bib'
 			else
 				return []
 			endif
 		else
 			if filereadable(%APPDATA% . '\pandoc\default.bib')
-				let g:PandocBibfile = %APPDATA% . '\pandoc\default.bib'
+				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.bib'
 			" TODO check other possible paths
 			else
 				return []
@@ -286,7 +286,7 @@ endfunction
 function! Pandoc_BibKey(partkey)
 	let myres = ''
 ruby << EOL
-bib = VIM::evaluate('g:PandocBibfile')
+bib = VIM::evaluate('g:pandoc_bibfile')
 string = VIM::evaluate('a:partkey')
 
 File.open(bib) { |file|
