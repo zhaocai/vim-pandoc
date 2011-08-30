@@ -292,7 +292,7 @@ string = VIM::evaluate('a:partkey')
 File.open(bib) { |file|
 	text = file.read
 	keys = []
-	keys = keys + text.scan(/@.*?\{(#{string}.*?),/i)
+	keys = keys + text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
 	keys.uniq!
 	keys.sort!
 	results = keys.join(" ")
