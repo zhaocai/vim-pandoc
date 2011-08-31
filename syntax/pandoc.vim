@@ -96,7 +96,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
-syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea,pandocEmphasis,pandocStrong,pandocPCite,pandocSubscript,pandocStrikeout,pandocSuperscript
+syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea
 syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock contains=pandocNoFormatted,pandocEmphasis
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
 """"""""""""""""""""""""""""""""""""""""""""""
@@ -122,7 +122,7 @@ syn match pandocPCite /@\w*/ contained
 syn match pandocPCite /@\w*\s\[.\{-}\]/ contained
 """""""""""""""""""""""""""""""""""""""""""""""
 " Text Styles:
-" TODO: make strong and emphasis work properly when spanning multiple lines.
+"
 " Strong:
 "
 " Using underscores
@@ -185,8 +185,8 @@ hi link pandocFootnoteBlock	Comment
 
 hi link pandocPCite Label
 
-hi pandocEmphasis gui=italic cterm=italic term=italic guifg=NONE
-hi pandocStrong gui=bold cterm=bold term=bold guifg=NONE
+hi pandocEmphasis gui=italic cterm=italic 
+hi pandocStrong gui=bold cterm=bold
 hi link pandocNoFormatted String
 hi link pandocSubscript Special
 hi link pandocSuperscript Special
