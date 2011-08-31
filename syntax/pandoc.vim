@@ -46,7 +46,8 @@ syn match pandocCodePre /<code>.\{-}<\/code>/ skipnl
 " List Items:
 "
 " TODO: support roman numerals
-syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\a[.)]\+\)\)\s\+/he=e-1
+syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he=e-1
+syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " Links:
