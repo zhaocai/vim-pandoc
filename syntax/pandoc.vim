@@ -79,7 +79,9 @@ labels = []
 for line in vim.current.buffer:
 	match = re.match(ref_label_pat, line)
 	if match:
-		labels.append(match.group()[1:])
+		# filter out artifacts:
+		if len(re.findall("]", match.group())) != 1:
+			labels.append(match.group()[1:])
 regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
 vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
@@ -89,7 +91,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
-syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm
+syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea
 syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
 """"""""""""""""""""""""""""""""""""""""""""""
