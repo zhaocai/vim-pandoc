@@ -76,7 +76,8 @@ If you also want autoformatting, set g:pandoc_auto_format:
 
     let g:pandoc_auto_format = 1
 
-in your vimrc. For more information, see |formatoptions|. (Note that autoformatting can slow things down.)
+in your vimrc. For more information, see |formatoptions|. (Note that
+autoformatting can slow things down.)
 
 *pandoc-syntax-highlighting*
 ============================
@@ -207,7 +208,10 @@ in your vimrc.
 *PandocHtmlOpen* *PandocPdfOpen* and *PandocOdtOpen*
 -----------------------------------------------------
 
-We currently provide three convert-and-open functions. When you run PandocPdfOpen, for example, the file in the current buffer is converted to PDF and then opened in your default PDF viewer. (Linux users: these commands depend on xdg-open.)
+We currently provide three convert-and-open functions. When you run
+PandocPdfOpen, for example, the file in the current buffer is converted to PDF
+and then opened in your default PDF viewer. (Linux users: these commands depend
+on xdg-open.)
 
 If you have defined |maplocalleader| in your vimrc, e.g.,
 
@@ -219,7 +223,8 @@ then we will define localleader mappings for each of these commands:
     <localleader>odt
     <localleader>html
 
-So then you can type something like `,pdf` and a PDF version of your current buffer will be displayed.
+So then you can type something like `,pdf` and a PDF version of your current
+buffer will be displayed.
 
 *pandoc-tidying-functions*
 ==========================
@@ -284,6 +289,7 @@ fun?[^note] Now you probably want to go ahead and
 to get back to viewing this as a help file.
 
 [somewhere in here]: http://example.com "Now type `,br` to jump back."
+
 [^note]: Also supports footnotes. Type `,br` to jump back.
 
 Finally, there is
