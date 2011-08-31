@@ -89,7 +89,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
-syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\s\{2,}.*\n\(^\s\{3,}.*\n\)*/ skipnl contains=pandocDefinitionBlockTerm 
+syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm
 syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
 """"""""""""""""""""""""""""""""""""""""""""""
