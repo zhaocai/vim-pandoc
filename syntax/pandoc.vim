@@ -17,7 +17,7 @@ syntax spell toplevel
 " TODO: optimize
 syn sync fromstart 
 
-syn match pandocPara /\(^\(=\|[-:#%>]\|\[.\{-}\]:\)\@!\(\S.*\)\n\)\(\(^[=-].*\n\)\|\(^[:].*\n\)\)\@!/ contains=pandocEmphasis,pandocStrong,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,pandocLinkArea,pandocFootnoteID,@Spell
+syn match pandocPara /\(^\(=\|[-:#%>]\|\[.\{-}\]:\)\@!\(\S.*\)\n\)\(\(^[=-].*\n\)\|\(^[:].*\n\)\)\@!/ contains=pandocEmphasis,pandocStrong,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,pandocLinkArea,pandocFootnoteID,@Spell,pandocPCite
 
 syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/ skipnl
 
@@ -114,12 +114,12 @@ syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlo
 """"""""""""""""""""""""""""""""""""""""""""""
 " Citations:
 " parenthetical citations
-syn match pandocPCite /\[-\?@.\{-}\]/ contains=pandocEmphasis,pandocStrong,pandocLatex,@Spell
+syn match pandocPCite /\[-\?@.\{-}\]/ contained contains=pandocEmphasis,pandocStrong,pandocLatex,@Spell
 " syn match pandocPCite /\[\w.\{-}\s-\?.\{-}\]/ contains=pandocEmphasis,pandocStrong
 " in-text citations without location
-syn match pandocPCite /@\w*/
+syn match pandocPCite /@\w*/ contained 
 " in-text citations with location
-syn match pandocPCite /@\w*\s\[.\{-}\]/
+syn match pandocPCite /@\w*\s\[.\{-}\]/ contained
 """""""""""""""""""""""""""""""""""""""""""""""
 " Text Styles:
 "
@@ -129,7 +129,6 @@ syn match pandocPCite /@\w*\s\[.\{-}\]/
 syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
 " Using Asterisks
 syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
-
 """""""""""""""""""""""""""""""""""""""
 " Emphasis:
 "
@@ -137,7 +136,6 @@ syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained con
 syn match pandocEmphasis /\(_\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
 "Using Asterisks
 syn match pandocEmphasis /\(\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
-
 """""""""""""""""""""""""""""""""""""""
 " Inline Code:
 
