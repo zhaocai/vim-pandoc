@@ -105,7 +105,7 @@ syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefiniti
 syn match pandocFootnoteID /\[\^[^\]]\+\]/ nextgroup=pandocFootnoteDef
 "   Inline footnotes
 syn region pandocFootnoteDef matchgroup=pandocFootnoteID start=/\^\[/ end=/\]/ contains=pandocLinkArea,pandocLatex,pandocPCite,@Spell skipnl
-syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,@Spell skipnl
+syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*\n*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,@Spell skipnl
 syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
 
 """"""""""""""""""""""""""""""""""""""""""""""
