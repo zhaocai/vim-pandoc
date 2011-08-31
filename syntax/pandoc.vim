@@ -93,7 +93,14 @@ syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\s\{2,}.*\n\(^\s\{3,}.*\n\)
 syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
 """"""""""""""""""""""""""""""""""""""""""""""
-" Footnotes: TODO
+" Footnotes:
+"
+syn match pandocFootnoteID /\[\^[^\]]\+\]/ nextgroup=pandocFootnoteDef
+"   Inline footnotes
+syn region pandocFootnoteDef matchgroup=pandocFootnoteID start=/\^\[/ end=/\]/ contains=pandocLinkArea,pandocLatex,pandocPCite,@Spell skipnl
+syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,@Spell skipnl
+syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
+
 """"""""""""""""""""""""""""""""""""""""""""""
 " Tables: TODO
 """"""""""""""""""""""""""""""""""""""""""""""
@@ -127,7 +134,7 @@ hi link pandocDelimitedCodeBlockLanguage Comment
 hi link pandocCodePre String
 hi link pandocListItem Operator
 
-hi link pandocLinkArea		Special
+hi link pandocLinkArea		Type
 hi link pandocLinkText		Type
 hi link pandocLinkURL	Underlined
 hi link pandocLinkTextRef Underlined
@@ -136,6 +143,10 @@ hi link pandocAutomaticLink Underlined
 
 hi link pandocDefinitionBlockTerm Identifier
 hi link pandocDefinitionBlockMark Operator
+
+hi link pandocFootnoteID		Type
+hi link pandocFootnoteDef		Comment
+hi link pandocFootnoteBlock	Comment
 
 hi link pandocPCite Label
 
