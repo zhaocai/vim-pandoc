@@ -34,7 +34,9 @@ syn match pandocBlockQuote /^>.*\n\(.*\n\@<!\n\)*/ skipnl
 """"""""""""""""""""""""""""""""""""""""""""""
 " Code Blocks:
 "
-syn match pandocCodeBlock   /^\(\s\{4,}\|\t\{1,}\).*\n/
+syn region pandocCodeBlock   start=/\(\(\d\|\l\|*\).*\n\)\@<!\(^\(\s\|\t\)\).*\n/ end=/.\(\n^\s*\n\)\@=/
+
+" Delimited Code Blocks:
 syn region pandocDelimitedCodeBlock start=/^\z(\~\+\)\( {.\+}\)*/ end=/\z1\~*/ skipnl contains=pandocDelimitedCodeBlockLanguage
 syn match pandocDelimitedCodeBlockLanguage /{.\+}/ contained containedin=pandocDelimitedCodeBlock
 syn match pandocCodePre /<pre>.\{-}<\/pre>/ skipnl
