@@ -48,6 +48,8 @@ syn match pandocCodePre /<code>.\{-}<\/code>/ skipnl
 " TODO: support roman numerals
 syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he=e-1
 syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1
+syn match pandocListItem /^\s*(*[#][.)]\+\s\{2,}/he=e-1
+syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{2,}/he=e-1
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " Links:
@@ -105,9 +107,8 @@ syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*/ end=/^\n^\s\@!/ contains=
 syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
 
 """"""""""""""""""""""""""""""""""""""""""""""
-" Tables:
+" Tables: TODO
 "
-
 """"""""""""""""""""""""""""""""""""""""""""""
 " Citations:
 " parenthetical citations
