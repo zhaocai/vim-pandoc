@@ -4,7 +4,7 @@
 " Maintainer: David Sanson <dsanson@gmail.com> 	
 " OriginalAuthor: Jeremy Schultz <taozhyn@gmail.com>
 " Version: 4.0
-" Remark: Complete rewrite.
+" Remark: Mayor rewrite.
 
 if version < 600
 	syntax clear
@@ -16,6 +16,8 @@ syntax case match
 syntax spell toplevel
 " TODO: optimize
 syn sync fromstart 
+
+syn match pandocPara /\(^\(=\|[-:#%>]\|\[.\{-}\]:\)\@!\(\S.*\)\n\)\(\(^[=-].*\n\)\|\(^[:].*\n\)\)\@!/ contains=pandocEmphasis,pandocStrong,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,pandocLinkArea,pandocFootnoteID,@Spell
 
 syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/ skipnl
 
@@ -95,7 +97,7 @@ endif
 " Definitions:
 "
 syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea
-syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock
+syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock contains=pandocNoFormatted,pandocEmphasis
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
 """"""""""""""""""""""""""""""""""""""""""""""
 " Footnotes:
@@ -119,14 +121,43 @@ syn match pandocPCite /@\w*/
 " in-text citations with location
 syn match pandocPCite /@\w*\s\[.\{-}\]/
 """""""""""""""""""""""""""""""""""""""""""""""
-" Text Styles: TODO
+" Text Styles:
 "
-" emphasis
-" strong
-" tt
-" subscripts
-" superscript
-" stikeout
+" Strong:
+"
+" Using underscores
+syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
+" Using Asterisks
+syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
+
+"""""""""""""""""""""""""""""""""""""""
+" Emphasis:
+"
+"Using underscores
+syn match pandocEmphasis /\(_\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
+"Using Asterisks
+syn match pandocEmphasis /\(\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
+
+"""""""""""""""""""""""""""""""""""""""
+" Inline Code:
+
+" Using single back ticks
+syn region pandocNoFormatted start=/`/ end=/`\|^\s*$/ contained
+" Using double back ticks
+syn region pandocNoFormatted start=/``[^`]*/ end=/``\|^\s*$/ contained
+
+
+" Subscripts:
+syn match pandocSubscript /\~\([^\~\\ ]\|\(\\ \)\)\+\~/ contains=@Spell contained
+
+"""""""""""""""""""""""""""""""""""""""
+" Superscript:
+syn match pandocSuperscript /\^\([^\^\\ ]\|\(\\ \)\)\+\^/ contains=@Spell contained
+
+"""""""""""""""""""""""""""""""""""""""
+" Strikeout:
+syn match pandocStrikeout /\~\~[^\~ ]\([^\~]\|\~ \)*\~\~/ contains=@Spell contained
+
 """""""""""""""""""""""""""""""""""""""""""""""
 
 hi link pandocTitleBlock Directory
@@ -155,5 +186,12 @@ hi link pandocFootnoteDef		Comment
 hi link pandocFootnoteBlock	Comment
 
 hi link pandocPCite Label
+
+hi pandocEmphasis gui=italic cterm=italic 
+hi pandocStrong gui=bold cterm=bold
+hi link pandocNoFormatted String
+hi link pandocSubscript Special
+hi link pandocSuperscript Special
+hi link pandocStrikeout Special
 
 let b:current_syntax = "pandoc"
