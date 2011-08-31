@@ -82,13 +82,25 @@ def pandoc_pdf_open(out=None):
 	return ["markdown2pdf",  "-o", out, vim.current.buffer.name]
 
 @pandoc_opener
+def pandoc_pdf_bib_open(out=None):
+    return ["markdown2pdf", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
+
+@pandoc_opener
 def pandoc_html_open(out=None):
 	return ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
 
 @pandoc_opener
+def pandoc_html_bib_open(out=None):
+    return ["pandoc", "-t", "html", "-sS", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
+
+@pandoc_opener
 def pandoc_odt_open(out=None):
-	return ["pandoc", "-t", "odt",  "-o", out, vim.current.buffer.name]
-	
+	return ["pandoc", "-t", "odt", "-S", "-o", out, vim.current.buffer.name]
+
+@pandoc_opener
+def pandoc_odt_bib_open(out=None):
+    return ["pandoc", "-t", "odt", "-S", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
+
 def pandoc_open_uri():
 	line = vim.current.line
 	pos = vim.current.window.cursor[1] - 1

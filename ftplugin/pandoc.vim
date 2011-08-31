@@ -130,9 +130,17 @@ command! -buffer PandocHtmlOpen exec 'py pandoc_html_open()'
 
 command! -buffer PandocPdfOpen exec 'py pandoc_pdf_open()'
 
+" Generate pdf w/ citeproc and open in default pdf view
+
+command! -buffer PandocPdfBibOpen exec 'py pandoc_pdf_bib_open()'
+
 " Generate odt and open in default odt viewer
-	
+
 command! -buffer PandocOdtOpen exec 'py pandoc_odt_open()'
+
+" Generate odt w/ citeproc and open in default odt viewer
+
+command! -buffer PandocOdtBibOpen exec 'py pandoc_odt_bib_open()'
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Some <LocalLeader> mappings
