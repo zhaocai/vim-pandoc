@@ -242,33 +242,7 @@ endif
 "
 let s:completion_type = ''
 
-function! Pandoc_Complete(findstart, base)
-	if a:findstart
-		" return the starting position of the word
-		let line = getline('.')
-		let pos = col('.') - 1
-		while pos > 0 && line[pos - 1] !~ '\\\|{\|\[\|<\|\s\|@\|\^'
-			let pos -= 1
-		endwhile
-
-		let line_start = line[:pos-1]
-		if line_start =~ '.*@$'
-			let s:completion_type = 'bib'
-		endif
-		return pos
-	else
-		"return suggestions in an array
-		let suggestions = []
-		if s:completion_type == 'bib'
-			" suggest BibTeX entries
-			let suggestions = Pandoc_BibComplete(a:base)
-		endif
-		return suggestions
-	endif
-endfunction
-
-function! Pandoc_BibComplete(regexp)
-
+function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
 		if eval("g:paths_style") == "posix"
 			if filereadable($HOME . '/.pandoc/default.bib')
@@ -289,10 +263,31 @@ function! Pandoc_BibComplete(regexp)
 			endif
 		endif
 	endif
+endfunction
 
-	let res = split(Pandoc_BibKey(a:regexp))
-	return res
+function! Pandoc_Complete(findstart, base)
+	if a:findstart
+		" return the starting position of the word
+		let line = getline('.')
+		let pos = col('.') - 1
+		while pos > 0 && line[pos - 1] !~ '\\\|{\|\[\|<\|\s\|@\|\^'
+			let pos -= 1
+		endwhile
 
+		let line_start = line[:pos-1]
+		if line_start =~ '.*@$'
+			let s:completion_type = 'bib'
+		endif
+		return pos
+	else
+		"return suggestions in an array
+		let suggestions = []
+		if s:completion_type == 'bib'
+			" suggest BibTeX entries
+			let suggestions = split(Pandoc_BibKey(a:base))
+		endif
+		return suggestions
+	endif
 endfunction
 
 function! Pandoc_BibKey(partkey)

@@ -89,6 +89,7 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Autocomplete citationkeys using function
 "
+call Pandoc_Find_Bibfile()
 setlocal omnifunc=Pandoc_Complete
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
