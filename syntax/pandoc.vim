@@ -92,13 +92,20 @@ vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
 endif
 """""""""""""""""""""""""""""""""""""""""""""""
-" Rules: TODO
+" Horizontal Rules:
+"
+" 3 or more * on a line
+syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
+" 3 or more - on a line
+syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
+
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
 syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea
 syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock contains=pandocNoFormatted,pandocEmphasis
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
+
 """"""""""""""""""""""""""""""""""""""""""""""
 " Footnotes:
 "
@@ -184,6 +191,8 @@ hi link pandocFootnoteDef		Comment
 hi link pandocFootnoteBlock	Comment
 
 hi link pandocPCite Label
+
+hi link pandocHRule		Underlined
 
 hi pandocEmphasis gui=italic cterm=italic 
 hi pandocStrong gui=bold cterm=bold
