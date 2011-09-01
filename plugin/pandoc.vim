@@ -190,7 +190,31 @@ def pandoc_go_back_from_ref():
 			if found:
 				break
 
+# experimental support for zotero citation completion
+
+def pandoc_zotero_complete(term):
+	vim.command("let g:myresults += ['bob', 'carol']")
+
 EOF
+   " from pygnotero import libzotero
+
+	"if __name__ == "__main__":
+
+		"# Path to your Zotero folder
+		"zotero_folder = "/Users/David/Documents/Zotero"
+
+		"# Connect to Zotero
+		"zotero = libzotero.libzotero(zotero_folder)
+
+		"# Search Zotero
+		"results = zotero.search(term)
+
+		"# generate a list of dictionaries
+		"for item in results:
+		"#	this = "[{word: '" + item.key + "', " + "menu: '" + item.authors[0] + ", " + item.title + "'}]"
+		"#	vim.command("let myresults = myresults + " + this)
+			"vim.command("let g:myresults += ['bob']")
+"EOF
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
 " ===============================================================================
@@ -283,8 +307,36 @@ function! Pandoc_Complete(findstart, base)
 		"return suggestions in an array
 		let suggestions = []
 		if s:completion_type == 'bib'
-			" suggest BibTeX entries
-			let suggestions = split(Pandoc_BibKey(a:base))
+			if g:pandoc_bibtype == 'zotero'
+				let g:myresults = []
+				"python 'pandoc_zotero_complete(vim.eval("a:base")'
+python << EOF
+import vim
+import sys
+from pygnotero import libzotero
+
+if __name__ == "__main__":
+
+	# Path to your Zotero folder
+	zotero_folder = "/Users/David/Documents/Zotero"
+
+	# Connect to Zotero
+	zotero = libzotero.libzotero(zotero_folder)
+
+	# Search Zotero
+	results = zotero.search(vim.eval("a:base"))
+
+	# generate a list of dictionaries
+	for item in results:
+		this = "[ { 'word': '" + item.key + "', " + "'menu': '" + item.authors[0] + ", " + item.title + "' } ]"
+		vim.command("let g:myresults += " + this)
+
+EOF
+				let suggestions = g:myresults
+			else
+			   " suggest BibTeX entries
+			   let suggestions = split(Pandoc_BibKey(a:base))
+			end
 		endif
 		return suggestions
 	endif
@@ -321,4 +373,5 @@ function! PandocContext()
 		return "\<c-x>\<c-o>"
 	endif
 endfunction
+
 
