@@ -2,6 +2,9 @@
 " ftplugin/pandoc.vim
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:pandoc_bibtype = "zotero"
+
 " # Formatting options
 
 " Soft/hard word wrapping
