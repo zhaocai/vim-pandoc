@@ -120,7 +120,7 @@ def pandoc_go_back_from_ref():
 			if found:
 				break
 
-def pandoc_open(command):
+def pandoc_execute(command, open_when_done=True):
 	command = command.split()
 	
 	# first, we evaluate the output extension
@@ -176,26 +176,44 @@ def pandoc_open(command):
 		vim.command("set nosplitbelow")
 
 	# finally, we open the created file
-	if exists(out):
+	if exists(out) and open_when_done:
 		Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
 
-# We register openers with PandocRegisterOpener. 
-# It takes a variable ammount of arguments, but we take its first argument as the name of a vim
-# ex command, the second argument as a mapping, and the rest as the description of a command, which
-# we'll pass to pandoc_open.
+# We register openers with PandocRegisterExecutor. 
+# We take its first argument as the name of a vim ex command, the second
+# argument as a mapping, the third argument as a flag determing whether to
+# open the resulting file,  and the rest as the description of a command,
+# which we'll pass to pandoc_open.
 
 # pandoc_register_opener(...) adds a tuple of those elements to a list of openers. This list will be 
 # read from by ftplugin/pandoc.vim and commands and mappings will be created from it.
-pandoc_openers = []
-def pandoc_register_opener(com_ref):
+pandoc_executors = []
+def pandoc_register_executor(com_ref):
 	args = com_ref.split()
 	name = args[0]
 	mapping = args[1]
-	command = args[2:]
-	pandoc_openers.append((name, mapping, " ".join(command)))
+	open_when_done = args[2]
+	command = args[3:]
+	pandoc_executors.append((name, mapping, open_when_done, " ".join(command)))
 EOF
 
-command! -nargs=? PandocRegisterOpener exec 'py pandoc_register_opener("<args>")'
+command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<args>")'
+
+" We register here some default executors. The user can define other custom
+" commands in his .vimrc.
+"
+" Generate html and open in default html viewer
+PandocRegisterExecutor PandocHtmlOpen <LocalLeader>html 1 pandoc -t html -Ss
+" Generate pdf and open in default pdf viewer
+PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf
+" Generate odt and open in default odt viewer
+PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt
+" Generate pdf w/ citeproc and open in default pdf view
+PandocRegisterExecutor PandocPdfBibOpen <LocalLeader>pdfb 1 markdown2pdf --bibliography g:pandoc_bibfile
+" Generate odt w/ citeproc and open in default odt viewer
+PandocRegisterExecutor PandocOdtBibOpen <LocalLeader>odtb 1 pandoc -t -odt --bibliography g:pandoc_bibfile
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
 " ===============================================================================

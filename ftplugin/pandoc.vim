@@ -124,34 +124,22 @@ command! -buffer MarkdownTidyWrap %!pandoc -t markdown -s
 command! -buffer MarkdownTidy %!pandoc -t markdown --no-wrap -s
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" # Some <LocalLeader> mappings
-"
-" If <LocalLeader> is defined (with 'let maplocalleader') we will map some commands.
-"
-" Here we register some default openers. The user can define other custom
-" commands in his .vimrc.
-"
-" Generate html and open in default html viewer
-PandocRegisterOpener PandocHtmlOpen <LocalLeader>html pandoc -t html -Ss
-" Generate pdf and open in default pdf viewer
-PandocRegisterOpener PandocPdfOpen <LocalLeader>pdf markdown2pdf
-" Generate odt and open in default odt viewer
-PandocRegisterOpener PandocOdtOpen <LocalLeader>odt pandoc -t odt
-" Generate pdf w/ citeproc and open in default pdf view
-PandocRegisterOpener PandocPdfBibOpen <LocalLeader>pdfb markdown2pdf --bibliography g:pandoc_bibfile
-" Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterOpener PandocOdtBibOpen <LocalLeader>odtb pandoc -t -odt --bibliography g:pandoc_bibfile
+" # Some executors
+" 
 
-" We now create the commands and mappings from our list of openers.
+" We create some commands and mappings from our list of executors. See
+" plugin/pandoc.vim
 python<<EOF
-for opener in pandoc_openers:
-	if opener[2] not in ("", "None", None):
-		executor = 'py pandoc_open("' + opener[2] + '")'
-		if opener[0] not in ("", "None", None):
-			vim.command("command! -buffer " + opener[0] + " exec '" + executor + "'")
-		if opener[1] not in ("", "None", None):
-			vim.command("map <buffer><silent> " + opener[1] + \
-						":" + executor + "<cr>")
+for opener in pandoc_executors:
+	name, mapping, execute, command = opener
+	open_when_done = bool(int(execute)).__repr__()
+	if command not in ("", "None", None):
+		executor = 'py pandoc_execute("' + command + '",' + open_when_done + ')'
+		if name not in ("", "None", None):
+			vim.command("command! -buffer " + name + " exec '" + executor + "'")
+		if mapping not in ("", "None", None):
+			vim.command("map <buffer><silent> " + mapping + \
+						" :" + executor + "<cr>")
 EOF
 
 " While I'm at it, here are a few more functions mappings that are useful when
