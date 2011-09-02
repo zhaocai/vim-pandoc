@@ -15,7 +15,7 @@ endif
 syntax case match
 syntax spell toplevel
 " TODO: optimize
-syn sync fromstart 
+syn sync linebreaks=5 minlines=40 maxlines=200
 
 syn match pandocPara /\(^\(=\|[-:#%>]\|\[.\{-}\]:\)\@!\(\S.*\)\n\)\(\(^[=-].*\n\)\|\(^[:].*\n\)\)\@!/ contains=pandocEmphasis,pandocStrong,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,pandocLinkArea,pandocFootnoteID,@Spell,pandocPCite
 
@@ -43,15 +43,6 @@ syn region pandocDelimitedCodeBlock start=/^\z(\~\{3,}\~*\)\( {.\+}\)*/ end=/\z1
 syn match pandocDelimitedCodeBlockLanguage /{.\+}/ contained containedin=pandocDelimitedCodeBlock
 syn match pandocCodePre /<pre>.\{-}<\/pre>/ skipnl
 syn match pandocCodePre /<code>.\{-}<\/code>/ skipnl
-
-"""""""""""""""""""""""""""""""""""""""""""""""
-" List Items:
-"
-" TODO: support roman numerals
-syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he=e-1
-syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1
-syn match pandocListItem /^\s*(*[#][.)]\+\s\{2,}/he=e-1
-syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{2,}/he=e-1
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " Links:
@@ -102,7 +93,7 @@ syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
-syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea
+syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea,pandocEmphasis,pandocStrong,pandocNoFormatted,pandocStrikeout,pandocSubscript,pandocSuperscript
 syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock contains=pandocNoFormatted,pandocEmphasis
 syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
 
@@ -112,7 +103,7 @@ syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefiniti
 syn match pandocFootnoteID /\[\^[^\]]\+\]/ nextgroup=pandocFootnoteDef
 "   Inline footnotes
 syn region pandocFootnoteDef matchgroup=pandocFootnoteID start=/\^\[/ end=/\]/ contains=pandocLinkArea,pandocLatex,pandocPCite,@Spell skipnl
-syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*\n*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,@Spell skipnl
+syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*\n*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,@Spell skipnl
 syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
 
 """"""""""""""""""""""""""""""""""""""""""""""
@@ -129,11 +120,12 @@ syn match pandocPCite /@\w*/ contained
 syn match pandocPCite /@\w*\s\[.\{-}\]/ contained
 """""""""""""""""""""""""""""""""""""""""""""""
 " Text Styles:
-"
+" TODO: make the matches allow for items spanning several lines
+
 " Strong:
 "
 " Using underscores
-syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
+syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl 
 " Using Asterisks
 syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
 """""""""""""""""""""""""""""""""""""""
@@ -164,7 +156,15 @@ syn match pandocSuperscript /\^\([^\^\\ ]\|\(\\ \)\)\+\^/ contains=@Spell contai
 syn match pandocStrikeout /\~\~[^\~ ]\([^\~]\|\~ \)*\~\~/ contains=@Spell contained
 
 """""""""""""""""""""""""""""""""""""""""""""""
+" List Items:
+"
+" TODO: support roman numerals
+syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he=e-1 nextgroup=pandocPara
+syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1 nextgroup=pandocPara
+syn match pandocListItem /^\s*(*[#][.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
+syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
 
+"""""""""""""""""""""""""""""""""""""""""""""""
 hi link pandocTitleBlock Directory
 hi link pandocAtxHeader Title
 hi link pandocSetexHeader Title
