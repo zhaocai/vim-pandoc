@@ -76,7 +76,8 @@ If you also want autoformatting, set g:pandoc_auto_format:
 
     let g:pandoc_auto_format = 1
 
-in your vimrc. For more information, see |formatoptions|. (Note that autoformatting can slow things down.)
+in your vimrc. For more information, see |formatoptions|. (Note that
+autoformatting can slow things down.)
 
 *pandoc-syntax-highlighting*
 ============================
@@ -226,6 +227,17 @@ should register a PdcPdf command that runs markdown2pdf on the current file and
 opens the resulting pdf afterwards, and a mapping to do the same.
 
 Executors are registered before opening a file.
+
+Executors depend on the `pandoc_execute` function, which can be called like
+this:
+
+    :py pandoc_execute(COMMAND, OPEN)
+
+COMMAND can include vim variables, like `g:pandoc_bibfile`. Those will be
+evaluated before executing the command, so the user can define executors that
+can access those variables. For example:
+
+    :PandocRegisterExecutor PdcPdfB <Leader>pdfb 1 markdown2pdf --bibliography g:pandoc_bibfile
 
 Default executors
 -----------------
