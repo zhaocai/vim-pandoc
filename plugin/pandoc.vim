@@ -31,76 +31,6 @@ if sys.platform.startswith("win"):
 else:
 	open_command_tail = ''
 
-# This decorator takes a function named 'pandoc_FORMAT_open' which returns a list describing a command
-# and returns a function that will open a file created by running that command.
-def pandoc_opener(func):
-	def wrapped():
-		# the output file name is inferred from the name of the buffer and the name of the decorated function.
-		out = vim.eval('expand("%:r")') + "." + func.func_name.split("_")[1]
-		command_list = func(out) # the decorated function returns a list describing what to run
-		# we run the command and retrieve its output
-		output = Popen(command_list, stdout=PIPE, stderr=PIPE).communicate()
-
-		# we create a temporary buffer where the command and its output will be shown
-		
-		# this builds a list of lines we are going to write to the buffer
-		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
-		lines.insert(0, "▶ " + " ".join(command_list))
-		lines.insert(0, "# Press <Esc> to close this ")
-
-		# we always splitbelow
-		splitbelow = bool(int(vim.eval("&splitbelow")))
-		if not splitbelow:
-			vim.command("set splitbelow")
-		
-		vim.command("3new")
-		vim.current.buffer.append(lines)
-		vim.command("normal dd")
-		vim.command("setlocal nomodified")
-		vim.command("setlocal nomodifiable")
-		# pressing <esc> on the buffer will delete it
-		vim.command("map <buffer> <esc> :bd<cr>")
-		# we will highlight some elements in the buffer
-		vim.command("syn match PandocOutputMarks /^>>/")
-		vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
-		vim.command("syn match PandocInstructions /^#.*$/")
-		vim.command("hi! link PandocOutputMarks Operator")
-		vim.command("hi! link PandocCommand Statement")
-		vim.command("hi! link PandocInstructions Comment")
-
-		# we revert splitbelow to its original value
-		if not splitbelow:
-			vim.command("set nosplitbelow")
-
-		# finally, we open the created file
-		if exists(out):
-			Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
-	return wrapped
-
-@pandoc_opener
-def pandoc_pdf_open(out=None):
-	return ["markdown2pdf",  "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_pdf_bib_open(out=None):
-    return ["markdown2pdf", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_html_open(out=None):
-	return ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_html_bib_open(out=None):
-    return ["pandoc", "-t", "html", "-sS", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_odt_open(out=None):
-	return ["pandoc", "-t", "odt", "-S", "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_odt_bib_open(out=None):
-    return ["pandoc", "-t", "odt", "-S", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
-
 def pandoc_open_uri():
 	line = vim.current.line
 	pos = vim.current.window.cursor[1] - 1
@@ -192,13 +122,26 @@ def pandoc_go_back_from_ref():
 
 def pandoc_open(command):
 	command = command.split()
-	if command[0] == "markdown2pdf":
+	
+	# first, we evaluate the output extension
+	if command[0] == "markdown2pdf": # always outputs pdfs
 		out_extension = "pdf"
 	else:
-		out_extension = command[command.index("-t") + 1]
+		try:
+			out_extension = command[command.index("-t") + 1]
+		except ValueError:
+			out_extension = "html"
 	out = vim.eval('expand("%:r")') + "." + out_extension
 	command.extend(["-o", out])
 	command.append(vim.current.buffer.name)
+
+	# we evaluate global vim variables. This way, we can register commands that 
+	# pass the value of our variables (e.g, g:pandoc_bibfile).
+	for value in command:
+		if value.startswith("g:"):
+			command[command.index(value)] = vim.eval(value)
+	
+	# we run pandoc with our arguments
 	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
 
 	# we create a temporary buffer where the command and its output will be shown
@@ -236,15 +179,20 @@ def pandoc_open(command):
 	if exists(out):
 		Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
 
+# We register openers with PandocRegisterOpener. 
+# It takes a variable ammount of arguments, but we take its first argument as the name of a vim
+# ex command, the second argument as a mapping, and the rest as the description of a command, which
+# we'll pass to pandoc_open.
 
-
-pandoc_openers = {}
-
+# pandoc_register_opener(...) adds a tuple of those elements to a list of openers. This list will be 
+# read from by ftplugin/pandoc.vim and commands and mappings will be created from it.
+pandoc_openers = []
 def pandoc_register_opener(com_ref):
 	args = com_ref.split()
-	mapping = args[0]
-	command = args[1:]
-	pandoc_openers[mapping] = " ".join(command)
+	name = args[0]
+	mapping = args[1]
+	command = args[2:]
+	pandoc_openers.append((name, mapping, " ".join(command)))
 EOF
 
 command! -nargs=? PandocRegisterOpener exec 'py pandoc_register_opener("<args>")'

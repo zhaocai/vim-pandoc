@@ -123,41 +123,35 @@ command! -buffer MarkdownTidyWrap %!pandoc -t markdown -s
 
 command! -buffer MarkdownTidy %!pandoc -t markdown --no-wrap -s
 
-" Generate html and open in default html viewer
-	
-"command! -buffer PandocHtmlOpen exec 'py pandoc_html_open()'
-
-" Generate pdf and open in default pdf viewer
-
-"command! -buffer PandocPdfOpen exec 'py pandoc_pdf_open()'
-
-" Generate pdf w/ citeproc and open in default pdf view
-
-"command! -buffer PandocPdfBibOpen exec 'py pandoc_pdf_bib_open()'
-
-" Generate odt and open in default odt viewer
-
-"command! -buffer PandocOdtOpen exec 'py pandoc_odt_open()'
-
-" Generate odt w/ citeproc and open in default odt viewer
-
-"command! -buffer PandocOdtBibOpen exec 'py pandoc_odt_bib_open()'
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Some <LocalLeader> mappings
 "
 " If <LocalLeader> is defined (with 'let maplocalleader') we will map some commands.
 "
-"map <buffer><silent> <LocalLeader>html :PandocHtmlOpen<CR>
-"map <buffer><silent> <LocalLeader>pdf :PandocPdfOpen<CR>
-"map <buffer><silent> <LocalLeader>odt :PandocOdtOpen<CR>
-PandocRegisterOpener <LocalLeader>html pandoc -t html -Ss
-PandocRegisterOpener <LocalLeader>pdf markdown2pdf
-PandocRegisterOpener <LocalLeader>odt pandoc -t odt
+" Here we register some default openers. The user can define other custom
+" commands in his .vimrc.
+"
+" Generate html and open in default html viewer
+PandocRegisterOpener PandocHtmlOpen <LocalLeader>html pandoc -t html -Ss
+" Generate pdf and open in default pdf viewer
+PandocRegisterOpener PandocPdfOpen <LocalLeader>pdf markdown2pdf
+" Generate odt and open in default odt viewer
+PandocRegisterOpener PandocOdtOpen <LocalLeader>odt pandoc -t odt
+" Generate pdf w/ citeproc and open in default pdf view
+PandocRegisterOpener PandocPdfBibOpen <LocalLeader>pdfb markdown2pdf --bibliography g:pandoc_bibfile
+" Generate odt w/ citeproc and open in default odt viewer
+PandocRegisterOpener PandocOdtBibOpen <LocalLeader>odtb pandoc -t -odt --bibliography g:pandoc_bibfile
+
+" We now create the commands and mappings from our list of openers.
 python<<EOF
 for opener in pandoc_openers:
-	vim.command("map <buffer><silent>" + opener + \
-				' :py pandoc_open("' + pandoc_openers[opener] + '")<cr>')
+	if opener[2] not in ("", "None", None):
+		executor = 'py pandoc_open("' + opener[2] + '")'
+		if opener[0] not in ("", "None", None):
+			vim.command("command! -buffer " + opener[0] + " exec '" + executor + "'")
+		if opener[1] not in ("", "None", None):
+			vim.command("map <buffer><silent> " + opener[1] + \
+						":" + executor + "<cr>")
 EOF
 
 " While I'm at it, here are a few more functions mappings that are useful when
