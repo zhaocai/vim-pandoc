@@ -190,7 +190,18 @@ def pandoc_go_back_from_ref():
 			if found:
 				break
 
+
+pandoc_openers = {}
+
+def pandoc_register_opener(com_ref):
+	args = com_ref.split()
+	mapping = args[0]
+	command = " ".join(args[1:])
+	print mapping, ":", command
+
 EOF
+
+command! -nargs=? PandocRegisterOpener exec 'py pandoc_register_opener(""<args>")'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
 " ===============================================================================
