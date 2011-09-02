@@ -190,18 +190,64 @@ def pandoc_go_back_from_ref():
 			if found:
 				break
 
+def pandoc_open(command):
+	command = command.split()
+	if command[0] == "markdown2pdf":
+		out_extension = "pdf"
+	else:
+		out_extension = command[command.index("-t") + 1]
+	out = vim.eval('expand("%:r")') + "." + out_extension
+	command.extend(["-o", out])
+	command.append(vim.current.buffer.name)
+	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
+
+	# we create a temporary buffer where the command and its output will be shown
+	
+	# this builds a list of lines we are going to write to the buffer
+	lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
+	lines.insert(0, "▶ " + " ".join(command))
+	lines.insert(0, "# Press <Esc> to close this ")
+
+	# we always splitbelow
+	splitbelow = bool(int(vim.eval("&splitbelow")))
+	if not splitbelow:
+		vim.command("set splitbelow")
+	
+	vim.command("3new")
+	vim.current.buffer.append(lines)
+	vim.command("normal dd")
+	vim.command("setlocal nomodified")
+	vim.command("setlocal nomodifiable")
+	# pressing <esc> on the buffer will delete it
+	vim.command("map <buffer> <esc> :bd<cr>")
+	# we will highlight some elements in the buffer
+	vim.command("syn match PandocOutputMarks /^>>/")
+	vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
+	vim.command("syn match PandocInstructions /^#.*$/")
+	vim.command("hi! link PandocOutputMarks Operator")
+	vim.command("hi! link PandocCommand Statement")
+	vim.command("hi! link PandocInstructions Comment")
+
+	# we revert splitbelow to its original value
+	if not splitbelow:
+		vim.command("set nosplitbelow")
+
+	# finally, we open the created file
+	if exists(out):
+		Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
+
+
 
 pandoc_openers = {}
 
 def pandoc_register_opener(com_ref):
 	args = com_ref.split()
 	mapping = args[0]
-	command = " ".join(args[1:])
-	print mapping, ":", command
-
+	command = args[1:]
+	pandoc_openers[mapping] = " ".join(command)
 EOF
 
-command! -nargs=? PandocRegisterOpener exec 'py pandoc_register_opener(""<args>")'
+command! -nargs=? PandocRegisterOpener exec 'py pandoc_register_opener("<args>")'
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
 " ===============================================================================
