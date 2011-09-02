@@ -1,123 +1,51 @@
 " Vim syntax file
 " Language:	Pandoc (superset of Markdown)
+" Maintainer: Felipe Morales <hel.sheep@gmail.com>
 " Maintainer: David Sanson <dsanson@gmail.com> 	
-" Maintainer: Felipe Morales 
 " OriginalAuthor: Jeremy Schultz <taozhyn@gmail.com>
-" Version: 3.0
-" Remark:	Uses HTML and TeX syntax file
-" 
+" Version: 4.0
+" Remark: Mayor rewrite.
 
 if version < 600
-  syntax clear
+	syntax clear
 elseif exists("b:current_syntax")
-  finish
+	finish
 endif
 
-syn spell toplevel
-syn case ignore
-syn sync linebreaks=1
+syntax case match
+syntax spell toplevel
+" TODO: optimize
+syn sync linebreaks=5 minlines=40 maxlines=200
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Set embedded HTML highlighting
-syn include @HTML syntax/html.vim
-syn match pandocHTML	/<\a[^>]\+>/	contains=@HTML
-" Support HTML multi line comments
-syn region pandocHTMLComment   start=/<!--/ end=/-->/
+syn match pandocPara /\(^\(=\|[-:#%>]\|\[.\{-}\]:\)\@!\(\S.*\)\n\)\(\(^[=-].*\n\)\|\(^[:].*\n\)\)\@!/ contains=pandocEmphasis,pandocStrong,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,pandocLinkArea,pandocFootnoteID,@Spell,pandocPCite
 
+syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/ skipnl
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Set embedded LaTex (pandoc extension) highlighting
-" Unset current_syntax so the 2nd include will work
-unlet b:current_syntax
-syn include @LATEX syntax/tex.vim
-"   Single Tex command
-syn match pandocLatex /\\\w\S/ contains=@LATEX
-"   Math Tex
-syn match pandocLatex	/\$.\{-}\$/ contains=@LATEX
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Block Elements
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" Needed by other elements
-syn match pandocBlankLine   /\(^\s*\n\|\%^\)/    nextgroup=pandocHeader,pandocCodeBlock,pandocListItem,pandocListItem1,pandocHRule,pandocTableHeader,pandocTableMultiStart,pandocBlockquote transparent
-
-"""""""""""""""""""""""""""""""""""""""
-" Title Block:
-syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/
-
-"""""""""""""""""""""""""""""""""""""""
-" Headers:
-
-"   Underlined, using == or --
-syn match  pandocHeader    /^.\+\n[=]\+$/ contains=@Spell,pandocLatex nextgroup=pandocHeader contained skipnl
-syn match  pandocHeader    /^.\+\n[-]\+$/ contains=@Spell,pandocLatex nextgroup=pandocHeader contained skipnl
-"   Atx-style, Hash marks
-syn region pandocHeader    start="^\s*#\{1,6}[^#]*" end="\($\|#\+\)" contains=@Spell,pandocLatex contained nextgroup=pandocHeader skipnl
-
-
-"""""""""""""""""""""""""""""""""""""""
-" Blockquotes:
-
-syn match pandocBlockquote	    /\s*>.*$/  nextgroup=pandocBlockquote,pandocBlockquote2 contained skipnl contains=pandocPCite
-syn match pandocBlockquote2    /[^>].*/  nextgroup=pandocBlockquote2 skipnl contained contains=pandocPCite
-
-
-"""""""""""""""""""""""""""""""""""""""
-" Code Blocks:
-
-"   Indent with at least 4 space or 1 tab
-"   This rule must appear for pandocListItem, or highlighting gets messed up
-syn match pandocCodeBlock   /\(\s\{4,}\|\t\{1,}\).*\n/ contained nextgroup=pandocCodeBlock
-"   HTML code blocks, pre and code
-syn match pandocCodeStartPre	/<pre>/ nextgroup=pandocCodeHTMLPre skipnl transparent
-syn match pandocCodeHTMLPre   /.*/  contained nextgroup=pandocCodeHTMLPre,pandocCodeEndPre skipnl
-syn match pandocCodeEndPre  /\s*<\/pre>/ contained transparent
-"   HTML code blocks, code
-syn match pandocCodeStartCode	/<code>/ nextgroup=pandocCodeHTMLCode skipnl transparent
-syn match pandocCodeHTMLCode   /.*/  contained nextgroup=pandocCodeHTMLCode,pandocCodeEndCode skipnl
-syn match pandocCodeEndCode  /\s*<\/code>/ contained transparent
-
-"""""""""""""""""""""""""""""""""""""""
-" Lists:
-
-"   These first two rules need to be first or the highlighting will be
-"   incorrect
-
-"   Continue a list on the next line
-syn match pandocListCont /\s*[^-+*].*\n/ contained nextgroup=pandocListCont,pandocListItem,pandocListSkipNL transparent
-"   Skip empty lines
-syn match pandocListSkipNL /\s*\n/ contained nextgroup=pandocListItem,pandocListSkipNL
-"   Unorder list
-syn match  pandocListItem /\s*[-*+]\s\+/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-"   Order list, numeric
-syn match  pandocListItem  /\s*(\?\(\d\+\|#\)[\.)]\s\+/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-"   Order list, roman numerals (does not guarantee correct roman numerals)
-syn match  pandocListItem  /\s*(\?[ivxlcdm]\+[\.)]\s\+/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-"   Order list, lowercase letters
-syn match  pandocListItem  /\s*(\?\l[\.)]\s\+/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-"   Order list, uppercase letters, does not include '.'
-syn match  pandocListItem  /\s*(\?\u[\)]\s\+/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-"   Order list, uppercase letters, special case using '.' and two or more spaces
-syn match  pandocListItem  /\s*\u\.\([ ]\{2,}\|\t\+\)/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-"  Numbered Example list (doesn't handle hyphens or underscores in labels)
-syn match  pandocListItem  /\s*(\?@\a*[\.)]\s\+/ contained nextgroup=pandocListSkipNL,pandocListCont skipnl
-
-"""""""""""""""""""""""""""""""""""""""
-" Horizontal Rules:
-
-"   3 or more * on a line
-syn match pandocHRule  /\s\{0,3}\(-\s*\)\{3,}\n/	contained nextgroup=pandocHRule
-"   3 or more - on a line
-syn match pandocHRule  /\s\{0,3}\(\*\s*\)\{3,}\n/	contained nextgroup=pandocHRule
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Span Elements
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-"""""""""""""""""""""""""""""""""""""""
-" Links:
+"""""""""""""""""""""""""""""""""""""""""""""
+" Header:
 "
+syn match pandocAtxHeader /^\s*#\{1,6}.*\n/ contains=pandocEmphasis
+syn match pandocSetexHeader /^.\+\n[=]\+$/
+syn match pandocSetexHeader /^.\+\n[-]\+$/
+
+"""""""""""""""""""""""""""""""""""""""""""""
+" Blockquotes:
+"
+syn match pandocBlockQuote /^>.*\n\(.*\n\@<!\n\)*/ skipnl
+
+""""""""""""""""""""""""""""""""""""""""""""""
+" Code Blocks:
+"
+syn region pandocCodeBlock   start=/\(\(\d\|\a\|*\).*\n\)\@<!\(^\(\s\{4,}\|\t\+\)\).*\n/ end=/.\(\n^\s*\n\)\@=/
+
+" Delimited Code Blocks:
+syn region pandocDelimitedCodeBlock start=/^\z(\~\{3,}\~*\)\( {.\+}\)*/ end=/\z1\~*/ skipnl contains=pandocDelimitedCodeBlockLanguage
+syn match pandocDelimitedCodeBlockLanguage /{.\+}/ contained containedin=pandocDelimitedCodeBlock
+syn match pandocCodePre /<pre>.\{-}<\/pre>/ skipnl
+syn match pandocCodePre /<code>.\{-}<\/code>/ skipnl
+
+"""""""""""""""""""""""""""""""""""""""""""""""
+" Links:
 syn region pandocLinkArea start=/\[.\{-}\]\@<=\(:\|(\|\[\)/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle,pandocAutomaticLink
 syn match pandocLinkText /\[\@<=.\{-}\]\@=/ containedin=pandocLinkArea contained contains=@Spell
 " TODO: adapt gruber's regex to match URLs; the current regex is quite limited
@@ -125,7 +53,7 @@ syn match pandocLinkURL /https\{0,1}:.\{-}\()\|\s\|\n\)\@=/ containedin=pandocLi
 syn match pandocAutomaticLink /<\(https\{0,1}.\{-}\|.\{-}@.\{-}\..\{-}\)>/
 syn match pandocLinkTextRef /\(\]\(\[\|(\)\)\@<=.\{-}\(\]\|)\)\@=/ containedin=pandocLinkText contained
 syn match pandocLinkTitle /".\{-}"/ contained containedin=pandocLinkArea contains=@Spell
-" This can be expensive on very lalrge files, so we should be able to disable
+" This can be expensive on very large files, so we should be able to disable
 " it:
 if !exists("g:pandoc_no_empty_implicits") || !g:pandoc_no_empty_implicits
 " will highlight implicit references only if, on reading the file, it can find
@@ -147,171 +75,130 @@ labels = []
 for line in vim.current.buffer:
 	match = re.match(ref_label_pat, line)
 	if match:
-		labels.append(match.group()[1:])
+		# filter out artifacts:
+		if len(re.findall("]", match.group())) != 1:
+			labels.append(match.group()[1:])
 regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
 vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
 endif
-"""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""
+" Definitions:
+"
+syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea,pandocEmphasis,pandocStrong,pandocNoFormatted,pandocStrikeout,pandocSubscript,pandocSuperscript
+syn match pandocDefinitionBlockTerm /^.*\n\(^\s*\n\)*[:~]\@=/ contained containedin=pandocDefinitionBlock contains=pandocNoFormatted,pandocEmphasis
+syn match pandocDefinitionBlockMark /^[:~]/ contained containedin=pandocDefinitionBlock
+
+""""""""""""""""""""""""""""""""""""""""""""""
+" Footnotes:
+"
+syn match pandocFootnoteID /\[\^[^\]]\+\]/ nextgroup=pandocFootnoteDef
+"   Inline footnotes
+syn region pandocFootnoteDef matchgroup=pandocFootnoteID start=/\^\[/ end=/\]/ contains=pandocLinkArea,pandocLatex,pandocPCite,@Spell skipnl
+syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*\n*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,@Spell skipnl
+syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
+
+""""""""""""""""""""""""""""""""""""""""""""""
+" Tables: TODO
+"
+""""""""""""""""""""""""""""""""""""""""""""""
+" Citations:
+" parenthetical citations
+syn match pandocPCite /\[-\?@.\{-}\]/ contained contains=pandocEmphasis,pandocStrong,pandocLatex,@Spell
+" syn match pandocPCite /\[\w.\{-}\s-\?.\{-}\]/ contains=pandocEmphasis,pandocStrong
+" in-text citations without location
+syn match pandocPCite /@\w*/ contained 
+" in-text citations with location
+syn match pandocPCite /@\w*\s\[.\{-}\]/ contained
+"""""""""""""""""""""""""""""""""""""""""""""""
+" Text Styles:
+" TODO: make the matches allow for items spanning several lines
+
 " Strong:
 "
-"   Using underscores
-syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/    contains=@Spell skipnl
-"   Using Asterisks
-syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/    contains=@Spell skipnl
-
+" Using underscores
+syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl 
+" Using Asterisks
+syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
 """""""""""""""""""""""""""""""""""""""
 " Emphasis:
 "
 "Using underscores
-syn match pandocEmphasis   /\(_\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/    contains=@Spell skipnl
+syn match pandocEmphasis /\(_\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
 "Using Asterisks
-syn match pandocEmphasis   /\(\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/    contains=@Spell skipnl
-
+syn match pandocEmphasis /\(\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
 """""""""""""""""""""""""""""""""""""""
 " Inline Code:
 
-"   Using single back ticks
-syn region pandocCode start=/`/		end=/`\|^\s*$/
-"   Using double back ticks
-syn region pandocCode start=/``[^`]*/      end=/``\|^\s*$/
+" Using single back ticks
+syn region pandocNoFormatted start=/`/ end=/`\|^\s*$/ contained
+" Using double back ticks
+syn region pandocNoFormatted start=/``[^`]*/ end=/``\|^\s*$/ contained
 
-"""""""""""""""""""""""""""""""""""""""
-" Images:
-"   Handled by link syntax
 
-"""""""""""""""""""""""""""""""""""""""
-" Misc:
-
-"   Pandoc escapes all characters after a backslash
-syn match NONE /\\\W/
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Span Elements
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-"""""""""""""""""""""""""""""""""""""""
 " Subscripts:
-syn match pandocSubscript   /\~\([^\~\\ ]\|\(\\ \)\)\+\~/   contains=@Spell
+syn match pandocSubscript /\~\([^\~\\ ]\|\(\\ \)\)\+\~/ contains=@Spell contained
 
 """""""""""""""""""""""""""""""""""""""
 " Superscript:
-syn match pandocSuperscript /\^\([^\^\\ ]\|\(\\ \)\)\+\^/   contains=@Spell
+syn match pandocSuperscript /\^\([^\^\\ ]\|\(\\ \)\)\+\^/ contains=@Spell contained
 
 """""""""""""""""""""""""""""""""""""""
 " Strikeout:
-syn match pandocStrikeout   /\~\~[^\~ ]\([^\~]\|\~ \)*\~\~/ contains=@Spell
+syn match pandocStrikeout /\~\~[^\~ ]\([^\~]\|\~ \)*\~\~/ contains=@Spell contained
 
-"""""""""""""""""""""""""""""""""""""""
-" Definitions:
-syn match pandocDefinitions /^\(:\|\~\)\(\t\|[ ]\{3,}\)/  nextgroup=pandocListItem,pandocCodeBlock,pandocBlockquote,pandocHRule
-
-syn match pandocDefinitions /^ \(:\|\~\)\(\t\|[ ]\{2,}\)/  nextgroup=pandocListItem,pandocCodeBlock,pandocBlockquote,pandocHRule
-
-syn match pandocDefinitions /^  \(:\|\~\)\(\t\|[ ]\{1,}\)/  nextgroup=pandocListItem,pandocCodeBlock,pandocBlockquote,pandocHRule
-
-"""""""""""""""""""""""""""""""""""""""
-" Footnote:
-syn match pandocFootnoteID /\[\^[^\]]\+\]/ nextgroup=pandocFootnoteDef
-"   Inline footnotes
-syn region pandocFootnoteDef matchgroup=pandocFootnoteID start=/\^\[/ end=/\]/ contains=pandocLinkArea,pandocLatex,pandocPCite,@Spell skipnl
-syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*/ end=/^\n^\s\@!/ contains=pandocLinkArea,pandocLatex,pandocPCite,pandocStrong,pandocEmphasis,@Spell skipnl
-syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
-
-"""""""""""""""""""""""""""""""""""""""
-" Tables:
+"""""""""""""""""""""""""""""""""""""""""""""""
+" List Items:
 "
-"   Regular Table
-syn match pandocTableHeader /\s*\w\+\(\s\+\w\+\)\+\s*\n\s*-\+\(\s\+-\+\)\+\s*\n/ contained nextgroup=pandocTableBody
-syn match pandocTableBody	 /\s*\w\+\(\s\+\w\+\)\+\s*\n/ contained nextgroup=pandocTableBody,pandocTableCaption skipnl
-syn match pandocTableCaption /\n\+\s*Table.*\n/ contained nextgroup=pandocTableCaptionCont
-syn match pandocTableCaptionCont /\s*\S.\+\n/ contained nextgroup=pandocTableCaptionCont
+" TODO: support roman numerals
+syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he=e-1 nextgroup=pandocPara
+syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1 nextgroup=pandocPara
+syn match pandocListItem /^\s*(*[#][.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
+syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
 
-"   Multi-line Table
-syn match pandocTableMultiStart /^\s\{0,3}-\+\s*\n\ze\(\s*\w\+\(\s\+\w\+\)\+\s*\n\)\+\s*-\+\(\s\+-\+\)\+\s*\n/ contained nextgroup=pandocTableMultiHeader
-syn match pandocTableMultiEnd /^\s\{0,3}-\+/ contained nextgroup=pandocTableMultiCaption skipnl
-syn match pandocTableMultiHeader /\(\s*\w\+\(\s\+\w\+\)\+\s*\n\)\+\s*-\+\(\s\+-\+\)\+\s*\n/ contained nextgroup=pandocTableMultiBody
-syn match pandocTableMultiBody /^\(\s\{3,}[^-]\|[^-\s]\).*$/ contained nextgroup=pandocTableMultiBody,pandocTableMultiSkipNL,pandocTableMultiEnd skipnl
-syn match pandocTableMultiSkipNL /^\s*\n/ contained nextgroup=pandocTableMultiBody,pandocTableMultiEnd skipnl
-syn match pandocTableMultiCaption /\n*\s*Table.*\n/ contained nextgroup=pandocTableCaptionCont
+"""""""""""""""""""""""""""""""""""""""""""""""
+" Horizontal Rules:
+"
+" 3 or more * on a line
+syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
+" 3 or more - on a line
+syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
 
-"""""""""""""""""""""""""""""""""""""""
-" Delimited Code Block: (added in 1.0)
-syn region pandocCodeBlock matchgroup=pandocCodeStart start=/^\z(\~\{3,}\) \( {[^}]\+}\)\?/ matchgroup=pandocCodeEnd end=/^\z1\~*/
+"""""""""""""""""""""""""""""""""""""""""""""""
+hi link pandocTitleBlock Directory
+hi link pandocAtxHeader Title
+hi link pandocSetexHeader Title
 
-"""""""""""""""""""""""""""""""""""""""
-" Citations:
-" parenthetical citations
-syn match pandocPCite /\[-\?@.\{-}\]/ contains=pandocEmphasis,pandocStrong,pandocLatex,@Spell
-" syn match pandocPCite /\[\w.\{-}\s-\?.\{-}\]/ contains=pandocEmphasis,pandocStrong
-" in-text citations without location
-syn match pandocPCite /@\w*/
-" in-text citations with location
-syn match pandocPCite /@\w*\s\[.\{-}\]/
+hi link pandocBlockQuote Comment
+hi link pandocCodeBlock String
+hi link pandocDelimitedCodeBlock String
+hi link pandocDelimitedCodeBlockLanguage Comment
+hi link pandocCodePre String
+hi link pandocListItem Operator
 
-"""""""""""""""""""""""""""""""""""""""
-" Newline, 2 spaces at the end of line means newline
-" (commenting out because this seems to slow things down)
-" syn match pandocNewLine /  $/
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Highlight groups
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-hi link pandocHeader		Title
-hi link pandocBlockquote	    	Comment
-hi link pandocBlockquote2	    	Comment
-
-hi link pandocHTMLComment		Comment
-
-hi link pandocHRule		Underlined
-"hi link pandocHRule		Special
-
-hi link pandocListItem		Operator
-hi link pandocDefinitions		Operator
-
-hi link pandocEmphasis  htmlItalic	
-hi link pandocStrong  	htmlBold
-hi link pandocSubscript		Special
-hi link pandocSuperscript		Special
-hi link pandocStrikeout	 	Special
-
-hi link pandocLinkArea		Special
+hi link pandocLinkArea		Type
 hi link pandocLinkText		Type
 hi link pandocLinkURL	Underlined
 hi link pandocLinkTextRef Underlined
 hi link pandocLinkTitle Identifier
 hi link pandocAutomaticLink Underlined
 
-hi link pandocFootnoteID		Identifier
+hi link pandocDefinitionBlockTerm Identifier
+hi link pandocDefinitionBlockMark Operator
+
+hi link pandocFootnoteID		Type
 hi link pandocFootnoteDef		Comment
 hi link pandocFootnoteBlock	Comment
 
-hi link pandocCodeBlock		String
-hi link pandocCodeHTMLPre		String
-hi link pandocCodeHTMLCode		String
-hi link pandocCode			String
-hi link pandocCodeStart		Comment
-hi link pandocCodeEnd		Comment
-
-hi link pandocTitleBlock	Comment
-
-hi link pandocTableMultiStart	Comment
-hi link pandocTableMultiEnd	Comment
-hi link pandocTableHeader		Define
-hi link pandocTableMultiHeader	Define
-hi link pandocTableBody		Identifier
-hi link pandocTableMultiBody	Identifier
-hi link pandocTableCaption		Label
-hi link pandocTableMultiCaption	Label
-hi link pandocTableCaptionCont	Label
-
 hi link pandocPCite Label
 
-" hi link pandocNewLine		Error
+hi link pandocHRule		Underlined
 
-
-" For testing
-hi link pandoctest		Error
-
+hi pandocEmphasis gui=italic cterm=italic 
+hi pandocStrong gui=bold cterm=bold
+hi link pandocNoFormatted String
+hi link pandocSubscript Special
+hi link pandocSuperscript Special
+hi link pandocStrikeout Special
 
 let b:current_syntax = "pandoc"
