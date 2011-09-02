@@ -83,14 +83,6 @@ vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
 endif
 """""""""""""""""""""""""""""""""""""""""""""""
-" Horizontal Rules:
-"
-" 3 or more * on a line
-syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
-" 3 or more - on a line
-syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
-
-"""""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:
 "
 syn match pandocDefinitionBlock /^.*\n\(^\s*\n\)*[:~]\(\s\{3,}\|\t\).*\n\(\(^\s\{4,}\|^\t\).*\n\)*/ skipnl contains=pandocDefinitionBlockTerm,pandocLinkArea,pandocEmphasis,pandocStrong,pandocNoFormatted,pandocStrikeout,pandocSubscript,pandocSuperscript
@@ -163,6 +155,14 @@ syn match pandocListItem /^\s*\([*+-]\|\((*\d\+[.)]\+\)\|\((*\l[.)]\+\)\)\s\+/he
 syn match pandocListItem /^\s*(*\u[.)]\+\s\{2,}/he=e-1 nextgroup=pandocPara
 syn match pandocListItem /^\s*(*[#][.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
 syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
+
+"""""""""""""""""""""""""""""""""""""""""""""""
+" Horizontal Rules:
+"
+" 3 or more * on a line
+syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
+" 3 or more - on a line
+syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
 
 """""""""""""""""""""""""""""""""""""""""""""""
 hi link pandocTitleBlock Directory
