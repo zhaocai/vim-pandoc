@@ -164,11 +164,10 @@ in your pandoc data directory (~/.pandoc on POSIX systems). If you want to
 use a single global bibliographic database for all your documents, we 
 recommend that you put it (or a symlink to it) here.
 
-If we don't find anything in your data directory, we look (on POSIX systems
-only) in some standard TeX directories, namely
+If we don't find anything in your data directory, we look in your local
+texmf tree, using the path specified by
 
-    ~/Library/texmf/bibtex/bib
-    ~/texmf/bibtex/bib
+    kpsewhich -var-value TEXMFHOME
 
 Again, we look for a file named `default` with an appropriate extension.
 

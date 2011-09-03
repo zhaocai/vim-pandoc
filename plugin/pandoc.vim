@@ -269,30 +269,32 @@ let s:completion_type = ''
 
 function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
-		" Supported bibliographic database extensions, in reverse
-		" order of priority
+		" A list of supported bibliographic database extensions, in reverse
+		" order of priority:
         let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
 
-		" Paths to search, in reverse order of priority
-		"   First look for a file with the same basename as current file
+		" Build up a list of paths to search, in reverse order of priority:
+		"
+		" First look for a file with the same basename as current file
 		let bib_paths = [ expand("%:p:r") ]
-		"   Next look for a file with basename `default` in the same 
-		"   directory as current file
+		" Next look for a file with basename `default` in the same 
+		" directory as current file
 		let bib_paths = [ expand("%:p:h") . g:paths_sep ."default" ] + bib_paths
+		" Next look for a file with basename `default` in the pandoc
+		" data directory
 		if eval("g:paths_style") == "posix"
-			" 	Next look for a file with basename `default` in the pandoc
-			"   data directory
 			let bib_paths = [ $HOME . '/.pandoc/default' ] + bib_paths
-			"   Next look for a file with bn `default` in ~/Library/texmf...
-			let bib_paths = [ $HOME . '/Library/texmf/bibtex/bib/default' ] + bib_paths
-			"   Next in ~/texmf/bibtex...
-			let bib_paths = [ $HOME . '/texmf/bibtex/bib/default' ] + bib_paths
 		else
-			let bib_paths = [ %APPDATA% . '\pandoc\default.bib' ] + bib_paths
+			let bib_paths = [ %APPDATA% . '\pandoc\default' ] + bib_paths
 		endif
+		" Next look in the local texmf directory
+		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
+		let local_texmf = local_texmf[:-2]
+		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
+        
+		" Now search for the file!
 		for bib_path in bib_paths
 			for bib_extension in bib_extensions
-				echo bib_path . bib_extension
 				if filereadable(bib_path . "." . bib_extension)
 					let g:pandoc_bibfile = bib_path . "." . bib_extension
 				endif
