@@ -70,7 +70,7 @@ something like
 
 in your vimrc. When that is set, the bundle instead sets
 
-    setlocal formatoptions=qct
+    setlocal formatoptions=tn
 
 If you also want autoformatting, set g:pandoc_auto_format:
 

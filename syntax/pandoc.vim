@@ -190,6 +190,9 @@ syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
 syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
 
 """""""""""""""""""""""""""""""""""""""""""""""
+syn match pandocNewLine /\(  \|\\\)$/
+
+"""""""""""""""""""""""""""""""""""""""""""""""
 hi link pandocTitleBlock Directory
 hi link pandocAtxHeader Title
 hi link pandocSetexHeader Title
@@ -225,5 +228,7 @@ hi link pandocNoFormatted String
 hi link pandocSubscript Special
 hi link pandocSuperscript Special
 hi link pandocStrikeout Special
+
+hi link pandocNewLine Error
 
 let b:current_syntax = "pandoc"
