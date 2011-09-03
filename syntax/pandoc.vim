@@ -190,7 +190,7 @@ syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
 syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
 
 """""""""""""""""""""""""""""""""""""""""""""""
-syn match pandocNewLine /  $/
+syn match pandocNewLine /\(  \|\\\)$/
 
 """""""""""""""""""""""""""""""""""""""""""""""
 hi link pandocTitleBlock Directory
