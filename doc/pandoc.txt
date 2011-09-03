@@ -90,6 +90,16 @@ g:pandoc_no_empty_implicits:
 
     let g:pandoc_no_empty_implicits = 1
 
+Due to the way they are handled, span elements (emphasis, bold, tt, subscript
+and superscript) can cause slowdowns. If you desire to disable highlighting of
+them altogether, set g:pandoc_no_spans:
+
+    let g:pandoc_no_spans = 1
+
+Note that this will also disable highlighting of embedded html, because
+otherwise stuff like `<code>` (which is unformatted) is detected as containing
+html that doesn't end.
+
 *pandoc-snippets*
 =================
 
