@@ -272,7 +272,7 @@ endif
 let s:completion_type = ''
 
 function! Pandoc_Find_Bibfile()
-	if !exists('g:pandoc_bibfile')
+	if !exists('g:pandoc_bibfile') || g:pandoc_bibfile == ""
 		" A list of supported bibliographic database extensions, in reverse
 		" order of priority:
 		let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
