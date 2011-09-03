@@ -4,6 +4,33 @@
 If viewing from within vim, set ft=help to view it as a helpfile, and
 set ft=pandoc to view it as a (pandoc) markdown file.]
 
+Experimental Zotero Branch
+==========================
+
+This is an experimental branch of vim-pandoc, looking at ways to 
+support citation key completion from Zotero, and ways to push
+Zotero bibliographic data to pandoc.
+
+At the moment, there is support of citation key completion. To use
+this, you need to set
+
+    g:pandoc_bibtype = "zotero"
+
+Right now, the ftplugin in this branch does this automatically for 
+all markdown files to make testing easy. You also need to set
+
+    g:zotero_folder = "/path/to/your/zotero/datadirectory"
+
+You also need pygnotero, which you can get 
+[here](https://github.com/smathot/Gnotero). I was able to install
+the libraries on OS X with 
+
+    python setup.py install
+
+This threw up a bunch of errors, and the GUI version of Gnotero
+did not install, but the libraries did, and that is all you need
+for this.
+
 Vim Plugin for *pandoc*
 =======================
 
