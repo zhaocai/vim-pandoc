@@ -271,7 +271,7 @@ function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
 		" A list of supported bibliographic database extensions, in reverse
 		" order of priority:
-        let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
+		let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
 
 		" Build up a list of paths to search, in reverse order of priority:
 		"
@@ -297,9 +297,12 @@ function! Pandoc_Find_Bibfile()
 			for bib_extension in bib_extensions
 				if filereadable(bib_path . "." . bib_extension)
 					let g:pandoc_bibfile = bib_path . "." . bib_extension
+					let g:pandoc_bibtype = bib_extension
 				endif
 			endfor
 		endfor
+	else
+	    let g:pandoc_bibtype = matchstr(g:pandoc_bibfile, '\zs\.[^\.]*')
 	endif
 endfunction
 
@@ -332,19 +335,24 @@ function! Pandoc_BibKey(partkey)
 	let myres = ''
 ruby << EOL
 bib = VIM::evaluate('g:pandoc_bibfile')
+bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
 string = VIM::evaluate('a:partkey')
 
 File.open(bib) { |file|
 	text = file.read
-	keys = []
-	# match bibtex keys
-	keys = keys + text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
-	# match mods keys
-	keys = keys + text.scan(/<mods ID=\"(#{string}.*?)\">/i)
-	# match RIS keys
-	keys = keys + text.scan(/^ID\s+-\s+(#{string}.*)$/i)
-	# match JSON CSL keys
-	keys = keys + text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
+	if bibtype == 'xml'
+		# match mods keys
+		keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
+	elsif bibtype == 'ris'
+		# match RIS keys
+		keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
+    elsif bibtype == 'json'
+		# match JSON CSL keys
+		keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
+	else
+		# match bibtex keys
+		keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
+	end
 	keys.uniq!
 	keys.sort!
 	results = keys.join(" ")
