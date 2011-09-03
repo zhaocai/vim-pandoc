@@ -123,19 +123,36 @@ g:pandoc_no_folding:
 *pandoc-citation-completion*
 ============================
 
-If you have a bibtex file (or a symlink to a bibtex file) named
-'default.bib' in one of these folders,
+*pandoc-bibfile* location
+-----------------------
 
-    ~/.pandoc
-    ~/Library/texmf/bibtex/bib
-    ~/texmf/bibtex/bib
-
-then the plugin will automatically use that file for citation
-completion. Or, set g:pandoc_bibfile:
+In order to complete citation keys, we need to know the location of your
+bibliographical database. You can set this manually by putting something
+like
 
     let g:pandoc_bibfile = '/the/path/to/your/bibtex/file.bib'
 
-to use your preferred file.
+in your vimrc. We currently support key completion from files in 
+bibtex format, MODS format, RIS format, and citeproc's JSON format. 
+
+If g:pandoc_bibfile is not set, we will look for the following files (or
+symlinks) in the following order:
+
+    ~/.pandoc/default.bib
+    ~/.pandoc/default.xml
+    ~/.pandoc/default.ris
+    ~/.pandoc/default.json
+
+If that fails, we will look for the following bibtex files:
+
+    ~/Library/texmf/bibtex/bib/default.bib
+    ~/texmf/bibtex/bib/default.bib
+
+On Windows, we will look for default.bib, default.xml, default.ris, or
+default.json in the APPDATA\pandoc folder.
+
+Using Citation Completion
+=========================
 
 To use completion, start typing a citekey, e.g.,
 
@@ -174,9 +191,8 @@ to complete the citation.
 >
 > -   borrowing settings from latex plugins, if present
 > -   finding the local texmf tree programatically
-> -   using (all?) bibtex files found in any of the search paths
+> -   using (all?) bibliography files found in any of the search paths
 > -   including the directory that the file is in among the search paths
-> -   better support for other bibliography database formats
 
 *pandoc-citation-dictionary*
 ----------------------------
