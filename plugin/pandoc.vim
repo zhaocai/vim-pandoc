@@ -22,8 +22,10 @@ elif sys.platform.startswith("win"):
 # we might use this for adjusting paths
 if sys.platform.startswith("win"):
 	vim.command('let g:paths_style = "win"')
+	vim.command('let g:paths_sep = "\\"')
 else:
 	vim.command('let g:paths_style = "posix"')
+	vim.command('let g:paths_sep = "/"')
 
 # On windows, we pass commands as an argument to `start`, which is a cmd.exe builtin, so we have to quote it
 if sys.platform.startswith("win"):
@@ -267,36 +269,35 @@ let s:completion_type = ''
 
 function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
+		" Supported bibliographic database extensions, in reverse
+		" order of priority
+        let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
+
+		" Paths to search, in reverse order of priority
+		"   First look for a file with the same basename as current file
+		let bib_paths = [ expand("%:p:r") ]
+		"   Next look for a file with basename `default` in the same 
+		"   directory as current file
+		let bib_paths = [ expand("%:p:h") . g:paths_sep ."default" ] + bib_paths
 		if eval("g:paths_style") == "posix"
-			if filereadable($HOME . '/.pandoc/default.bib')
-				let g:pandoc_bibfile = $HOME . '/.pandoc/default.bib'
-			elseif filereadable($HOME . '/.pandoc/default.xml')
-				let g:pandoc_bibfile = $HOME . '/.pandoc/default.xml'
-			elseif filereadable($HOME . '/.pandoc/default.ris')
-				let g:pandoc_bibfile = $HOME . '/.pandoc/default.ris'
-			elseif filereadable($HOME . '/.pandoc/default.json')
-				let g:pandoc_bibfile = $HOME . '/.pandoc/default.json'
-			elseif filereadable($HOME . '/Library/texmf/bibtex/bib/default.bib')
-				let g:pandoc_bibfile = $HOME . '/Library/texmf/bibtex/bib/default.bib'
-			elseif filereadable($HOME . '/texmf/bibtex/bib/default.bib')
-				let g:pandoc_bibfile = $HOME . '/texmf/bibtex/bib/default.bib'
-			else
-				return []
-			endif
+			" 	Next look for a file with basename `default` in the pandoc
+			"   data directory
+			let bib_paths = [ $HOME . '/.pandoc/default' ] + bib_paths
+			"   Next look for a file with bn `default` in ~/Library/texmf...
+			let bib_paths = [ $HOME . '/Library/texmf/bibtex/bib/default' ] + bib_paths
+			"   Next in ~/texmf/bibtex...
+			let bib_paths = [ $HOME . '/texmf/bibtex/bib/default' ] + bib_paths
 		else
-			if filereadable(%APPDATA% . '\pandoc\default.bib')
-				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.bib'
-			elseif filereadable(%APPDATA% . '\pandoc\default.xml')
-				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.xml'
-			elseif filereadable(%APPDATA% . '\pandoc\default.ris')
-				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.ris'
-			elseif filereadable(%APPDATA% . '\pandoc\default.json')
-				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.json'
-			" TODO check other possible paths
-			else
-				return []
-			endif
+			let bib_paths = [ %APPDATA% . '\pandoc\default.bib' ] + bib_paths
 		endif
+		for bib_path in bib_paths
+			for bib_extension in bib_extensions
+				echo bib_path . bib_extension
+				if filereadable(bib_path . "." . bib_extension)
+					let g:pandoc_bibfile = bib_path . "." . bib_extension
+				endif
+			endfor
+		endfor
 	endif
 endfunction
 
