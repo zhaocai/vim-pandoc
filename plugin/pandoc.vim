@@ -299,7 +299,14 @@ string = VIM::evaluate('a:partkey')
 File.open(bib) { |file|
 	text = file.read
 	keys = []
+	# match bibtex keys
 	keys = keys + text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
+	# match mods keys
+	keys = keys + text.scan(/<mods ID=\"(#{string}.*?)\">/i)
+	# match RIS keys
+	keys = keys + text.scan(/^ID\s+-\s+(#{string}.*)$/i)
+	# match JSON CSL keys
+	keys = keys + text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
 	keys.uniq!
 	keys.sort!
 	results = keys.join(" ")
