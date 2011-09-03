@@ -294,16 +294,12 @@ Default executors
 
 By default, vim-pandoc provides some handy executors:
 
-* *PandocPdfOpen* (`<localleader>pdf`), which runs markdown2pdf.
+* *PandocPdfOpen* (`<localleader>pdf`), which runs markdown2pdf, passing the
+  value of `g:pandoc_bibfile` as the argument of `--bibliography`.
 * *PandocHtmlOpen* (`<localleader>html`), which creates a standalone html.
-* *PandocOdtOpen* (`<localleader>odt`), which creates an ODT file.
+* *PandocOdtOpen* (`<localleader>odt`), which creates an ODT file, passing the
+  value of `g:pandoc_bibfile` as the argument of `--bibliography`.
 
-and
-
-* *PandocPdfBibOpen* (`<localleader>pdfb`), which runs markdown2pdf using the
-  value of `g:pandoc_bibfile` as the bibliography.
-* *PandocOdtBibOpen* (`<localleader>odtb`), which creates an ODT file using
-  `g:pandoc_bibfile` as the bibliography.
 
 For the mappings to work, you must have |maplocalleader| defined in your vimrc,
 e.g.,
