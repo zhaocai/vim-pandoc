@@ -295,7 +295,7 @@ from pygnotero import libzotero
 if __name__ == "__main__":
 
 	# Path to your Zotero folder
-	zotero_folder = "/Users/David/Documents/Zotero"
+	zotero_folder = vim.eval("g:zotero_folder")
 
 	# Connect to Zotero
 	zotero = libzotero.libzotero(zotero_folder)
