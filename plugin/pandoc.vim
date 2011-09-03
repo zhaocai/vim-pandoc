@@ -286,11 +286,11 @@ function! Pandoc_Find_Bibfile()
 		else
 			if filereadable(%APPDATA% . '\pandoc\default.bib')
 				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.bib'
-			if filereadable(%APPDATA% . '\pandoc\default.xml')
+			elseif filereadable(%APPDATA% . '\pandoc\default.xml')
 				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.xml'
-			if filereadable(%APPDATA% . '\pandoc\default.ris')
+			elseif filereadable(%APPDATA% . '\pandoc\default.ris')
 				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.ris'
-			if filereadable(%APPDATA% . '\pandoc\default.json')
+			elseif filereadable(%APPDATA% . '\pandoc\default.json')
 				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.json'
 			" TODO check other possible paths
 			else
