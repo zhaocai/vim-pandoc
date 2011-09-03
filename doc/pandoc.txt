@@ -97,7 +97,7 @@ something like
 
 in your vimrc. When that is set, the bundle instead sets
 
-    setlocal formatoptions=qct
+    setlocal formatoptions=tn
 
 If you also want autoformatting, set g:pandoc_auto_format:
 
@@ -116,6 +116,16 @@ files and slow things down. To disable it, set
 g:pandoc_no_empty_implicits:
 
     let g:pandoc_no_empty_implicits = 1
+
+Due to the way they are handled, span elements (emphasis, bold, tt, subscript
+and superscript) can cause slowdowns. If you desire to disable highlighting of
+them altogether, set g:pandoc_no_spans:
+
+    let g:pandoc_no_spans = 1
+
+Note that this will also disable highlighting of embedded html, because
+otherwise stuff like `<code>` (which is unformatted) is detected as containing
+html that doesn't end.
 
 *pandoc-snippets*
 =================
@@ -140,19 +150,60 @@ g:pandoc_no_folding:
 *pandoc-citation-completion*
 ============================
 
-If you have a bibtex file (or a symlink to a bibtex file) named
-'default.bib' in one of these folders,
+*pandoc-bibfile*
+--------------
 
-    ~/.pandoc
-    ~/Library/texmf/bibtex/bib
-    ~/texmf/bibtex/bib
-
-then the plugin will automatically use that file for citation
-completion. Or, set g:pandoc_bibfile:
+In order to complete citation keys, we need to know the location of your
+bibliographical database. You can set this manually by putting something
+like
 
     let g:pandoc_bibfile = '/the/path/to/your/bibtex/file.bib'
 
-to use your preferred file.
+in your vimrc. We currently support key completion from files in 
+bibtex format, MODS format, RIS format, and citeproc's JSON format. If
+you don't intend to use key completion, you can set g:pandoc_bibfile to
+any format citeproc-hs supports.
+
+If g:pandoc_bibfile is not set, we try to find something appropriate. We
+look in various places for a file with the extension `.bib`, `.biblatex`,
+`.xml`, `.ris`, or `.json`, in that order. We set g:pandoc_bibfile to the
+first such file we find.
+
+The first place we look is in the directory that contains the file in the
+current buffer. In that directory, we first look for a file that shares
+the same basename as the file in the current buffer, but with a bibfile
+extension. So, for example, if you are editing
+
+    /some/long/path/to/your/file.markdown
+
+we will look for
+
+    /some/long/path/to/your/file.bib
+    /some/long/path/to/your/file.biblatex
+    /some/long/path/to/your/file.xml
+
+and so on. If no such file is in the directory, we then look for a file
+named `default` with an appropriate extension.
+
+If we can't find anything in the directory of file in the current buffer,
+we proceed to look for files named `default` with an appropriate extension
+in your pandoc data directory (~/.pandoc on POSIX systems). If you want to
+use a single global bibliographic database for all your documents, we 
+recommend that you put it (or a symlink to it) here.
+
+If we don't find anything in your data directory, we look in your local
+texmf tree, using the path specified by
+
+    kpsewhich -var-value TEXMFHOME
+
+Again, we look for a file named `default` with an appropriate extension.
+
+You can always check to see what we've settled on by
+
+    :echo g:pandoc_bibfile
+
+Using Citation Completion
+=========================
 
 To use completion, start typing a citekey, e.g.,
 
@@ -191,9 +242,8 @@ to complete the citation.
 >
 > -   borrowing settings from latex plugins, if present
 > -   finding the local texmf tree programatically
-> -   using (all?) bibtex files found in any of the search paths
+> -   using (all?) bibliography files found in any of the search paths
 > -   including the directory that the file is in among the search paths
-> -   better support for other bibliography database formats
 
 *pandoc-citation-dictionary*
 ----------------------------
@@ -232,26 +282,63 @@ If there is a particular conversion that you do all the time with a
 particular set of options, you might want to define a leader mapping
 in your vimrc.
 
-*PandocHtmlOpen* *PandocPdfOpen* and *PandocOdtOpen*
------------------------------------------------------
+*PandocRegisterExecutor*
+------------------------
 
-We currently provide three convert-and-open functions. When you run
-PandocPdfOpen, for example, the file in the current buffer is converted to PDF
-and then opened in your default PDF viewer. (Linux users: these commands depend
-on xdg-open.)
+Better yet, you can define a command and a mapping using the
+PandocRegisterExecutor command. It tells vim-pandoc to register a local command
+and a local mapping for a certain set of pandoc parameters. It can also specify
+whether the resulting file should be opened or not. We call this an executor.
+The syntax of `PandocRegisterExecutor` is
 
-If you have defined |maplocalleader| in your vimrc, e.g.,
+    :PandocRegisterExecutor NAME MAP OPEN COMMAND
+
+where NAME is the name of the Command, MAP is the mapping for it, OPEN is a
+flag specifying if the resulting file should be opened using the default
+application (on linux, this depends on xdg-open being available), and COMMAND
+is a description of the command to create the document. For example:
+
+    :PandocRegisterExecutor PdcPdf <Leader>pdf 1 markdown2pdf
+
+should register a PdcPdf command that runs markdown2pdf on the current file and
+opens the resulting pdf afterwards, and a mapping to do the same.
+
+Executors are registered before opening a file.
+
+Executors depend on the `pandoc_execute` function, which can be called like
+this:
+
+    :py pandoc_execute(COMMAND, OPEN)
+
+COMMAND can include vim variables, like `g:pandoc_bibfile`. Those will be
+evaluated before executing the command, so the user can define executors that
+can access those variables. For example:
+
+    :PandocRegisterExecutor PdcPdfB <Leader>pdfb 1 markdown2pdf --bibliography g:pandoc_bibfile
+
+Default executors
+-----------------
+
+By default, vim-pandoc provides some handy executors:
+
+* *PandocPdfOpen* (`<localleader>pdf`), which runs markdown2pdf.
+* *PandocHtmlOpen* (`<localleader>html`), which creates a standalone html.
+* *PandocOdtOpen* (`<localleader>odt`), which creates an ODT file.
+
+and
+
+* *PandocPdfBibOpen* (`<localleader>pdfb`), which runs markdown2pdf using the
+  value of `g:pandoc_bibfile` as the bibliography.
+* *PandocOdtBibOpen* (`<localleader>odtb`), which creates an ODT file using
+  `g:pandoc_bibfile` as the bibliography.
+
+For the mappings to work, you must have |maplocalleader| defined in your vimrc,
+e.g.,
 
     let maplocalleader = ","
 
-then we will define localleader mappings for each of these commands:
-
-    <localleader>pdf
-    <localleader>odt
-    <localleader>html
-
-So then you can type something like `,pdf` and a PDF version of your current
-buffer will be displayed.
+Then, for example, you can type something like `,pdf` and a PDF version of your
+current buffer will be displayed.
 
 *pandoc-tidying-functions*
 ==========================
@@ -316,7 +403,6 @@ fun?[^note] Now you probably want to go ahead and
 to get back to viewing this as a help file.
 
 [somewhere in here]: http://example.com "Now type `,br` to jump back."
-
 [^note]: Also supports footnotes. Type `,br` to jump back.
 
 Finally, there is

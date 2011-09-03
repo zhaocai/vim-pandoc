@@ -1,7 +1,7 @@
 " Vim syntax file
 " Language:	Pandoc (superset of Markdown)
+" Maintainer: David Sanson <dsanson@gmail.com>
 " Maintainer: Felipe Morales <hel.sheep@gmail.com>
-" Maintainer: David Sanson <dsanson@gmail.com> 	
 " OriginalAuthor: Jeremy Schultz <taozhyn@gmail.com>
 " Version: 4.0
 " Remark: Mayor rewrite.
@@ -15,9 +15,31 @@ endif
 syntax case match
 syntax spell toplevel
 " TODO: optimize
-syn sync linebreaks=5 minlines=40 maxlines=200
+syn sync linebreaks=1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set embedded HTML highlighting
+syn include @HTML syntax/html.vim
+" this breaks when g:pandoc_no_spans is 1
+if !exists("g:pandoc_no_spans") || !g:pandoc_no_spans
+syn match pandocHTML /<\a[^>]\+>/ contains=@HTML
+endif
+" Support HTML multi line comments
+syn region pandocHTMLComment start=/<!--/ end=/-->/
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Set embedded LaTex (pandoc extension) highlighting
+" Unset current_syntax so the 2nd include will work
+unlet b:current_syntax
+syn include @LATEX syntax/tex.vim
+" Single Tex command
+syn match pandocLatex /\\\w\S/ contains=@LATEX
+" Math Tex
+syn match pandocLatex /\$.\{-}\$/ contains=@LATEX
+
+
+if !exists("g:pandoc_no_spans") || !g:pandoc_no_spans
 syn match pandocPara /\(^\(=\|[-:#%>]\|\[.\{-}\]:\)\@!\(\S.*\)\n\)\(\(^[=-].*\n\)\|\(^[:].*\n\)\)\@!/ contains=pandocEmphasis,pandocStrong,pandocNoFormatted,pandocSuperscript,pandocSubscript,pandocStrikeout,pandocLinkArea,pandocFootnoteID,@Spell,pandocPCite
+endif
 
 syn match pandocTitleBlock /\%^\(%.*\n\)\{1,3}$/ skipnl
 
@@ -46,7 +68,7 @@ syn match pandocCodePre /<code>.\{-}<\/code>/ skipnl
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " Links:
-syn region pandocLinkArea start=/\[.\{-}\]\@<=\(:\|(\|\[\)/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle,pandocAutomaticLink
+syn region pandocLinkArea start=/\[.\{-}\]\@<=\(:\|(\|\[\)/ skip=/\(\]\(\[\|(\)\|\]: \)/ end=/\(\(\]\|)\)\|\(^\s*\n\|\%^\)\)/ contains=pandocLinkText,pandocLinkURL,pandocLinkTitle,pandocAutomaticLink,pandocPCite
 syn match pandocLinkText /\[\@<=.\{-}\]\@=/ containedin=pandocLinkArea contained contains=@Spell
 " TODO: adapt gruber's regex to match URLs; the current regex is quite limited
 syn match pandocLinkURL /https\{0,1}:.\{-}\()\|\s\|\n\)\@=/ containedin=pandocLinkArea contained
@@ -99,25 +121,27 @@ syn region pandocFootnoteBlock start=/\[\^.\{-}\]:\s*\n*/ end=/^\n^\s\@!/ contai
 syn match pandocFootnoteID /\[\^.\{-}\]/ contained containedin=pandocFootnoteBlock
 
 """"""""""""""""""""""""""""""""""""""""""""""
-" Tables: TODO
-"
-""""""""""""""""""""""""""""""""""""""""""""""
 " Citations:
 " parenthetical citations
-syn match pandocPCite /\[-\?@.\{-}\]/ contained contains=pandocEmphasis,pandocStrong,pandocLatex,@Spell
+syn match pandocPCite /\[-\{0,1}@.\{-}\]/ contains=pandocEmphasis,pandocStrong,pandocLatex,@Spell
 " syn match pandocPCite /\[\w.\{-}\s-\?.\{-}\]/ contains=pandocEmphasis,pandocStrong
 " in-text citations without location
-syn match pandocPCite /@\w*/ contained 
+syn match pandocPCite /@\w*/
 " in-text citations with location
-syn match pandocPCite /@\w*\s\[.\{-}\]/ contained
+syn match pandocPCite /@\w*\s\[.\{-}\]/
+
+""""""""""""""""""""""""""""""""""""""""""""""
+" Tables: TODO
+"
 """""""""""""""""""""""""""""""""""""""""""""""
+if !exists("g:pandoc_no_spans") || !g:pandoc_no_spans
 " Text Styles:
 " TODO: make the matches allow for items spanning several lines
 
 " Strong:
 "
 " Using underscores
-syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl 
+syn match pandocStrong /\(__\)\([^_ ]\|[^_]\( [^_]\)\+\)\+\1/ contained contains=@Spell skipnl
 " Using Asterisks
 syn match pandocStrong /\(\*\*\)\([^\* ]\|[^\*]\( [^\*]\)\+\)\+\1/ contained contains=@Spell skipnl
 """""""""""""""""""""""""""""""""""""""
@@ -135,17 +159,18 @@ syn region pandocNoFormatted start=/`/ end=/`\|^\s*$/ contained
 " Using double back ticks
 syn region pandocNoFormatted start=/``[^`]*/ end=/``\|^\s*$/ contained
 
+endif
 
 " Subscripts:
-syn match pandocSubscript /\~\([^\~\\ ]\|\(\\ \)\)\+\~/ contains=@Spell contained
+syn match pandocSubscript /\~\([^\~\\ ]\|\(\\ \)\)\+\~/ contains=@Spell 
 
 """""""""""""""""""""""""""""""""""""""
 " Superscript:
-syn match pandocSuperscript /\^\([^\^\\ ]\|\(\\ \)\)\+\^/ contains=@Spell contained
+syn match pandocSuperscript /\^\([^\^\\ ]\|\(\\ \)\)\+\^/ contains=@Spell 
 
 """""""""""""""""""""""""""""""""""""""
 " Strikeout:
-syn match pandocStrikeout /\~\~[^\~ ]\([^\~]\|\~ \)*\~\~/ contains=@Spell contained
+syn match pandocStrikeout /\~\~[^\~ ]\([^\~]\|\~ \)*\~\~/ contains=@Spell 
 
 """""""""""""""""""""""""""""""""""""""""""""""
 " List Items:
@@ -163,6 +188,9 @@ syn match pandocListItem /^\s*(*@.\{-}[.)]\+\s\{1,}/he=e-1 nextgroup=pandocPara
 syn match pandocHRule /\s\{0,3}\(-\s*\)\{3,}\n/
 " 3 or more - on a line
 syn match pandocHRule /\s\{0,3}\(\*\s*\)\{3,}\n/
+
+"""""""""""""""""""""""""""""""""""""""""""""""
+syn match pandocNewLine /\(  \|\\\)$/
 
 """""""""""""""""""""""""""""""""""""""""""""""
 hi link pandocTitleBlock Directory
@@ -194,11 +222,13 @@ hi link pandocPCite Label
 
 hi link pandocHRule		Underlined
 
-hi pandocEmphasis gui=italic cterm=italic 
+hi pandocEmphasis gui=italic cterm=italic
 hi pandocStrong gui=bold cterm=bold
 hi link pandocNoFormatted String
 hi link pandocSubscript Special
 hi link pandocSuperscript Special
 hi link pandocStrikeout Special
+
+hi link pandocNewLine Error
 
 let b:current_syntax = "pandoc"

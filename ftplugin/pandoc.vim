@@ -126,34 +126,24 @@ command! -buffer MarkdownTidyWrap %!pandoc -t markdown -s
 
 command! -buffer MarkdownTidy %!pandoc -t markdown --no-wrap -s
 
-" Generate html and open in default html viewer
-	
-command! -buffer PandocHtmlOpen exec 'py pandoc_html_open()'
-
-" Generate pdf and open in default pdf viewer
-
-command! -buffer PandocPdfOpen exec 'py pandoc_pdf_open()'
-
-" Generate pdf w/ citeproc and open in default pdf view
-
-command! -buffer PandocPdfBibOpen exec 'py pandoc_pdf_bib_open()'
-
-" Generate odt and open in default odt viewer
-
-command! -buffer PandocOdtOpen exec 'py pandoc_odt_open()'
-
-" Generate odt w/ citeproc and open in default odt viewer
-
-command! -buffer PandocOdtBibOpen exec 'py pandoc_odt_bib_open()'
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" # Some <LocalLeader> mappings
-"
-" It <LocalLeader> is defined (with 'let maplocalleader') we will map some commands.
-"
-map <buffer><silent> <LocalLeader>html :PandocHtmlOpen<CR>
-map <buffer><silent> <LocalLeader>pdf :PandocPdfOpen<CR>
-map <buffer><silent> <LocalLeader>odt :PandocOdtOpen<CR>
+" # Some executors
+" 
+
+" We create some commands and mappings from our list of executors. See
+" plugin/pandoc.vim
+python<<EOF
+for opener in pandoc_executors:
+	name, mapping, execute, command = opener
+	open_when_done = bool(int(execute)).__repr__()
+	if command not in ("", "None", None):
+		executor = 'py pandoc_execute("' + command + '",' + open_when_done + ')'
+		if name not in ("", "None", None):
+			vim.command("command! -buffer " + name + " exec '" + executor + "'")
+		if mapping not in ("", "None", None):
+			vim.command("map <buffer><silent> " + mapping + \
+						" :" + executor + "<cr>")
+EOF
 
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.

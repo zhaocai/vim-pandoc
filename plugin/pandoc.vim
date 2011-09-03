@@ -22,84 +22,16 @@ elif sys.platform.startswith("win"):
 # we might use this for adjusting paths
 if sys.platform.startswith("win"):
 	vim.command('let g:paths_style = "win"')
+	vim.command('let g:paths_sep = "\\"')
 else:
 	vim.command('let g:paths_style = "posix"')
+	vim.command('let g:paths_sep = "/"')
 
 # On windows, we pass commands as an argument to `start`, which is a cmd.exe builtin, so we have to quote it
 if sys.platform.startswith("win"):
 	open_command_tail = '"'
 else:
 	open_command_tail = ''
-
-# This decorator takes a function named 'pandoc_FORMAT_open' which returns a list describing a command
-# and returns a function that will open a file created by running that command.
-def pandoc_opener(func):
-	def wrapped():
-		# the output file name is inferred from the name of the buffer and the name of the decorated function.
-		out = vim.eval('expand("%:r")') + "." + func.func_name.split("_")[1]
-		command_list = func(out) # the decorated function returns a list describing what to run
-		# we run the command and retrieve its output
-		output = Popen(command_list, stdout=PIPE, stderr=PIPE).communicate()
-
-		# we create a temporary buffer where the command and its output will be shown
-		
-		# this builds a list of lines we are going to write to the buffer
-		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
-		lines.insert(0, "▶ " + " ".join(command_list))
-		lines.insert(0, "# Press <Esc> to close this ")
-
-		# we always splitbelow
-		splitbelow = bool(int(vim.eval("&splitbelow")))
-		if not splitbelow:
-			vim.command("set splitbelow")
-		
-		vim.command("3new")
-		vim.current.buffer.append(lines)
-		vim.command("normal dd")
-		vim.command("setlocal nomodified")
-		vim.command("setlocal nomodifiable")
-		# pressing <esc> on the buffer will delete it
-		vim.command("map <buffer> <esc> :bd<cr>")
-		# we will highlight some elements in the buffer
-		vim.command("syn match PandocOutputMarks /^>>/")
-		vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
-		vim.command("syn match PandocInstructions /^#.*$/")
-		vim.command("hi! link PandocOutputMarks Operator")
-		vim.command("hi! link PandocCommand Statement")
-		vim.command("hi! link PandocInstructions Comment")
-
-		# we revert splitbelow to its original value
-		if not splitbelow:
-			vim.command("set nosplitbelow")
-
-		# finally, we open the created file
-		if exists(out):
-			Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
-	return wrapped
-
-@pandoc_opener
-def pandoc_pdf_open(out=None):
-	return ["markdown2pdf",  "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_pdf_bib_open(out=None):
-    return ["markdown2pdf", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_html_open(out=None):
-	return ["pandoc", "-t", "html",  "-sS",  "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_html_bib_open(out=None):
-    return ["pandoc", "-t", "html", "-sS", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_odt_open(out=None):
-	return ["pandoc", "-t", "odt", "-S", "-o", out, vim.current.buffer.name]
-
-@pandoc_opener
-def pandoc_odt_bib_open(out=None):
-    return ["pandoc", "-t", "odt", "-S", "--bibliography=" + vim.eval("g:pandoc_bibfile"), "-o", out, vim.current.buffer.name]
 
 def pandoc_open_uri():
 	line = vim.current.line
@@ -190,7 +122,99 @@ def pandoc_go_back_from_ref():
 			if found:
 				break
 
+def pandoc_execute(command, open_when_done=True):
+	command = command.split()
+	
+	# first, we evaluate the output extension
+	if command[0] == "markdown2pdf": # always outputs pdfs
+		out_extension = "pdf"
+	else:
+		try:
+			out_extension = command[command.index("-t") + 1]
+		except ValueError:
+			out_extension = "html"
+	out = vim.eval('expand("%:r")') + "." + out_extension
+	command.extend(["-o", out])
+	command.append(vim.current.buffer.name)
+
+	# we evaluate global vim variables. This way, we can register commands that 
+	# pass the value of our variables (e.g, g:pandoc_bibfile).
+	for value in command:
+		if value.startswith("g:"):
+			command[command.index(value)] = vim.eval(value)
+	
+	# we run pandoc with our arguments
+	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
+
+	# we create a temporary buffer where the command and its output will be shown
+	
+	# this builds a list of lines we are going to write to the buffer
+	lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
+	lines.insert(0, "▶ " + " ".join(command))
+	lines.insert(0, "# Press <Esc> to close this ")
+
+	# we always splitbelow
+	splitbelow = bool(int(vim.eval("&splitbelow")))
+	if not splitbelow:
+		vim.command("set splitbelow")
+	
+	vim.command("3new")
+	vim.current.buffer.append(lines)
+	vim.command("normal dd")
+	vim.command("setlocal nomodified")
+	vim.command("setlocal nomodifiable")
+	# pressing <esc> on the buffer will delete it
+	vim.command("map <buffer> <esc> :bd<cr>")
+	# we will highlight some elements in the buffer
+	vim.command("syn match PandocOutputMarks /^>>/")
+	vim.command("syn match PandocCommand /^▶.*$/hs=s+1")
+	vim.command("syn match PandocInstructions /^#.*$/")
+	vim.command("hi! link PandocOutputMarks Operator")
+	vim.command("hi! link PandocCommand Statement")
+	vim.command("hi! link PandocInstructions Comment")
+
+	# we revert splitbelow to its original value
+	if not splitbelow:
+		vim.command("set nosplitbelow")
+
+	# finally, we open the created file
+	if exists(out) and open_when_done:
+		Popen([open_command, out + open_command_tail], stdout=PIPE, stderr=PIPE)
+
+# We register openers with PandocRegisterExecutor. 
+# We take its first argument as the name of a vim ex command, the second
+# argument as a mapping, the third argument as a flag determing whether to
+# open the resulting file,  and the rest as the description of a command,
+# which we'll pass to pandoc_open.
+
+# pandoc_register_opener(...) adds a tuple of those elements to a list of openers. This list will be 
+# read from by ftplugin/pandoc.vim and commands and mappings will be created from it.
+pandoc_executors = []
+def pandoc_register_executor(com_ref):
+	args = com_ref.split()
+	name = args[0]
+	mapping = args[1]
+	open_when_done = args[2]
+	command = args[3:]
+	pandoc_executors.append((name, mapping, open_when_done, " ".join(command)))
 EOF
+
+command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<args>")'
+
+" We register here some default executors. The user can define other custom
+" commands in his .vimrc.
+"
+" Generate html and open in default html viewer
+PandocRegisterExecutor PandocHtmlOpen <LocalLeader>html 1 pandoc -t html -Ss
+" Generate pdf and open in default pdf viewer
+PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf
+" Generate odt and open in default odt viewer
+PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt
+" Generate pdf w/ citeproc and open in default pdf view
+PandocRegisterExecutor PandocPdfBibOpen <LocalLeader>pdfb 1 markdown2pdf --bibliography g:pandoc_bibfile
+" Generate odt w/ citeproc and open in default odt viewer
+PandocRegisterExecutor PandocOdtBibOpen <LocalLeader>odtb 1 pandoc -t -odt --bibliography g:pandoc_bibfile
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
@@ -245,24 +269,40 @@ let s:completion_type = ''
 
 function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
+		" A list of supported bibliographic database extensions, in reverse
+		" order of priority:
+		let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
+
+		" Build up a list of paths to search, in reverse order of priority:
+		"
+		" First look for a file with the same basename as current file
+		let bib_paths = [ expand("%:p:r") ]
+		" Next look for a file with basename `default` in the same 
+		" directory as current file
+		let bib_paths = [ expand("%:p:h") . g:paths_sep ."default" ] + bib_paths
+		" Next look for a file with basename `default` in the pandoc
+		" data directory
 		if eval("g:paths_style") == "posix"
-			if filereadable($HOME . '/.pandoc/default.bib')
-				let g:pandoc_bibfile = $HOME . '/.pandoc/default.bib'
-			elseif filereadable($HOME . '/Library/texmf/bibtex/bib/default.bib')
-				let g:pandoc_bibfile = $HOME . '/Library/texmf/bibtex/bib/default.bib'
-			elseif filereadable($HOME . '/texmf/bibtex/bib/default.bib')
-				let g:pandoc_bibfile = $HOME . '/texmf/bibtex/bib/default.bib'
-			else
-				return []
-			endif
+			let bib_paths = [ $HOME . '/.pandoc/default' ] + bib_paths
 		else
-			if filereadable(%APPDATA% . '\pandoc\default.bib')
-				let g:pandoc_bibfile = %APPDATA% . '\pandoc\default.bib'
-			" TODO check other possible paths
-			else
-				return []
-			endif
+			let bib_paths = [ %APPDATA% . '\pandoc\default' ] + bib_paths
 		endif
+		" Next look in the local texmf directory
+		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
+		let local_texmf = local_texmf[:-2]
+		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
+        
+		" Now search for the file!
+		for bib_path in bib_paths
+			for bib_extension in bib_extensions
+				if filereadable(bib_path . "." . bib_extension)
+					let g:pandoc_bibfile = bib_path . "." . bib_extension
+					let g:pandoc_bibtype = bib_extension
+				endif
+			endfor
+		endfor
+	else
+	    let g:pandoc_bibtype = matchstr(g:pandoc_bibfile, '\zs\.[^\.]*')
 	endif
 endfunction
 
@@ -323,12 +363,24 @@ function! Pandoc_BibKey(partkey)
 	let myres = ''
 ruby << EOL
 bib = VIM::evaluate('g:pandoc_bibfile')
+bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
 string = VIM::evaluate('a:partkey')
 
 File.open(bib) { |file|
 	text = file.read
-	keys = []
-	keys = keys + text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
+	if bibtype == 'xml'
+		# match mods keys
+		keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
+	elsif bibtype == 'ris'
+		# match RIS keys
+		keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
+    elsif bibtype == 'json'
+		# match JSON CSL keys
+		keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
+	else
+		# match bibtex keys
+		keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
+	end
 	keys.uniq!
 	keys.sort!
 	results = keys.join(" ")
