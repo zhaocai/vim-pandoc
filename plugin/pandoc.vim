@@ -141,8 +141,17 @@ def pandoc_execute(command, open_when_done=True):
 	# pass the value of our variables (e.g, g:pandoc_bibfile).
 	for value in command:
 		if value.startswith("g:"):
-			command[command.index(value)] = vim.eval(value)
-	
+			vim_value = vim.eval(value)
+			if vim_value == "":
+				if command[command.index(value) - 1] == "--bibliography":
+					command.remove(command[command.index(value) - 1])
+					command.remove(value)
+				else:
+					command[command.index(value)] = vim_value
+			else:
+				command[command.index(value)] = vim_value
+
+
 	# we run pandoc with our arguments
 	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
 
@@ -206,15 +215,10 @@ command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<arg
 "
 " Generate html and open in default html viewer
 PandocRegisterExecutor PandocHtmlOpen <LocalLeader>html 1 pandoc -t html -Ss
-" Generate pdf and open in default pdf viewer
-PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf
-" Generate odt and open in default odt viewer
-PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt
-" Generate pdf w/ citeproc and open in default pdf view
-PandocRegisterExecutor PandocPdfBibOpen <LocalLeader>pdfb 1 markdown2pdf --bibliography g:pandoc_bibfile
+" Generate pdf w/ citeproc and open in default pdf viewer
+PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf --bibliography g:pandoc_bibfile
 " Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterExecutor PandocOdtBibOpen <LocalLeader>odtb 1 pandoc -t -odt --bibliography g:pandoc_bibfile
-
+PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt --bibliography g:pandoc_bibfile
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
@@ -298,6 +302,8 @@ function! Pandoc_Find_Bibfile()
 				if filereadable(bib_path . "." . bib_extension)
 					let g:pandoc_bibfile = bib_path . "." . bib_extension
 					let g:pandoc_bibtype = bib_extension
+				else
+					let g:pandoc_bibfile = ""
 				endif
 			endfor
 		endfor
