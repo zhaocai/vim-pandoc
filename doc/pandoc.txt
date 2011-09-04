@@ -139,7 +139,7 @@ any format citeproc-hs supports.
 
 If g:pandoc_bibfile is not set, we try to find something appropriate. We
 look in various places for a file with the extension `.bib`, `.biblatex`,
-`.xml`, `.ris`, or `.json`, in that order. We set g:pandoc_bibfile to the
+`.mods`, `.ris`, or `.json`, in that order. We set g:pandoc_bibfile to the
 first such file we find.
 
 The first place we look is in the directory that contains the file in the

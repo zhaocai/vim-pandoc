@@ -275,7 +275,7 @@ function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
 		" A list of supported bibliographic database extensions, in reverse
 		" order of priority:
-		let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
+		let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]
 
 		" Build up a list of paths to search, in reverse order of priority:
 		"
@@ -347,7 +347,7 @@ string = VIM::evaluate('a:partkey')
 
 File.open(bib) { |file|
 	text = file.read
-	if bibtype == 'xml'
+	if bibtype == 'mods'
 		# match mods keys
 		keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
 	elsif bibtype == 'ris'
