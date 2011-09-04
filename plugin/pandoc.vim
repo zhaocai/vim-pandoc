@@ -292,10 +292,11 @@ function! Pandoc_Find_Bibfile()
 			let bib_paths = [ %APPDATA% . '\pandoc\default' ] + bib_paths
 		endif
 		" Next look in the local texmf directory
-		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
-		let local_texmf = local_texmf[:-2]
-		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
-        
+		if executable('kpsewhich')
+			let local_texmf = system("kpsewhich -var-value TEXMFHOME")
+			let local_texmf = local_texmf[:-2]
+			let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
+		endif
 		" Now search for the file!
 		for bib_path in bib_paths
 			for bib_extension in bib_extensions
