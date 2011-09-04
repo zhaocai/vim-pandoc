@@ -298,13 +298,12 @@ function! Pandoc_Find_Bibfile()
 			let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
 		endif
 		" Now search for the file!
+		let g:pandoc_bibfile = ""
 		for bib_path in bib_paths
 			for bib_extension in bib_extensions
 				if filereadable(bib_path . "." . bib_extension)
 					let g:pandoc_bibfile = bib_path . "." . bib_extension
 					let g:pandoc_bibtype = bib_extension
-				else
-					let g:pandoc_bibfile = ""
 				endif
 			endfor
 		endfor
