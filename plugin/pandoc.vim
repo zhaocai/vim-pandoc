@@ -331,41 +331,40 @@ function! Pandoc_Complete(findstart, base)
 		let suggestions = []
 		if s:completion_type == 'bib'
 			" suggest BibTeX entries
-			let suggestions = split(Pandoc_BibKey(a:base))
+			let suggestions = Pandoc_BibKey(a:base)
 		endif
 		return suggestions
 	endif
 endfunction
 
-function! Pandoc_BibKey(partkey)
-	let myres = ''
+function! Pandoc_BibKey(partkey) 
 ruby << EOL
-bib = VIM::evaluate('g:pandoc_bibfile')
-bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
-string = VIM::evaluate('a:partkey')
+	bib = VIM::evaluate('g:pandoc_bibfile')
+	bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
+	string = VIM::evaluate('a:partkey')
 
-File.open(bib) { |file|
-	text = file.read
-	if bibtype == 'mods'
-		# match mods keys
-		keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
-	elsif bibtype == 'ris'
-		# match RIS keys
-		keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
-    elsif bibtype == 'json'
-		# match JSON CSL keys
-		keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
-	else
-		# match bibtex keys
-		keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
-	end
-	keys.uniq!
-	keys.sort!
-	results = keys.join(" ")
-	VIM::command('let myres = "' "#{results}" '"')
-}
+	File.open(bib) { |file|
+		text = file.read
+		if bibtype == 'mods'
+			# match mods keys
+			keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
+		elsif bibtype == 'ris'
+			# match RIS keys
+			keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
+		elsif bibtype == 'json'
+			# match JSON CSL keys
+			keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
+		else
+			# match bibtex keys
+			keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
+		end
+		keys.flatten!
+		keys.uniq!
+		keys.sort!
+		keystring = keys.inspect
+		VIM::command('return ' + keystring )
+	}
 EOL
-return myres
 endfunction
 
 " Used for setting g:SuperTabCompletionContexts
