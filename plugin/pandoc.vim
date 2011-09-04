@@ -275,7 +275,7 @@ function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile') || g:pandoc_bibfile == ""
 		" A list of supported bibliographic database extensions, in reverse
 		" order of priority:
-		let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
+		let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]
 
 		" Build up a list of paths to search, in reverse order of priority:
 		"
@@ -292,10 +292,11 @@ function! Pandoc_Find_Bibfile()
 			let bib_paths = [ %APPDATA% . '\pandoc\default' ] + bib_paths
 		endif
 		" Next look in the local texmf directory
-		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
-		let local_texmf = local_texmf[:-2]
-		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
-        
+		if executable('kpsewhich')
+			let local_texmf = system("kpsewhich -var-value TEXMFHOME")
+			let local_texmf = local_texmf[:-2]
+			let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
+		endif
 		" Now search for the file!
 		for bib_path in bib_paths
 			for bib_extension in bib_extensions
@@ -346,7 +347,7 @@ string = VIM::evaluate('a:partkey')
 
 File.open(bib) { |file|
 	text = file.read
-	if bibtype == 'xml'
+	if bibtype == 'mods'
 		# match mods keys
 		keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
 	elsif bibtype == 'ris'
