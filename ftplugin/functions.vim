@@ -358,7 +358,7 @@ EOF
 				let suggestions = g:myresults
 			else
 			   " suggest BibTeX entries
-			   let suggestions = split(Pandoc_BibKey(a:base))
+			   let suggestions =Pandoc_BibKey(a:base)
 			end
 		endif
 		return suggestions
