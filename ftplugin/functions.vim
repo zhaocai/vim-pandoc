@@ -1,5 +1,5 @@
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" plugin/pandoc.vim
+" ftplugin/functions.vim
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 1. Pandoc commands
@@ -141,8 +141,17 @@ def pandoc_execute(command, open_when_done=True):
 	# pass the value of our variables (e.g, g:pandoc_bibfile).
 	for value in command:
 		if value.startswith("g:"):
-			command[command.index(value)] = vim.eval(value)
-	
+			vim_value = vim.eval(value)
+			if vim_value == "":
+				if command[command.index(value) - 1] == "--bibliography":
+					command.remove(command[command.index(value) - 1])
+					command.remove(value)
+				else:
+					command[command.index(value)] = vim_value
+			else:
+				command[command.index(value)] = vim_value
+
+
 	# we run pandoc with our arguments
 	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
 
@@ -206,15 +215,10 @@ command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<arg
 "
 " Generate html and open in default html viewer
 PandocRegisterExecutor PandocHtmlOpen <LocalLeader>html 1 pandoc -t html -Ss
-" Generate pdf and open in default pdf viewer
-PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf
-" Generate odt and open in default odt viewer
-PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt
-" Generate pdf w/ citeproc and open in default pdf view
-PandocRegisterExecutor PandocPdfBibOpen <LocalLeader>pdfb 1 markdown2pdf --bibliography g:pandoc_bibfile
+" Generate pdf w/ citeproc and open in default pdf viewer
+PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf --bibliography g:pandoc_bibfile
 " Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterExecutor PandocOdtBibOpen <LocalLeader>odtb 1 pandoc -t -odt --bibliography g:pandoc_bibfile
-
+PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt --bibliography g:pandoc_bibfile
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
@@ -271,7 +275,7 @@ function! Pandoc_Find_Bibfile()
 	if !exists('g:pandoc_bibfile')
 		" A list of supported bibliographic database extensions, in reverse
 		" order of priority:
-		let bib_extensions = [ 'json', 'ris', 'xml', 'biblatex', 'bib' ]
+		let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]
 
 		" Build up a list of paths to search, in reverse order of priority:
 		"
@@ -288,11 +292,13 @@ function! Pandoc_Find_Bibfile()
 			let bib_paths = [ %APPDATA% . '\pandoc\default' ] + bib_paths
 		endif
 		" Next look in the local texmf directory
-		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
-		let local_texmf = local_texmf[:-2]
-		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
-        
+		if executable('kpsewhich')
+			let local_texmf = system("kpsewhich -var-value TEXMFHOME")
+			let local_texmf = local_texmf[:-2]
+			let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
+		endif
 		" Now search for the file!
+		let g:pandoc_bibfile = ""
 		for bib_path in bib_paths
 			for bib_extension in bib_extensions
 				if filereadable(bib_path . "." . bib_extension)
@@ -359,35 +365,34 @@ EOF
 	endif
 endfunction
 
-function! Pandoc_BibKey(partkey)
-	let myres = ''
+function! Pandoc_BibKey(partkey) 
 ruby << EOL
-bib = VIM::evaluate('g:pandoc_bibfile')
-bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
-string = VIM::evaluate('a:partkey')
+	bib = VIM::evaluate('g:pandoc_bibfile')
+	bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
+	string = VIM::evaluate('a:partkey')
 
-File.open(bib) { |file|
-	text = file.read
-	if bibtype == 'xml'
-		# match mods keys
-		keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
-	elsif bibtype == 'ris'
-		# match RIS keys
-		keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
-    elsif bibtype == 'json'
-		# match JSON CSL keys
-		keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
-	else
-		# match bibtex keys
-		keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
-	end
-	keys.uniq!
-	keys.sort!
-	results = keys.join(" ")
-	VIM::command('let myres = "' "#{results}" '"')
-}
+	File.open(bib) { |file|
+		text = file.read
+		if bibtype == 'mods'
+			# match mods keys
+			keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
+		elsif bibtype == 'ris'
+			# match RIS keys
+			keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
+		elsif bibtype == 'json'
+			# match JSON CSL keys
+			keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
+		else
+			# match bibtex keys
+			keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
+		end
+		keys.flatten!
+		keys.uniq!
+		keys.sort!
+		keystring = keys.inspect
+		VIM::command('return ' + keystring )
+	}
 EOL
-return myres
 endfunction
 
 " Used for setting g:SuperTabCompletionContexts
@@ -402,5 +407,4 @@ function! PandocContext()
 		return "\<c-x>\<c-o>"
 	endif
 endfunction
-
 

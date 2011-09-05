@@ -1,4 +1,4 @@
-*pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Aug 28
+*pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Sep 05
 
 [This document is formatted as a markdown file _and_ as a vim helpfile.
 If viewing from within vim, set ft=help to view it as a helpfile, and
@@ -45,6 +45,13 @@ This is a bundle for writing and editing documents in [pandoc][]'s
 -   |pandoc-citation-completion|,
 -   some simple |pandoc-conversion-functions| and |pandoc-tidying-functions|,
 -   a few |pandoc-localleader-mappings|
+
+Download and Install
+====================
+
+For the latest version, visit <https://github.com/vim-pandoc/vim-pandoc>.
+
+There are many different ways to install vim plugins. Use your favorite.
 
 *pandoc-writing-enviroment*
 ===========================
@@ -166,7 +173,7 @@ any format citeproc-hs supports.
 
 If g:pandoc_bibfile is not set, we try to find something appropriate. We
 look in various places for a file with the extension `.bib`, `.biblatex`,
-`.xml`, `.ris`, or `.json`, in that order. We set g:pandoc_bibfile to the
+`.mods`, `.ris`, or `.json`, in that order. We set g:pandoc_bibfile to the
 first such file we find.
 
 The first place we look is in the directory that contains the file in the
@@ -321,16 +328,12 @@ Default executors
 
 By default, vim-pandoc provides some handy executors:
 
-* *PandocPdfOpen* (`<localleader>pdf`), which runs markdown2pdf.
+* *PandocPdfOpen* (`<localleader>pdf`), which runs markdown2pdf, passing the
+  value of `g:pandoc_bibfile` as the argument of `--bibliography`.
 * *PandocHtmlOpen* (`<localleader>html`), which creates a standalone html.
-* *PandocOdtOpen* (`<localleader>odt`), which creates an ODT file.
+* *PandocOdtOpen* (`<localleader>odt`), which creates an ODT file, passing the
+  value of `g:pandoc_bibfile` as the argument of `--bibliography`.
 
-and
-
-* *PandocPdfBibOpen* (`<localleader>pdfb`), which runs markdown2pdf using the
-  value of `g:pandoc_bibfile` as the bibliography.
-* *PandocOdtBibOpen* (`<localleader>odtb`), which creates an ODT file using
-  `g:pandoc_bibfile` as the bibliography.
 
 For the mappings to work, you must have |maplocalleader| defined in your vimrc,
 e.g.,
@@ -423,6 +426,22 @@ and type `,nr` from somewhere within `[link][id]`, you will get
 Of course, when you are done filling in the link, you can hit `,br` to
 jump back to where you were.
 
+Notes
+=====
+
+If you have this plugin installed alongside [vim-markdown][], be aware
+that both plugins attempt to claim the common markdown extensions for
+their own. We match the following extensions:
+
++    .markdown, .md, .mkd, .pd, .pdk, .pandoc, and .text
+
+In my experience, vim-pandoc trumps vim-markdown.
+
+Known Issues
+============
+
+See the github [issues][] page for a current set of issues.
+
 Maintainers
 ===========
 
@@ -434,8 +453,9 @@ Thanks also to [Wei Dai][] for bug fixes and improvements.
 Borrowings
 ==========
 
-The syntax file derives from Jeremy Schultz's [pdc.vim][] as
-githubbed by [wunki][].
+The syntax file ~~derives from Jeremy Schultz's [pdc.vim][] as
+githubbed by [wunki][]~~ has been completely rewritten from the
+ground up by Felipe Morales.
 
 The snippets file is a slight extension (and contraction) of the
 markdown.snippets file that is part of many of the [vim-markdown
@@ -444,16 +464,6 @@ repositories on github][].
 Autocompletion was implemented by hacking away at [LaTeX Box][]'s
 implementation of bibtex citation completion, even if the results don't
 look much like the original.
-
-Known Issues
-============
-
-1.  Filetype detection does not play well with [markdown-vim][].
-
-2.  Filetype detection is aggressive: we assume that if you use this
-    plugin, then you want to use pandoc for you markdown needs. So we
-    match the following extensions: .markdown, .md, .mkd, .pd, .pdk,
-    .pandoc, and .text.
 
 * * * *
 
@@ -467,7 +477,8 @@ Known Issues
   [LaTeX Box]: http://www.vim.org/scripts/script.php?script_id=3109
   [SuperTab]: http://www.vim.org/scripts/script.php?script_id=1643
   [FoldList]: http://www.vim.org/scripts/script.php?script_id=500
-  [markdown-vim]: http://plasticboy.com/markdown-vim-mode/
+  [vim-markdown]: http://plasticboy.com/markdown-vim-mode/
+  [issues]: https://github.com/vim-pandoc/vim-pandoc/issues
 
 
  vim:tw=78:ts=8:ft=help:norl: 

@@ -5,6 +5,10 @@
 
 let g:pandoc_bibtype = "zotero"
 
+" # Import common functions
+
+execute 'source ' . expand("<sfile>:h") . '/functions.vim'
+
 " # Formatting options
 
 " Soft/hard word wrapping
