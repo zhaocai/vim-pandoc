@@ -1,4 +1,4 @@
-*pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Aug 28
+*pandoc.txt* 	For Vim version 7.3 	Last change: 2011 Sep 05
 
 [This document is formatted as a markdown file _and_ as a vim helpfile.
 If viewing from within vim, set ft=help to view it as a helpfile, and
@@ -18,6 +18,13 @@ This is a bundle for writing and editing documents in [pandoc][]'s
 -   |pandoc-citation-completion|,
 -   some simple |pandoc-conversion-functions| and |pandoc-tidying-functions|,
 -   a few |pandoc-localleader-mappings|
+
+Download and Install
+====================
+
+For the latest version, visit <https://github.com/vim-pandoc/vim-pandoc>.
+
+There are many different ways to install vim plugins. Use your favorite.
 
 *pandoc-writing-enviroment*
 ===========================
