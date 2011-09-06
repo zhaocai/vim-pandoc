@@ -150,13 +150,14 @@ value of `g:snips-author` as author, and the current date.
 ========================
 
 The bundle tells vim to fold documents by section. If you haven't used
-folding before, see |fold-commands|. When used with [FoldList][] this
-also provides a handy navigable outline view of your document.
+folding before, see |fold-commands|.
 
-But folding can slow things down. To disable it, set
+Folding can slow things down. To disable it, set
 g:pandoc_no_folding:
 
     let g:pandoc_no_folding = 1
+
+For more powerful folding and outline support, use [VOoM][].
 
 *pandoc-citation-completion*
 ============================
@@ -476,6 +477,7 @@ look much like the original.
   [snipMate]: http://www.vim.org/scripts/script.php?script_id=2540
   [Pathogen]: https://github.com/tpope/vim-pathogen
   [Vimmer]: https://github.com/densitypop/Vimmer
+  [VOoM]: http://vim-voom.github.com/
   [Wei Dai]: https://github.com/clvv
   [pdc.vim]: http://www.vim.org/scripts/script.php?script_id=2389
   [wunki]: https://github.com/wunki/vim-pandoc
