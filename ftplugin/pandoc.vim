@@ -2,13 +2,6 @@
 " ftplugin/pandoc.vim
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" # Import common functions
-if !exists('s:loaded')
-	execute 'source ' . expand("<sfile>:h") . '/functions.vim'
-	let s:loaded = 1
-	" Uncomment the following line to see when functions.vim is loaded
-	"echoerr 'loading functions.vim!!!'
-endif
 
 " # Formatting options
 
@@ -79,7 +72,7 @@ setlocal comments=s:<!--,m:\ \ \ \ ,e:-->
 " # Folding sections with ATX style headers.
 "
 if !exists("g:pandoc_no_folding") || !g:pandoc_no_folding
-	setlocal foldexpr=MarkdownLevel()
+	setlocal foldexpr=pandoc#MarkdownLevel()
 	setlocal foldmethod=expr
 endif
 
@@ -97,15 +90,17 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Autocomplete citationkeys using function
 "
-call Pandoc_Find_Bibfile()
-setlocal omnifunc=Pandoc_Complete
+call pandoc#Pandoc_Find_Bibfile()
+
+let s:completion_type = ""
+setlocal omnifunc=pandoc#Pandoc_Complete
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Supertab support
 "
 if exists('g:SuperTabCompletionContexts')
   let b:SuperTabCompletionContexts =
-    \ ['PandocContext'] + g:SuperTabCompletionContexts
+    \ ['pandoc#PandocContext'] + g:SuperTabCompletionContexts
 endif
 "
 " disable supertab completions after bullets and numbered list
@@ -158,13 +153,13 @@ EOF
 "
 " Open link under cursor in browser
 "
-map <buffer><silent> <LocalLeader>www :py pandoc_open_uri()<cr>
+map <buffer><silent> <LocalLeader>www :call pandoc#Pandoc_Open_URI()<cr>
 
 "" Jump forward to existing reference link (or footnote link)
-map <buffer><silent> <LocalLeader>gr :py pandoc_go_to_ref()<cr>
+map <buffer><silent> <LocalLeader>gr :call pandoc#Pandoc_Goto_Ref()<cr>
 
 "" Jump back to existing reference link (or fn link)
-map <buffer><silent> <LocalLeader>br :py pandoc_go_back_from_ref()<cr>
+map <buffer><silent> <LocalLeader>br :call pandoc#Pandoc_Back_From_Ref()<cr>
 
 "" Add new reference link (or footnote link) after current paragraph. (This
 "" works better than the snipmate snippet for doing this.)
