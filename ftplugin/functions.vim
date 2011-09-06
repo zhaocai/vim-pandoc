@@ -272,7 +272,9 @@ endif
 let s:completion_type = ''
 
 function! Pandoc_Find_Bibfile()
-	if !exists('g:pandoc_bibfile')
+	if exists('g:pandoc_bibtype') && eval("g:pandoc_bibtype") == 'zotero'
+		" In this case, do nothing
+	elseif !exists('g:pandoc_bibfile') 
 		" A list of supported bibliographic database extensions, in reverse
 		" order of priority:
 		let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]

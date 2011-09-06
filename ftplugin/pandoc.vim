@@ -6,8 +6,11 @@
 let g:pandoc_bibtype = "zotero"
 
 " # Import common functions
-
-execute 'source ' . expand("<sfile>:h") . '/functions.vim'
+if !exists('s:loaded')
+    execute 'source ' . expand("<sfile>:h") . '/functions.vim'
+	" echoerr 'loading!!!!' "Uncomment if you want to see when functions.vim gets sourced.
+	let s:loaded = 1
+endif
 
 " # Formatting options
 
