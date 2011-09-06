@@ -90,11 +90,12 @@ def pandoc_go_to_ref():
 		labels = {}
 		lineno = 0
 		for line in vim.current.buffer:
-			match = re.match("^\s?\[.*(?=]:)", line)
+			match = re.match("^\s*\[.*(?=]:)", line)
 			lineno += 1
 			if match:
-				labels[match.group()[1:]] = lineno
+				labels[match.group().strip()[1:]] = lineno
 
+		print labels
 		if labels.has_key(ref):
 			vim.command(str(labels[ref]))
 
@@ -192,13 +193,14 @@ def pandoc_execute(command, open_when_done=False):
 
 # We register openers with PandocRegisterExecutor. 
 # We take its first argument as the name of a vim ex command, the second
-# argument as a mapping, the third argument as a flag determing whether to
-# open the resulting file,  and the rest as the description of a command,
+# argument as a mapping, and the rest as the description of a command,
 # which we'll pass to pandoc_open.
 
-# pandoc_register_opener(...) adds a tuple of those elements to a list of openers. This list will be 
-# read from by ftplugin/pandoc.vim and commands and mappings will be created from it.
+# pandoc_register_executor(...) adds a tuple of those elements to a list of
+#executors. This list will be # read from by ftplugin/pandoc.vim and commands
+#and mappings will be created from it.
 pandoc_executors = []
+
 def pandoc_register_executor(com_ref):
 	args = com_ref.split()
 	name = args[0]
