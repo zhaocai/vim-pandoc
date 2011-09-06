@@ -3,8 +3,12 @@
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Import common functions
-
-execute 'source ' . expand("<sfile>:h") . '/functions.vim'
+if !exists('s:loaded')
+	execute 'source ' . expand("<sfile>:h") . '/functions.vim'
+	let s:loaded = 1
+	" Uncomment the following line to see when functions.vim is loaded
+	"echoerr 'loading functions.vim!!!'
+endif
 
 " # Formatting options
 
