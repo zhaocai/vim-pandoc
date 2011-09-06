@@ -95,7 +95,6 @@ def pandoc_go_to_ref():
 			if match:
 				labels[match.group().strip()[1:]] = lineno
 
-		print labels
 		if labels.has_key(ref):
 			vim.command(str(labels[ref]))
 
