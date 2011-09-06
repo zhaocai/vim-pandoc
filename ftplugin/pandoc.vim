@@ -139,15 +139,18 @@ command! -buffer MarkdownTidy %!pandoc -t markdown --no-wrap -s
 " plugin/pandoc.vim
 python<<EOF
 for opener in pandoc_executors:
-	name, mapping, execute, command = opener
-	open_when_done = bool(int(execute)).__repr__()
+	name, mapping, command = opener
 	if command not in ("", "None", None):
-		executor = 'py pandoc_execute("' + command + '",' + open_when_done + ')'
+		opening_executor = 'py pandoc_execute("' + command + '", True)'
+		nonopening_executor = 'py pandoc_execute("' + command + '", False)'
 		if name not in ("", "None", None):
-			vim.command("command! -buffer " + name + " exec '" + executor + "'")
+			vim.command("command! -buffer " + name + " exec '" + nonopening_executor + "'")
+			vim.command("command! -buffer " + name + "Open" + " exec '" + opening_executor + "'")
 		if mapping not in ("", "None", None):
 			vim.command("map <buffer><silent> " + mapping + \
-						" :" + executor + "<cr>")
+						" :" + nonopening_executor + "<cr>")
+			vim.command("map <buffer><silent> " + mapping + "+" + \
+						" :" + opening_executor + "<cr>")
 EOF
 
 " While I'm at it, here are a few more functions mappings that are useful when

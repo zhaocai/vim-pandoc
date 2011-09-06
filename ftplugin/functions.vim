@@ -122,7 +122,7 @@ def pandoc_go_back_from_ref():
 			if found:
 				break
 
-def pandoc_execute(command, open_when_done=True):
+def pandoc_execute(command, open_when_done=False):
 	command = command.split()
 	
 	# first, we evaluate the output extension
@@ -203,9 +203,8 @@ def pandoc_register_executor(com_ref):
 	args = com_ref.split()
 	name = args[0]
 	mapping = args[1]
-	open_when_done = args[2]
-	command = args[3:]
-	pandoc_executors.append((name, mapping, open_when_done, " ".join(command)))
+	command = args[2:]
+	pandoc_executors.append((name, mapping, " ".join(command)))
 EOF
 
 command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<args>")'
@@ -214,11 +213,11 @@ command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<arg
 " commands in his .vimrc.
 "
 " Generate html and open in default html viewer
-PandocRegisterExecutor PandocHtmlOpen <LocalLeader>html 1 pandoc -t html -Ss
+PandocRegisterExecutor PandocHtml <LocalLeader>html pandoc -t html -Ss
 " Generate pdf w/ citeproc and open in default pdf viewer
-PandocRegisterExecutor PandocPdfOpen <LocalLeader>pdf 1 markdown2pdf --bibliography g:pandoc_bibfile
+PandocRegisterExecutor PandocPdf <LocalLeader>pdf markdown2pdf --bibliography g:pandoc_bibfile
 " Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterExecutor PandocOdtOpen <LocalLeader>odt 1 pandoc -t odt --bibliography g:pandoc_bibfile
+PandocRegisterExecutor PandocOdt <LocalLeader>odt pandoc -t odt --bibliography g:pandoc_bibfile
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " 2. Folding
