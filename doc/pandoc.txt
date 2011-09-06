@@ -22,9 +22,40 @@ This is a bundle for writing and editing documents in [pandoc][]'s
 Download and Install
 ====================
 
-For the latest version, visit <https://github.com/vim-pandoc/vim-pandoc>.
+For the latest version, see <https://github.com/vim-pandoc/vim-pandoc>.
 
-There are many different ways to install vim plugins. Use your favorite.
+There are many different ways to manage and install vim plugins. Use
+your favorite method. If you don't have a favorite method, we recommend
+using [Pathogen][].
+
+Once you have Pathogen installed, clone this epository into your
+``~/.vim/bundle` directory,
+
+    cd ~/.vim/bundle
+    git clone git@github.com:vim-pandoc/vim-pandoc.git
+
+Or, if that seems too complicated, install Pathogen and then install
+[Vimmer][], a ruby gem for managing vim plugins, with
+
+    gem install vimmer
+
+Then run
+
+    vimmer install https://github.com/vim-pandoc/vim-pandoc.git
+
+Either way, if you will install the bleeding edge development version
+of the plugin. If you want something more stable(?),
+
+    cd ~/.vim/bundle/vim-pandoc
+    git tag
+
+This should list the "tags" that correspond to released versions, e.g.,
+'1.0.' To use version 1.0,
+
+    git checkout 1.0
+
+If you don't want to use git, then download a tarball from the github
+page and unzip it into ~/.vim/bundle.
 
 *pandoc-writing-enviroment*
 ===========================
@@ -443,6 +474,8 @@ look much like the original.
   [pandoc]: http://johnmacfarlane.net/pandoc/
   [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
   [snipMate]: http://www.vim.org/scripts/script.php?script_id=2540
+  [Pathogen]: https://github.com/tpope/vim-pathogen
+  [Vimmer]: https://github.com/densitypop/Vimmer
   [Wei Dai]: https://github.com/clvv
   [pdc.vim]: http://www.vim.org/scripts/script.php?script_id=2389
   [wunki]: https://github.com/wunki/vim-pandoc
