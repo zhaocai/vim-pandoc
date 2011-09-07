@@ -2,7 +2,7 @@ python<<EOF
 import vim
 import sys
 import re, string
-from os.path import exists
+from os.path import exists, relpath
 from subprocess import Popen, PIPE
 
 # platform dependent variables
@@ -72,23 +72,31 @@ def pandoc_execute(command, open_when_done=False):
 			out_extension = "html"
 	out = vim.eval('expand("%:r")') + "." + out_extension
 	command.extend(["-o", out])
-	command.append(vim.current.buffer.name)
 
 	# we evaluate global vim variables. This way, we can register commands that 
 	# pass the value of our variables (e.g, g:pandoc_bibfile).
 	for value in command:
-		if value.startswith("g:"):
+		if value.startswith("g:") or value.startswith("b:"):
 			vim_value = vim.eval(value)
-			if vim_value == "":
+			if vim_value in ("", [], None):
 				if command[command.index(value) - 1] == "--bibliography":
 					command.remove(command[command.index(value) - 1])
 					command.remove(value)
 				else:
 					command[command.index(value)] = vim_value
 			else:
-				command[command.index(value)] = vim_value
+				if vim_value.__class__ is list:
+					if value == "b:pandoc_bibfiles" \
+								and command[command.index(value) -1] == "--bibliography":
+						command.remove(command[command.index(value) - 1])
+						command.remove(value)
+						for bib in vim_value:
+							command.append("--bibliography")
+							command.append(relpath(bib))
+				elif vim_value:
+					command[command.index(value)] = vim_value
 
-
+	command.append(relpath(vim.current.buffer.name))
 	# we run pandoc with our arguments
 	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
 
@@ -104,7 +112,7 @@ def pandoc_execute(command, open_when_done=False):
 	if not splitbelow:
 		vim.command("set splitbelow")
 	
-	vim.command("3new")
+	vim.command("5new")
 	vim.current.buffer.append(lines)
 	vim.command("normal dd")
 	vim.command("setlocal nomodified")
@@ -153,7 +161,7 @@ command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<arg
 " Generate html and open in default html viewer
 PandocRegisterExecutor PandocHtml <LocalLeader>html pandoc -t html -Ss
 " Generate pdf w/ citeproc and open in default pdf viewer
-PandocRegisterExecutor PandocPdf <LocalLeader>pdf markdown2pdf --bibliography g:pandoc_bibfile
+PandocRegisterExecutor PandocPdf <LocalLeader>pdf markdown2pdf --bibliography b:pandoc_bibfiles
 " Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterExecutor PandocOdt <LocalLeader>odt pandoc -t odt --bibliography g:pandoc_bibfile
+PandocRegisterExecutor PandocOdt <LocalLeader>odt pandoc -t odt --bibliography b:pandoc_bibfiles
 

@@ -36,43 +36,41 @@ endfunction
 " Completion:
 
 function! pandoc#Pandoc_Find_Bibfile()
-	if !exists('g:pandoc_bibfile') || g:pandoc_bibfile == ""
-		" A list of supported bibliographic database extensions, in reverse
-		" order of priority:
-		let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]
+	" A list of supported bibliographic database extensions, in reverse
+	" order of priority:
+	let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]
 
-		" Build up a list of paths to search, in reverse order of priority:
-		"
-		" First look for a file with the same basename as current file
-		let bib_paths = [ expand("%:p:r") ]
-		" Next look for a file with basename `default` in the same 
-		" directory as current file
-		let bib_paths = [ expand("%:p:h") . g:paths_sep ."default" ] + bib_paths
-		" Next look for a file with basename `default` in the pandoc
-		" data directory
-		if eval("g:paths_style") == "posix"
-			let bib_paths = [ $HOME . '/.pandoc/default' ] + bib_paths
-		else
-			let bib_paths = [ %APPDATA% . '\pandoc\default' ] + bib_paths
-		endif
-		" Next look in the local texmf directory
-		if executable('kpsewhich')
-			let local_texmf = system("kpsewhich -var-value TEXMFHOME")
-			let local_texmf = local_texmf[:-2]
-			let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
-		endif
-		" Now search for the file!
-		let g:pandoc_bibfile = ""
-		for bib_path in bib_paths
-			for bib_extension in bib_extensions
-				if filereadable(bib_path . "." . bib_extension)
-					let g:pandoc_bibfile = bib_path . "." . bib_extension
-					let g:pandoc_bibtype = bib_extension
-				endif
-			endfor
-		endfor
+	" Build up a list of paths to search, in reverse order of priority:
+	"
+	" First look for a file with the same basename as current file
+	let bib_paths = [ expand("%:p:r") ]
+	" Next look for a file with basename `default` in the same 
+	" directory as current file
+	let bib_paths = [ expand("%:p:h") . g:paths_sep ."default" ] + bib_paths
+	" Next look for a file with basename `default` in the pandoc
+	" data directory
+	if has("unix")
+		let bib_paths = [ $HOME . '/.pandoc/default' ] + bib_paths
 	else
-	    let g:pandoc_bibtype = matchstr(g:pandoc_bibfile, '\zs\.[^\.]*')
+		let bib_paths = [ %APPDATA% . '/pandoc/default' ] + bib_paths
+	endif
+	" Next look in the local texmf directory
+	if executable('kpsewhich')
+		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
+		let local_texmf = local_texmf[:-2]
+		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
+	endif
+	" Now search for the file!
+	let b:pandoc_bibfiles = []
+	for bib_path in bib_paths
+		for bib_extension in bib_extensions
+			if filereadable(bib_path . "." . bib_extension)
+				let b:pandoc_bibfiles += [bib_path . "." . bib_extension]
+			endif
+		endfor
+	endfor
+	if exists("g:pandoc_bibfiles")
+		let b:pandoc_bibfiles += g:pandoc_bibfiles
 	endif
 endfunction
 
@@ -102,33 +100,34 @@ function! pandoc#Pandoc_Complete(findstart, base)
 endfunction
 
 function! pandoc#Pandoc_BibKey(partkey) 
-ruby << EOL
-	bib = VIM::evaluate('g:pandoc_bibfile')
-	bibtype = VIM::evaluate('g:pandoc_bibtype').downcase!
-	string = VIM::evaluate('a:partkey')
+python<<EOF
+import vim
+from re import findall as scan
+from os.path import basename
 
-	File.open(bib) { |file|
-		text = file.read
-		if bibtype == 'mods'
-			# match mods keys
-			keys = text.scan(/<mods ID=\"(#{string}.*?)\">/i)
-		elsif bibtype == 'ris'
-			# match RIS keys
-			keys = text.scan(/^ID\s+-\s+(#{string}.*)$/i)
-		elsif bibtype == 'json'
-			# match JSON CSL keys
-			keys = text.scan(/\"id\":\s+\"(#{string}.*?)\"/i)
-		else
-			# match bibtex keys
-			keys = text.scan(/@.*?\{[\s]*(#{string}.*?),/i)
-		end
-		keys.flatten!
-		keys.uniq!
-		keys.sort!
-		keystring = keys.inspect
-		VIM::command('return ' + keystring )
-	}
-EOL
+bibs = vim.eval("b:pandoc_bibfiles")
+string = vim.eval("a:partkey")
+
+matches = []
+
+for bib in bibs:
+	bib_type = basename(bib).split(".")[-1]
+	with open(bib, 'r') as f:
+		text = f.read()
+
+	if bib_type == "mods":
+		ids = scan('(?<=\<mods ID=")' + string + '.*(?=">)', text)
+	elif bib_type == "ris":
+		ids = [i.split("-")[1].strip() for i in scan("(?<=ID)\s+-\s+FM.*(?=\n)", text)]
+	elif bib_type == "json":
+		ids = ["".join(i.strip()[1:]) for i in scan("(?<=\"id\":)\s+\"" + string + ".*(?=\")", text)]
+	else: #bib file
+		ids = [i.split("{")[1] for i in scan("@.*(?=,\n)", text) if re.search(string, i)]
+	for i in ids:
+		matches.append({"word": i})
+
+vim.command("return " + matches.__repr__())
+EOF
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
