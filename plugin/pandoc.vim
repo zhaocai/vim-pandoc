@@ -114,7 +114,7 @@ def pandoc_execute(command, open_when_done=False):
 	
 	vim.command("5new")
 	vim.current.buffer.append(lines)
-	vim.command("normal dd")
+	vim.command("normal! dd")
 	vim.command("setlocal nomodified")
 	vim.command("setlocal nomodifiable")
 	# pressing <esc> on the buffer will delete it

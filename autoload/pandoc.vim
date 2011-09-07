@@ -106,6 +106,7 @@ python<<EOF
 import vim
 import re
 from os.path import basename
+from operator import itemgetter
 
 # we evaluate the local pandoc_bibfiles
 bibs = vim.eval("b:pandoc_bibfiles")
@@ -182,11 +183,15 @@ for bib in bibs:
 
 	# we remove duplicates
 	ids = list(set(ids))
+	
 	for i in ids:
 		if i.__class__ is str:
 			matches.append({"word": i})
 		elif i.__class__ is tuple:
 			matches.append({"word": i[0], "menu": i[1]})
+
+# sort by key
+matches = sorted(matches, key=itemgetter("word"))
 
 vim.command("return " + matches.__repr__())
 EOF
@@ -261,7 +266,7 @@ if label_regex != '':
 		lineno = lineno - 1
 		matches_in_this_line = list(re.finditer(label_regex, line))
 		for ref in reversed(matches_in_this_line):
-			vim.command(str(lineno) + " normal" + str(ref.start()) + "l")
+			vim.command(str(lineno) + " normal!" + str(ref.start()) + "l")
 			found = True
 			break
 		if found:
