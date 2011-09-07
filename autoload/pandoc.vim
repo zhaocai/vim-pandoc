@@ -155,7 +155,7 @@ for bib in bibs:
 		#ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: # BibTeX file
 		scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
-		scanned_titles = [title.replace("{", "").replace("}", "") for title in re.findall("\s[tT]itle\s*=\s*{(?P<title>.*)}", text)]
+		scanned_titles = [title.replace("{", "").replace("}", "") for title in re.findall("^\s*[tT]itle\s*=\s*{(?P<title>.*)},\n", text, re.MULTILINE)]
 		if len(scanned_titles) == len(scanned_labels):
 			entries_data = zip(scanned_labels, scanned_titles)
 			for entry in entries_data:
