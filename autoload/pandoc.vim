@@ -102,7 +102,7 @@ endfunction
 function! pandoc#Pandoc_BibKey(partkey) 
 python<<EOF
 import vim
-from re import findall as scan
+import re
 from os.path import basename
 
 bibs = vim.eval("b:pandoc_bibfiles")
@@ -111,33 +111,57 @@ string = vim.eval("a:partkey")
 matches = []
 
 for bib in bibs:
-	bib_type = basename(bib).split(".")[-1]
+	bib_type = basename(bib).split(".")[-1].lower()
 	with open(bib, 'r') as f:
 		text = f.read()
 
+	ids = []
 	if bib_type == "mods":
-		ids = scan("<mods ID=\"(?P<id>" + string + '.*)\"', text)
+		import xml.etree.ElementTree as etree
+		bib_data = etree.fromstring(text)
+		if bib_data.tag == "mods":
+			entry_id = bib_data.get("ID")
+			if str(entry_id).startswith(string):
+				title = " ".join([s.strip() for s in bib_data.find("titleInfo").find("title").text.split("\n")])
+				ids.append((str(entry_id), str(title)))
+		elif bib_data.tag == "modsCollection":
+			for mod in bib_data.findall("mods"):
+				entry_id = mod.get("ID")
+				if str(entry_id).startswith(string):
+					title = " ".join([s.strip() for s in mod.find("titleInfo").find("title").text.split("\n")])
+					ids.append((str(entry_id), str(title)))
+		#ids = re.findall("<mods ID=\"(?P<id>" + string + '.*)\"', text)
 	elif bib_type == "ris":
-		ids = scan("ID\s+-\s+(?P<id>" + string + ".*)", text)
+		bib_data = [entry for entry in re.split("ER\s*-\s*\n", text) if entry != ""]
+		for entry in bib_data:
+			entry_id = re.search("ID\s+-\s+(?P<id>.*)\n", entry).group("id")
+			if str(entry_id).startswith(string):
+				entry_title = re.search("TI\s+-\s+(?P<id>.*)\n", entry).group("id")
+				ids.append((entry_id, entry_title))
+		#ids = re.findall("ID\s+-\s+(?P<id>" + string + ".*)", text)
 	elif bib_type == "json":
-		ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
-	else: #bib file
+		import json
+		bib_data = json.loads(text)
+		for entry in bib_data:
+			if str(entry["id"]).startswith(string):
+				ids.append((str(entry["id"]), str(entry["title"])))
+		#ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
+	else: # BibTeX file
 		try:
 			from pybtex.database.input import bibtex
 		except:
 			bibtex = None
-		if not bibtex: # we use a regex based method
-			ids = scan("\@.*{(?P<id>" + string + ".*),", text)
-		else:
+		if bibtex:
 			bib_data = bibtex.Parser().parse_file(bib)
 			# Pybtex turns all ids in lowercase, which breaks pandoc's recognition of citekeys, so
 			# we have to map the parser labels with the real data
-			scanned_labels = scan("\@.*{(?P<id>.*),", text)
+			scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
 			labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
-			ids = []
 			for entry in bib_data.entries:
 				if entry.startswith(string.lower()):
 					ids.append((labels_map[str(entry)], str(bib_data.entries[entry].fields['title'])))
+		else: # we use a regex based method
+			ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
 
 	for i in ids:
 		if i.__class__ is str:
