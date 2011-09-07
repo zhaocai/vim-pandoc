@@ -160,7 +160,7 @@ for bib in bibs:
 			scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
 			labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
 			for entry in bib_data.entries:
-				if entry.startswith(string.lower()):
+				if re.match(string.lower(), entry):
 					ids.append((labels_map[str(entry)], str(bib_data.entries[entry].fields['title'])))
 		else: # we use a regex based method
 			ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
