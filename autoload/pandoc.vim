@@ -122,9 +122,23 @@ for bib in bibs:
 	elif bib_type == "json":
 		ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: #bib file
-		ids = scan("\@.*{(?P<id>" + string + ".*),", text)
+		try:
+			from pybtex.database.input import bibtex
+		except:
+			bibtex = None
+		if not bibtex: # we use a regex based method
+			ids = scan("\@.*{(?P<id>" + string + ".*),", text)
+		else:
+			bib_data = bibtex.Parser().parse_file(bib)
+			ids = []
+			for entry in bib_data.entries:
+				ids.append((str(entry), str(bib_data.entries[entry].fields['title'])))
+
 	for i in ids:
-		matches.append({"word": i})
+		if i.__class__ is str:
+			matches.append({"word": i})
+		elif i.__class__ is tuple:
+			matches.append({"word": i[0], "menu": i[1]})
 
 vim.command("return " + matches.__repr__())
 EOF
