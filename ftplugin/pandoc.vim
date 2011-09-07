@@ -76,6 +76,13 @@ if !exists("g:pandoc_no_folding") || !g:pandoc_no_folding
 	setlocal foldmethod=expr
 endif
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" # Voom support
+"
+if exists(":Voom")
+	noremap <buffer><silent> <localleader>o :Voom markdown<cr>
+endif
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Use ctrl-X ctrl-K for dictionary completions.
 "

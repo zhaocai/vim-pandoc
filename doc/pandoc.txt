@@ -157,7 +157,9 @@ g:pandoc_no_folding:
 
     let g:pandoc_no_folding = 1
 
-For more powerful folding and outline support, use [VOoM][].
+For more powerful folding and outline support, use [VOoM][]. If you are using
+VOom, you can use `<localleader>o` to open it in markdown mode when editing a
+pandoc file.
 
 *pandoc-citation-completion*
 ============================
