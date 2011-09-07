@@ -81,10 +81,10 @@ endif
 "
 " This adds citation keys from a file named citationkeys.dict in the pandoc data dir to the dictionary.
 " 
-if eval("g:paths_style") == "posix"
+if has("unix") || has("macunix")
 	setlocal dictionary+=$HOME."/.pandoc/citationkeys.dict"
 else
-	setlocal dictionary+=%APPDATA%."\pandoc\citationkeys.dict"
+	setlocal dictionary+=%APPDATA%."/pandoc/citationkeys.dict"
 endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

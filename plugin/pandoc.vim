@@ -13,14 +13,6 @@ elif sys.platform.startswith("linux"):
 elif sys.platform.startswith("win"):
 	pandoc_open_command = 'cmd /x \"start' # Windows
 
-# we might use this for adjusting paths
-if sys.platform.startswith("win"):
-	vim.command('let g:paths_style = "win"')
-	vim.command('let g:paths_sep = "\\"')
-else:
-	vim.command('let g:paths_style = "posix"')
-	vim.command('let g:paths_sep = "/"')
-
 # On windows, we pass commands as an argument to `start`, 
 # which is a cmd.exe builtin, so we have to quote it
 if sys.platform.startswith("win"):

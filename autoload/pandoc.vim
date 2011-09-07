@@ -124,61 +124,22 @@ for bib in bibs:
 
 	ids = []
 	if bib_type == "mods":
-		import xml.etree.ElementTree as etree
-		bib_data = etree.fromstring(text)
-		# a MODS file can contain a single entry or a collection of entries
-		if bib_data.tag == "mods":
-			entry_id = bib_data.get("ID")
-			if re.match(string, str(entry_id)):
-				title = " ".join([s.strip() for s in bib_data.find("titleInfo").find("title").text.split("\n")])
-				ids.append((str(entry_id), str(title)))
-		elif bib_data.tag == "modsCollection":
-			for mod in bib_data.findall("mods"):
-				entry_id = mod.get("ID")
-				if re.match(string, str(entry_id)):
-					title = " ".join([s.strip() for s in mod.find("titleInfo").find("title").text.split("\n")])
-					ids.append((str(entry_id), str(title)))
-		#ids = re.findall("<mods ID=\"(?P<id>" + string + '.*)\"', text)
+		ids = re.findall("<mods ID=\"(?P<id>" + string + '.*)\"', text)
 	elif bib_type == "ris":
-		# RIS entries always end in "ER - \n", so we split there.
-		bib_data = [entry for entry in re.split("ER\s*-\s*\n", text) if entry != ""]
-		for entry in bib_data:
-			entry_id = re.search("ID\s+-\s+(?P<id>.*)\n", entry).group("id")
-			if re.match(string, str(entry_id)):
-				entry_title = re.search("TI\s+-\s+(?P<id>.*)\n", entry).group("id")
-				ids.append((entry_id, entry_title))
-		#ids = re.findall("ID\s+-\s+(?P<id>" + string + ".*)", text)
+		ids = re.findall("ID\s+-\s+(?P<id>" + string + ".*)", text)
 	elif bib_type == "json":
-		import json
-		bib_data = json.loads(text)
-		for entry in bib_data:
-			if re.match(string, str(entry["id"])):
-				ids.append((str(entry["id"]), str(entry["title"])))
-		#ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
+		ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: # BibTeX file
-		scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
-		scanned_titles = [title.replace("{", "").replace("}", "") 
-							for title in re.findall("^\s*[tT]itle\s*=\s*{(?P<title>.*)},\n", text, 
-											re.MULTILINE)]
-		if len(scanned_titles) == len(scanned_labels):
-			entries_data = zip(scanned_labels, scanned_titles)
-			for entry in entries_data:
-				if re.match(string, entry[0]):
-					ids.append(entry)
-		else:
-			ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
+		ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
 
 	# we remove duplicates
 	ids = list(set(ids))
 	
 	for i in ids:
-		if i.__class__ is str:
-			matches.append({"word": i})
-		elif i.__class__ is tuple:
-			matches.append({"word": i[0], "menu": i[1]})
+		matches.append(i)
 
 # sort by key
-matches = sorted(matches, key=itemgetter("word"))
+matches = sorted(matches)
 
 vim.command("return " + matches.__repr__())
 EOF
