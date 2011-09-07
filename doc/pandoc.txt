@@ -162,29 +162,31 @@ For more powerful folding and outline support, use [VOoM][].
 *pandoc-citation-completion*
 ============================
 
-*pandoc-bibfile*
---------------
+*pandoc-bibfiles*
+-----------------
 
 In order to complete citation keys, we need to know the location of your
-bibliographical database. You can set this manually by putting something
-like
+bibliographical database. When opening a file, we try to find something
+appropiate. We look in various places for files with the extension `.bib`, 
+`.biblatex` (BibTeX), `.mods` (MODS), `.ris` (RIS), or `.json` (citeproc's
+JSON), in that order. We add them to a buffer-local variable called
+b:pandoc_bibfile.
 
-    let g:pandoc_bibfile = '/the/path/to/your/bibtex/file.bib'
+If you want, you can set a default bibliography to add to this list by
+putting something like
 
-in your vimrc. We currently support key completion from files in 
-bibtex format, MODS format, RIS format, and citeproc's JSON format. If
-you don't intend to use key completion, you can set g:pandoc_bibfile to
-any format citeproc-hs supports.
+    let g:pandoc_bibfiles = ['/the/path/to/your/bibtex/file.bib']
 
-If g:pandoc_bibfile is not set, we try to find something appropriate. We
-look in various places for a file with the extension `.bib`, `.biblatex`,
-`.mods`, `.ris`, or `.json`, in that order. We set g:pandoc_bibfile to the
-first such file we find.
+in your vimrc. 
 
-The first place we look is in the directory that contains the file in the
-current buffer. In that directory, we first look for a file that shares
-the same basename as the file in the current buffer, but with a bibfile
-extension. So, for example, if you are editing
+You can set b:pandoc_bibfiles and g:pandoc_bibfiles to any format citeproc-hs
+supports.
+
+*Please note the following regarding the searches we perform in order to
+determine the value of b:pandoc_bibfiles*: The first place we look is in the
+directory that contains the file in the current buffer. In that directory, we
+first look for a file that shares the same basename as the file in the current
+buffer, but with a bibfile extension. So, for example, if you are editing
 
     /some/long/path/to/your/file.markdown
 
@@ -210,9 +212,9 @@ texmf tree, using the path specified by
 
 Again, we look for a file named `default` with an appropriate extension.
 
-You can always check to see what we've settled on by
+You can always check to see what we've settled on for the buffer by
 
-    :echo g:pandoc_bibfile
+    :echo b:pandoc_bibfiles
 
 Using Citation Completion
 =========================
@@ -249,13 +251,10 @@ to complete the citation.
 >     ctrl-o completion once within a given file.
 > -   Regular expressions don't work when using SuperTab.
 
-> **TODO**: pandoc.vim should be smarter about finding bibliography
+> **TODO**: vim-pandoc could be even smarter about finding bibliography
 > files. This includes:
 >
 > -   borrowing settings from latex plugins, if present
-> -   finding the local texmf tree programatically
-> -   using (all?) bibliography files found in any of the search paths
-> -   including the directory that the file is in among the search paths
 
 *pandoc-citation-dictionary*
 ----------------------------
