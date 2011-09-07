@@ -145,6 +145,13 @@ vim.command("return " + matches.__repr__())
 EOF
 endfunction
 
+function! pandoc#PandocContext()
+    let curline = getline('.')
+    if curline =~ '.*@[^ ;\],]*$'
+		return "\<c-x>\<c-o>"
+    endif
+endfunction
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc:
 "
