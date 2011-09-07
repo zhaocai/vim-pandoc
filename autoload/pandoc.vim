@@ -86,6 +86,8 @@ function! pandoc#Pandoc_Complete(findstart, base)
 		let line_start = line[:pos-1]
 		if line_start =~ '.*@$'
 			let s:completion_type = 'bib'
+		else
+			let s:completion_type = ''
 		endif
 		return pos
 	else
@@ -121,7 +123,7 @@ for bib in bibs:
 		bib_data = etree.fromstring(text)
 		if bib_data.tag == "mods":
 			entry_id = bib_data.get("ID")
-			if str(entry_id).startswith(string):
+			if re.match(string, str(entry_id)):
 				title = " ".join([s.strip() for s in bib_data.find("titleInfo").find("title").text.split("\n")])
 				ids.append((str(entry_id), str(title)))
 		elif bib_data.tag == "modsCollection":
@@ -135,7 +137,7 @@ for bib in bibs:
 		bib_data = [entry for entry in re.split("ER\s*-\s*\n", text) if entry != ""]
 		for entry in bib_data:
 			entry_id = re.search("ID\s+-\s+(?P<id>.*)\n", entry).group("id")
-			if str(entry_id).startswith(string):
+			if re.match(string, str(entry_id)):
 				entry_title = re.search("TI\s+-\s+(?P<id>.*)\n", entry).group("id")
 				ids.append((entry_id, entry_title))
 		#ids = re.findall("ID\s+-\s+(?P<id>" + string + ".*)", text)
@@ -143,7 +145,7 @@ for bib in bibs:
 		import json
 		bib_data = json.loads(text)
 		for entry in bib_data:
-			if str(entry["id"]).startswith(string):
+			if re.match(string, str(entry["id"])):
 				ids.append((str(entry["id"]), str(entry["title"])))
 		#ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: # BibTeX file
