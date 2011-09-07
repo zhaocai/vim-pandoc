@@ -107,12 +107,14 @@ import vim
 import re
 from os.path import basename
 
+# we evaluate the local pandoc_bibfiles
 bibs = vim.eval("b:pandoc_bibfiles")
 string = vim.eval("a:partkey")
 
 matches = []
 
 for bib in bibs:
+	# we guess tye bibliography type from the filename
 	bib_type = basename(bib).split(".")[-1].lower()
 	with open(bib, 'r') as f:
 		text = f.read()
@@ -121,6 +123,7 @@ for bib in bibs:
 	if bib_type == "mods":
 		import xml.etree.ElementTree as etree
 		bib_data = etree.fromstring(text)
+		# a MODS file can contain a single entry or a collection of entries
 		if bib_data.tag == "mods":
 			entry_id = bib_data.get("ID")
 			if re.match(string, str(entry_id)):
@@ -129,11 +132,12 @@ for bib in bibs:
 		elif bib_data.tag == "modsCollection":
 			for mod in bib_data.findall("mods"):
 				entry_id = mod.get("ID")
-				if str(entry_id).startswith(string):
+				if re.match(string, str(entry_id)):
 					title = " ".join([s.strip() for s in mod.find("titleInfo").find("title").text.split("\n")])
 					ids.append((str(entry_id), str(title)))
 		#ids = re.findall("<mods ID=\"(?P<id>" + string + '.*)\"', text)
 	elif bib_type == "ris":
+		# RIS entries always end in "ER - \n", so we split there.
 		bib_data = [entry for entry in re.split("ER\s*-\s*\n", text) if entry != ""]
 		for entry in bib_data:
 			entry_id = re.search("ID\s+-\s+(?P<id>.*)\n", entry).group("id")
@@ -150,21 +154,34 @@ for bib in bibs:
 		#ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: # BibTeX file
 		try:
+			# We try to use pybtex facilities for parsing the bibtex files
 			from pybtex.database.input import bibtex
 		except:
 			bibtex = None
-		if bibtex:
+		
+		# we use this in both the pybtex procedure and the fallback one, so we better put it outside the conditional
+		scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
+		
+		if bibtex: # pybtex is available
 			bib_data = bibtex.Parser().parse_file(bib)
 			# Pybtex turns all ids in lowercase, which breaks pandoc's recognition of citekeys, so
 			# we have to map the parser labels with the real data
-			scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
 			labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
 			for entry in bib_data.entries:
 				if re.match(string.lower(), entry):
 					ids.append((labels_map[str(entry)], str(bib_data.entries[entry].fields['title'])))
-		else: # we use a regex based method
-			ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
+		else: # if pybtex isn't available, we use a regex based method
+			scanned_titles = re.findall("Title\s*=\s*{(?P<title>.*)}", text)
+			if len(scanned_titles) == len(scanned_labels):
+				entries_data = zip(scanned_labels, scanned_titles)
+				for entry in entries_data:
+					if re.match(string, entry[0]):
+						ids.append(entry)
+			else:
+				ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
 
+	# we remove duplicates
+	ids = list(Set(ids))
 	for i in ids:
 		if i.__class__ is str:
 			matches.append({"word": i})
