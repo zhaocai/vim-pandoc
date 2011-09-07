@@ -116,13 +116,13 @@ for bib in bibs:
 		text = f.read()
 
 	if bib_type == "mods":
-		ids = scan('(?<=\<mods ID=")' + string + '.*(?=">)', text)
+		ids = scan("<mods ID=\"(?P<id>" + string + '.*)\"', text)
 	elif bib_type == "ris":
-		ids = [i.split("-")[1].strip() for i in scan("(?<=ID)\s+-\s+FM.*(?=\n)", text)]
+		ids = scan("ID\s+-\s+(?P<id>" + string + ".*)", text)
 	elif bib_type == "json":
-		ids = ["".join(i.strip()[1:]) for i in scan("(?<=\"id\":)\s+\"" + string + ".*(?=\")", text)]
+		ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: #bib file
-		ids = [i.split("{")[1] for i in scan("@.*(?=,\n)", text) if re.search(string, i)]
+		ids = scan("\@.*{(?P<id>" + string + ".*),", text)
 	for i in ids:
 		matches.append({"word": i})
 
