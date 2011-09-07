@@ -181,7 +181,7 @@ for bib in bibs:
 				ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
 
 	# we remove duplicates
-	ids = list(Set(ids))
+	ids = list(set(ids))
 	for i in ids:
 		if i.__class__ is str:
 			matches.append({"word": i})
