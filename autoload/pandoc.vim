@@ -170,7 +170,10 @@ for bib in bibs:
 			labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
 			for entry in bib_data.entries:
 				if re.match(string.lower(), entry):
-					ids.append((labels_map[str(entry)], str(bib_data.entries[entry].fields['title'])))
+					key = labels_map[str(entry)]
+					title = str(bib_data.entries[entry].fields['title'].encode("utf8")).\
+								replace("{", "").replace("}", "")
+					ids.append((key, title))
 		else: # if pybtex isn't available, we use a regex based method
 			scanned_titles = re.findall("Title\s*=\s*{(?P<title>.*)}", text)
 			if len(scanned_titles) == len(scanned_labels):
