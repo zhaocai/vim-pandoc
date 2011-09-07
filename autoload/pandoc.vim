@@ -53,11 +53,13 @@ if bibfiles == []:
 
 # we seach in pandoc's local data dir
 if bibfiles == []:
+	b = ""
 	if exists(expandvars("$HOME/.pandoc/")):
 		b = expandvars("$HOME/.pandoc/")
 	elif exists(expandvars("%APPDATA%/pandoc/")):
 		b = expandvars("%APPDATA%/pandoc/")
-	bibfiles = [f for f in glob(b + "default.*") if f.split(".")[-1] in bib_extensions]
+	if b != "":
+		bibfiles = [f for f in glob(b + "default.*") if f.split(".")[-1] in bib_extensions]
 
 # we search for bibliographies in texmf
 if bibfiles == []:
