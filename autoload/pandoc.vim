@@ -130,9 +130,14 @@ for bib in bibs:
 			ids = scan("\@.*{(?P<id>" + string + ".*),", text)
 		else:
 			bib_data = bibtex.Parser().parse_file(bib)
+			# Pybtex turns all ids in lowercase, which breaks pandoc's recognition of citekeys, so
+			# we have to map the parser labels with the real data
+			scanned_labels = scan("\@.*{(?P<id>.*),", text)
+			labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
 			ids = []
 			for entry in bib_data.entries:
-				ids.append((str(entry), str(bib_data.entries[entry].fields['title'])))
+				if entry.startswith(string.lower()):
+					ids.append((labels_map[str(entry)], str(bib_data.entries[entry].fields['title'])))
 
 	for i in ids:
 		if i.__class__ is str:
