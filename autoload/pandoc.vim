@@ -164,17 +164,21 @@ for bib in bibs:
 		scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
 		
 		if bibtex: # pybtex is available
-			bib_data = bibtex.Parser().parse_file(bib)
-			# Pybtex turns all ids in lowercase, which breaks pandoc's recognition of citekeys, so
-			# we have to map the parser labels with the real data
-			labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
-			for entry in bib_data.entries:
-				if re.match(string.lower(), entry):
-					key = labels_map[str(entry)]
-					title = str(bib_data.entries[entry].fields['title'].encode("utf8")).\
-								replace("{", "").replace("}", "")
-					ids.append((key, title))
-		else: # if pybtex isn't available, we use a regex based method
+			try:
+				bib_data = bibtex.Parser().parse_file(bib)
+				# Pybtex turns all ids in lowercase, which breaks pandoc's recognition of citekeys, so
+				# we have to map the parser labels with the real data
+				labels_map = dict(zip([i.lower() for i in scanned_labels], scanned_labels))
+				for entry in bib_data.entries:
+					if re.match(string.lower(), entry):
+						key = labels_map[str(entry)]
+						title = str(bib_data.entries[entry].fields['title'].encode("utf8")).\
+									replace("{", "").replace("}", "")
+						ids.append((key, title))
+			except:
+				bibtex = None
+	
+		if not bibtex: # if pybtex isn't available or isn't working, we use a regex based method
 			scanned_titles = re.findall("Title\s*=\s*{(?P<title>.*)}", text)
 			if len(scanned_titles) == len(scanned_labels):
 				entries_data = zip(scanned_labels, scanned_titles)
