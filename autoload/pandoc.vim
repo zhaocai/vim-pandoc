@@ -36,42 +36,42 @@ endfunction
 " Completion:
 
 function! pandoc#Pandoc_Find_Bibfile()
-	" A list of supported bibliographic database extensions, in reverse
-	" order of priority:
-	let bib_extensions = [ 'json', 'ris', 'mods', 'biblatex', 'bib' ]
+python<<EOF
+from os.path import exists, relpath, expandvars
+from glob import glob
+from subprocess import Popen, PIPE
 
-	" Build up a list of paths to search, in reverse order of priority:
-	"
-	" First look for a file with the same basename as current file
-	let bib_paths = [ expand("%:p:r") ]
-	" Next look for a file with basename `default` in the same 
-	" directory as current file
-	let bib_paths = [ expand("%:p:h") . g:paths_sep ."default" ] + bib_paths
-	" Next look for a file with basename `default` in the pandoc
-	" data directory
-	if has("unix")
-		let bib_paths = [ $HOME . '/.pandoc/default' ] + bib_paths
-	else
-		let bib_paths = [ %APPDATA% . '/pandoc/default' ] + bib_paths
-	endif
-	" Next look in the local texmf directory
-	if executable('kpsewhich')
-		let local_texmf = system("kpsewhich -var-value TEXMFHOME")
-		let local_texmf = local_texmf[:-2]
-		let bib_paths = [ local_texmf . g:paths_sep . 'default' ] + bib_paths
-	endif
-	" Now search for the file!
-	let b:pandoc_bibfiles = []
-	for bib_path in bib_paths
-		for bib_extension in bib_extensions
-			if filereadable(bib_path . "." . bib_extension)
-				let b:pandoc_bibfiles += [bib_path . "." . bib_extension]
-			endif
-		endfor
-	endfor
-	if exists("g:pandoc_bibfiles")
-		let b:pandoc_bibfiles += g:pandoc_bibfiles
-	endif
+bib_extensions = ["json", "ris", "mods", "biblates", "bib"]
+file_name = ".".join(relpath(vim.current.buffer.name).split(".")[:-1])
+
+# first, we check for files named after the current file in the current dir
+bibfiles = [f for f in glob(file_name + ".*") if f.split(".")[-1] in bib_extensions]
+
+# we search for any bibliography in the current dir
+if bibfiles == []:
+	bibfiles = [f for f in glob("*") if f.split(".")[-1] in bib_extensions]
+
+# we seach in pandoc's local data dir
+if bibfiles == []:
+	if exists(expandvars("$HOME/.pandoc/")):
+		b = expandvars("$HOME/.pandoc/")
+	elif exists(expandvars("%APPDATA%/pandoc/")):
+		b = expandvars("%APPDATA%/pandoc/")
+	bibfiles = [f for f in glob(b + "default.*") if f.split(".")[-1] in bib_extensions]
+
+# we search for bibliographies in texmf
+if bibfiles == []:
+	texmf = Popen(["kpsewhich", "-var-value", "TEXMFHOME"], stdout=PIPE, stderr=PIPE).\
+                communicate()[0].strip()
+	if exists(texmf):
+		bibfiles = [f for f in glob(texmf + "/*") if f.split(".")[-1] in bib_extensions]
+
+# we append the items in g:pandoc_bibfiles, if set
+if vim.eval("exists('g:pandoc_bibfiles')") != "0":
+	bibfiles.expand(vim.eval("g:pandoc_bibfiles"))
+
+vim.command("let b:pandoc_bibfiles = " + str(bibfiles))
+EOF
 endfunction
 
 function! pandoc#Pandoc_Complete(findstart, base)
@@ -155,7 +155,9 @@ for bib in bibs:
 		#ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
 	else: # BibTeX file
 		scanned_labels = re.findall("\@.*{(?P<id>.*),", text)
-		scanned_titles = [title.replace("{", "").replace("}", "") for title in re.findall("^\s*[tT]itle\s*=\s*{(?P<title>.*)},\n", text, re.MULTILINE)]
+		scanned_titles = [title.replace("{", "").replace("}", "") 
+							for title in re.findall("^\s*[tT]itle\s*=\s*{(?P<title>.*)},\n", text, 
+											re.MULTILINE)]
 		if len(scanned_titles) == len(scanned_labels):
 			entries_data = zip(scanned_labels, scanned_titles)
 			for entry in entries_data:
