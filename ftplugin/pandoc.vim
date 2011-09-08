@@ -105,17 +105,20 @@ setlocal omnifunc=pandoc#Pandoc_Complete
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Supertab support
 "
-if exists('g:SuperTabCompletionContexts')
-  let b:SuperTabCompletionContexts =
-    \ ['pandoc#PandocContext'] + g:SuperTabCompletionContexts
-endif
+if exists("g:SuperTabDefaultCompletionType")
+	call SuperTabSetDefaultCompletionType("context")
+
+	if exists('g:SuperTabCompletionContexts')
+		let b:SuperTabCompletionContexts =
+		\ ['pandoc#PandocContext'] + g:SuperTabCompletionContexts
+	endif
 "
 " disable supertab completions after bullets and numbered list
-" items (since one commonly types something like `+<tab>` to 
+" items (since one commonly types something like `+<tab>` to
 " create a list.)
 "
-let b:SuperTabNoCompleteAfter = ['\s', '^\s*\(-\|\*\|+\|>\|:\)', '^\s*(\=\d\+\(\.\=\|)\=\)'] 
-
+let b:SuperTabNoCompleteAfter = ['\s', '^\s*\(-\|\*\|+\|>\|:\)', '^\s*(\=\d\+\(\.\=\|)\=\)']
+endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Commands that call Pandoc
 "
