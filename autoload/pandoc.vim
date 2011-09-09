@@ -42,10 +42,14 @@ from glob import glob
 from subprocess import Popen, PIPE
 
 bib_extensions = ["json", "ris", "mods", "biblates", "bib"]
-file_name = ".".join(relpath(vim.current.buffer.name).split(".")[:-1])
 
-# first, we check for files named after the current file in the current dir
-bibfiles = [f for f in glob(file_name + ".*") if f.split(".")[-1] in bib_extensions]
+if vim.current.buffer.name != None:
+	file_name = ".".join(relpath(vim.current.buffer.name).split(".")[:-1])
+
+	# first, we check for files named after the current file in the current dir
+	bibfiles = [f for f in glob(file_name + ".*") if f.split(".")[-1] in bib_extensions]
+else:
+	bibfiles = []
 
 # we search for any bibliography in the current dir
 if bibfiles == []:
