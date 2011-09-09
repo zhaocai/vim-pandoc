@@ -101,7 +101,8 @@ function! pandoc#Pandoc_Complete(findstart, base)
 		let suggestions = []
 		if s:completion_type == 'bib'
 			" suggest BibTeX entries
-			let suggestions = pandoc#Pandoc_BibKey(a:base)
+			"let suggestions = pandoc#Pandoc_BibKey(a:base)
+			let suggestions = PandocGetSuggestions(a:base)
 		endif
 		return suggestions
 	endif
