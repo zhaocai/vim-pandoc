@@ -151,6 +151,10 @@ for opener in pandoc_executors:
 		if name not in ("", "None", None):
 			vim.command("command! -buffer " + name + " exec '" + nonopening_executor + "'")
 			vim.command("command! -buffer " + name + "Open" + " exec '" + opening_executor + "'")
+			vim.command("menu Pandoc.Executors." + name + "   " + \
+			            " :" + nonopening_executor + "<cr>")
+			vim.command("menu Pandoc.Executors." + name + "Open" + "   " + \
+			            " :" + opening_executor + "<cr>")
 		if mapping not in ("", "None", None):
 			vim.command("map <buffer><silent> " + mapping + \
 						" :" + nonopening_executor + "<cr>")
