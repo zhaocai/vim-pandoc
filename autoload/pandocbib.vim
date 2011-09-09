@@ -1,3 +1,7 @@
+" autoload/pandocbib.vim
+"
+" bibliographic completions for vim-pandoc
+"
 python<<EOF
 import vim
 import re
@@ -57,8 +61,34 @@ def pandoc_get_bibtex_suggestions(text, query):
 	
 	return entries
 
+ris_title_search = re.compile("^(TI|T1|CT|BT|T2|T3)\s*-\s*(?P<title>.*)\n", re.MULTILINE)
+ris_author_search = re.compile("^(AU|A1|A2|ED|A3)\s*-\s*(?P<author>.*)\n", re.MULTILINE)
+
 def pandoc_get_ris_suggestions(text, query):
-	return []
+	global ris_title_search
+
+	entries = []
+
+	ris_id_search = re.compile("^ID\s*-\s*(?P<id>" +  query + ".*)\n", re.MULTILINE)
+
+	for entry in re.split("ER\s*-\s*\n", text):
+		entry_dict = {}
+		i1 = ris_id_search.search(entry)
+		if i1:
+			entry_dict["word"] = i1.group("id")
+			title = "..."
+			author = "..."
+			i2 = ris_title_search.search(entry)
+			if i2:
+				title = i2.group("title")
+			i3 = ris_author_search.search(entry)
+			if i3:
+				author = i3.group("author")
+
+			entry_dict["menu"] = " - ".join([author, title])
+			entries.append(entry_dict)
+
+	return entries
 
 def pandoc_get_mods_suggestions(text, query):
 	return []

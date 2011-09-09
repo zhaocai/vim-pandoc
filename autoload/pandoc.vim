@@ -122,6 +122,37 @@ python<<EOF
 import vim
 import re, string
 from subprocess import Popen, PIPE
+
+def pandoc_get_reflabel():
+	pos = vim.current.window.cursor
+	current_line = vim.current.line
+	cursor_idx = pos[1] - 1
+	label = None
+	ref = None
+	
+	# we first search for explicit and non empty implicit refs
+	label_regex = "\[.*\]"
+	for label_found in re.finditer(label_regex, current_line):
+		if label_found.start() -1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
+			label = label_found.group()
+			if re.match("\[.*?\]\[.*?]", label):
+				if ref == '':
+					ref = label.split("][")[0][1:]
+				else:
+					ref = label.split("][")[1][:-1]
+				label = "[" + ref  + "]"
+				break
+	
+	# we now search for empty implicit refs or footnotes
+	if not ref:
+		label_regex = "\[.*?\]"
+		for label_found in re.finditer(label_regex, current_line):
+			if label_found.start() - 1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
+				label = label_found.group()
+				break
+
+	return label
+
 EOF
 
 function! pandoc#Pandoc_Open_URI()
