@@ -14,7 +14,6 @@ bibtex_booktitle_search = re.compile("^\s*[Bb]ooktitle\s*=\s*{(?P<booktitle>\S.*
 bibtex_author_search = re.compile("^\s*[Aa]uthor\s*=\s*{(?P<author>\S.*)}.*\n", re.MULTILINE)
 bibtex_editor_search = re.compile("^\s*[Ee]ditor\s*=\s*{(?P<editor>\S.*)}.*\n", re.MULTILINE)
 bibtex_crossref_search = re.compile("^\s*[Cc]rossref\s*=\s*{(?P<crossref>\S.*)}.*\n", re.MULTILINE)
-bibtex_id_search = re.compile(".*{\s*(?P<id>.*),")
 
 def pandoc_get_bibtex_suggestions(text, query):
 	global bibtex_title_search
@@ -41,7 +40,7 @@ def pandoc_get_bibtex_suggestions(text, query):
 			else:
 				i3 = bibtex_booktitle_search.search(entry)
 				if i3:
-					title = i3.group("title")
+					title = i3.group("booktitle")
 			title = title.replace("{", "").replace("}", "")
 
 			# search for author
@@ -69,7 +68,8 @@ def pandoc_get_bibtool_suggestions(bib, query):
 	global bibtex_author_search
 	global bibtex_editor_search
 	global bibtex_crossref_search
-	global bibtex_id_search
+	
+	bibtex_id_search = re.compile(".*{\s*(?P<id>.*),")
 
 	args = "-- select{$key title booktitle author editor \"%(query)s\"}'" % {"query": query}
 	text = Popen(["bibtool", args, bib], stdout=PIPE, stderr=PIPE).communicate()[0]
@@ -91,7 +91,8 @@ def pandoc_get_bibtool_suggestions(bib, query):
 			else:
 				i3 = bibtex_booktitle_search.search(entry)
 				if i3:
-					title = i3.group("title")
+					title = i3.group("booktitle")
+			title = title.replace("{", "").replace("}", "")
 
 			# search for author
 			i4 = bibtex_author_search.search(entry)
