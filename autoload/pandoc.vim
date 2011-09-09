@@ -102,52 +102,10 @@ function! pandoc#Pandoc_Complete(findstart, base)
 		if s:completion_type == 'bib'
 			" suggest BibTeX entries
 			"let suggestions = pandoc#Pandoc_BibKey(a:base)
-			let suggestions = PandocGetSuggestions(a:base)
+			let suggestions = pandocbib#PandocBibSuggestions(a:base)
 		endif
 		return suggestions
 	endif
-endfunction
-
-function! pandoc#Pandoc_BibKey(partkey) 
-python<<EOF
-import vim
-import re
-from os.path import basename
-from operator import itemgetter
-
-# we evaluate the local pandoc_bibfiles
-bibs = vim.eval("b:pandoc_bibfiles")
-string = vim.eval("a:partkey")
-
-matches = []
-
-for bib in bibs:
-	# we guess tye bibliography type from the filename
-	bib_type = basename(bib).split(".")[-1].lower()
-	with open(bib, 'r') as f:
-		text = f.read()
-
-	ids = []
-	if bib_type == "mods":
-		ids = re.findall("<mods ID=\"(?P<id>" + string + '.*)\"', text)
-	elif bib_type == "ris":
-		ids = re.findall("ID\s+-\s+(?P<id>" + string + ".*)", text)
-	elif bib_type == "json":
-		ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
-	else: # BibTeX file
-		ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
-
-	# we remove duplicates
-	ids = list(set(ids))
-	
-	for i in ids:
-		matches.append(i)
-
-# sort by key
-matches = sorted(matches)
-
-vim.command("return " + matches.__repr__())
-EOF
 endfunction
 
 function! pandoc#PandocContext()
