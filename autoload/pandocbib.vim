@@ -7,6 +7,7 @@ import vim
 import re
 from os.path import basename
 from operator import itemgetter
+import json
 
 bibtex_title_search = re.compile("^\s*[Tt]itle\s*=\s*{(?P<title>\S.*)}.*\n", re.MULTILINE)
 bibtex_booktitle_search = re.compile("^\s*[Bb]ooktitle\s*=\s*{(?P<booktitle>\S.*)}.*\n", re.MULTILINE)
@@ -66,6 +67,7 @@ ris_author_search = re.compile("^(AU|A1|A2|ED|A3)\s*-\s*(?P<author>.*)\n", re.MU
 
 def pandoc_get_ris_suggestions(text, query):
 	global ris_title_search
+	global ris_author_search
 
 	entries = []
 
@@ -94,7 +96,17 @@ def pandoc_get_mods_suggestions(text, query):
 	return []
 
 def pandoc_get_json_suggestions(text, query):
-	return []
+	entries = []
+	data = json.loads(text)
+	for entry in data:
+		entry_dict = {}
+		if all([entry.has_key(k) for k in ["author", "title", "id"]]):
+			entry_dict["word"] = str(entry["id"])
+			author = entry["author"][0]["family"] + ", " + entry["author"][0]["given"]
+			title = entry["title"]
+			entry_dict["menu"] = " - ".join([str(author), str(title)])
+			entries.append(entry_dict)
+	return entries
 EOF
 
 function! pandocbib#PandocBibSuggestions(partkey)
