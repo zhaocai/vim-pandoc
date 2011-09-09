@@ -8,7 +8,6 @@ import re
 from os.path import basename
 from operator import itemgetter
 from subprocess import Popen, PIPE
-import json
 
 bibtex_title_search = re.compile("^\s*[Tt]itle\s*=\s*{(?P<title>\S.*)}.*\n", re.MULTILINE)
 bibtex_booktitle_search = re.compile("^\s*[Bb]ooktitle\s*=\s*{(?P<booktitle>\S.*)}.*\n", re.MULTILINE)
@@ -144,11 +143,37 @@ def pandoc_get_ris_suggestions(text, query):
 	return entries
 
 def pandoc_get_mods_suggestions(text, query):
-	return []
+	import xml.etree.ElementTree as etree
+	entries = []
+	
+	bib_data = etree.fromstring(text)
+	if bib_data.tag == "mods":
+		entry_dict = {}
+		entry_id = bib_data.get("ID")
+		if re.match(query, str(entry_id)):
+			entry_dict["word"] = entry_id
+			title = " ".join([s.strip() for s in bib_data.find("titleInfo").find("title").text.split("\n")])
+			entry_dict["menu"] = str(title)
+			entries.append(entry_dict)
+	elif bib_data.tag == "modsCollection":
+		for mod in bib_data.findall("mods"):
+			entry_dict = {}
+			entry_id = mod.get("ID")
+			if re.match(query, str(entry_id)):
+				entry_dict["word"] = entry_id
+				title = " ".join([s.strip() for s in bib_data.find("titleInfo").find("title").text.split("\n")])
+				entry_dict["menu"] = str(title)
+				entries.append(entry_dict)
+
+	return entries
 
 def pandoc_get_json_suggestions(text, query):
+	import json
+	
 	entries = []
+	
 	data = json.loads(text)
+	
 	for entry in data:
 		entry_dict = {}
 		# we make a simple check to see if the item contains bibliographic data
@@ -160,6 +185,7 @@ def pandoc_get_json_suggestions(text, query):
 				title = entry["title"]
 				entry_dict["menu"] = " - ".join([str(author), str(title)])
 				entries.append(entry_dict)
+	
 	return entries
 EOF
 
