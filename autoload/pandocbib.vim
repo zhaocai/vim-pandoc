@@ -210,7 +210,7 @@ for bib in bibs:
 	elif bib_type == "json":
 		ids = pandoc_get_json_suggestions(text, query)
 	else:
-		if int(vim.eval("exists('g:pandoc_use_bibtool') && g:pandoc_use_bibtool")):
+		if int(vim.eval("exists('g:pandoc_use_bibtool') && g:pandoc_use_bibtool && executable('bibtool')")):
 			ids = pandoc_get_bibtool_suggestions(bib, query)
 		else:
 			ids = pandoc_get_bibtex_suggestions(text, query)
