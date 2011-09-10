@@ -146,7 +146,7 @@ def pandoc_get_json_suggestions(text, query):
 	return entries
 EOF
 
-function! pandocbib#PandocBibSuggestions(partkey)
+function! pandoc_bib#PandocBibSuggestions(partkey)
 python<<EOF
 bibs = vim.eval("b:pandoc_bibfiles")
 query = vim.eval("a:partkey")
