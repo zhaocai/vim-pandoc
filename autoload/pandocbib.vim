@@ -9,11 +9,11 @@ from os.path import basename
 from operator import itemgetter
 from subprocess import Popen, PIPE
 
-bibtex_title_search = re.compile("^\s*[Tt]itle\s*=\s*{(?P<title>\S.*)}.*\n", re.MULTILINE)
-bibtex_booktitle_search = re.compile("^\s*[Bb]ooktitle\s*=\s*{(?P<booktitle>\S.*)}.*\n", re.MULTILINE)
-bibtex_author_search = re.compile("^\s*[Aa]uthor\s*=\s*{(?P<author>\S.*)}.*\n", re.MULTILINE)
-bibtex_editor_search = re.compile("^\s*[Ee]ditor\s*=\s*{(?P<editor>\S.*)}.*\n", re.MULTILINE)
-bibtex_crossref_search = re.compile("^\s*[Cc]rossref\s*=\s*{(?P<crossref>\S.*)}.*\n", re.MULTILINE)
+bibtex_title_search = re.compile("^\s*[Tt]itle\s*=\s*{(?P<title>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
+bibtex_booktitle_search = re.compile("^\s*[Bb]ooktitle\s*=\s*{(?P<booktitle>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
+bibtex_author_search = re.compile("^\s*[Aa]uthor\s*=\s*{(?P<author>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
+bibtex_editor_search = re.compile("^\s*[Ee]ditor\s*=\s*{(?P<editor>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
+bibtex_crossref_search = re.compile("^\s*[Cc]rossref\s*=\s*{(?P<crossref>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
 
 def pandoc_get_bibtex_suggestions(text, query):
 	global bibtex_title_search
@@ -41,7 +41,7 @@ def pandoc_get_bibtex_suggestions(text, query):
 				i3 = bibtex_booktitle_search.search(entry)
 				if i3:
 					title = i3.group("booktitle")
-			title = title.replace("{", "").replace("}", "")
+			title = re.sub("[{}]", "", re.sub("\s+", " ", title))
 
 			# search for author
 			i4 = bibtex_author_search.search(entry)
@@ -92,7 +92,7 @@ def pandoc_get_bibtool_suggestions(bib, query):
 				i3 = bibtex_booktitle_search.search(entry)
 				if i3:
 					title = i3.group("booktitle")
-			title = title.replace("{", "").replace("}", "")
+			title = re.sub("[{}]", "", re.sub("\s+", " ", title))
 
 			# search for author
 			i4 = bibtex_author_search.search(entry)
@@ -219,6 +219,6 @@ for bib in bibs:
 
 matches = sorted(matches, key=itemgetter("word"))
 # for now, we remove non ascii characters. TODO: handle that properly
-vim.command("return " + re.sub(r'\\x\S{2}', "", str(matches)))
+vim.command("return " + re.sub(r'\\x\w{2}', '', str(matches)))
 EOF
 endfunction
