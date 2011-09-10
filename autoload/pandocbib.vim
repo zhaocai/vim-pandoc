@@ -15,7 +15,7 @@ bibtex_author_search = re.compile("^\s*[Aa]uthor\s*=\s*{(?P<author>\S.*?)}.{,1}\
 bibtex_editor_search = re.compile("^\s*[Ee]ditor\s*=\s*{(?P<editor>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
 bibtex_crossref_search = re.compile("^\s*[Cc]rossref\s*=\s*{(?P<crossref>\S.*?)}.{,1}\n", re.MULTILINE | re.DOTALL)
 
-def pandoc_get_bibtex_suggestions(text, query):
+def pandoc_get_bibtex_suggestions(text, query, use_bibtool=False):
 	global bibtex_title_search
 	global bibtex_booktitle_search
 	global bibtex_author_search
@@ -23,7 +23,14 @@ def pandoc_get_bibtex_suggestions(text, query):
 	global bibtex_crossref_search
 
 	entries = []
-	bibtex_id_search = re.compile(".*{\s*(?P<id>" + query + ".*),")
+	
+	if use_bibtool:
+		bibtex_id_search = re.compile(".*{\s*(?P<id>.*),")
+
+		args = "-- select{$key title booktitle author editor \"%(query)s\"}'" % {"query": query}
+		text = Popen(["bibtool", args, bib], stdout=PIPE, stderr=PIPE).communicate()[0]
+	else:
+		bibtex_id_search = re.compile(".*{\s*(?P<id>" + query + ".*),")
 
 	for entry in [i for i in re.split("\n@", text)]:
 		entry_dict = {}
@@ -60,57 +67,6 @@ def pandoc_get_bibtex_suggestions(text, query):
 				
 			entries.append(entry_dict)
 	
-	return entries
-
-def pandoc_get_bibtool_suggestions(bib, query):
-	global bibtex_title_search
-	global bibtex_booktitle_search
-	global bibtex_author_search
-	global bibtex_editor_search
-	global bibtex_crossref_search
-	
-	bibtex_id_search = re.compile(".*{\s*(?P<id>.*),")
-
-	args = "-- select{$key title booktitle author editor \"%(query)s\"}'" % {"query": query}
-	text = Popen(["bibtool", args, bib], stdout=PIPE, stderr=PIPE).communicate()[0]
-	
-	entries = []
-	
-	for entry in [i for i in re.split("\n@", text)]:
-		entry_dict = {}
-		i1 = bibtex_id_search.match(entry)
-		if i1:
-			entry_dict["word"] = i1.group("id")
-
-			title = "..."
-			author = "..."
-			# search for title
-			i2 = bibtex_title_search.search(entry)
-			if i2:
-				title = i2.group("title")
-			else:
-				i3 = bibtex_booktitle_search.search(entry)
-				if i3:
-					title = i3.group("booktitle")
-			title = re.sub("[{}]", "", re.sub("\s+", " ", title))
-
-			# search for author
-			i4 = bibtex_author_search.search(entry)
-			if i4:
-				author = i4.group("author")
-			else:
-				i5 = bibtex_editor_search.search(entry)
-				if i5:
-					author = i5.group("editor")
-				else:
-					i6 = bibtex_crossref_search.search(entry)
-					if i6:
-						author = "@" + i6.group("crossref")
-
-			entry_dict["menu"] = " - ".join([author, title])
-				
-			entries.append(entry_dict)
-
 	return entries
 
 ris_title_search = re.compile("^(TI|T1|CT|BT|T2|T3)\s*-\s*(?P<title>.*)\n", re.MULTILINE)
@@ -211,7 +167,7 @@ for bib in bibs:
 		ids = pandoc_get_json_suggestions(text, query)
 	else:
 		if int(vim.eval("exists('g:pandoc_use_bibtool') && g:pandoc_use_bibtool && executable('bibtool')")):
-			ids = pandoc_get_bibtool_suggestions(bib, query)
+			ids = pandoc_get_bibtex_suggestions(bib, query, True)
 		else:
 			ids = pandoc_get_bibtex_suggestions(text, query)
 
