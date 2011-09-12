@@ -167,13 +167,13 @@ EOF
 "
 " Open link under cursor in browser
 "
-map <buffer><silent> <LocalLeader>www :call pandoc#Pandoc_Open_URI()<cr>
+map <buffer><silent> <LocalLeader>www :call pandoc_misc#Pandoc_Open_URI()<cr>
 
 "" Jump forward to existing reference link (or footnote link)
-map <buffer><silent> <LocalLeader>gr :call pandoc#Pandoc_Goto_Ref()<cr>
+map <buffer><silent> <LocalLeader>gr :call pandoc_misc#Pandoc_Goto_Ref()<cr>
 
 "" Jump back to existing reference link (or fn link)
-map <buffer><silent> <LocalLeader>br :call pandoc#Pandoc_Back_From_Ref()<cr>
+map <buffer><silent> <LocalLeader>br :call pandoc_misc#Pandoc_Back_From_Ref()<cr>
 
 "" Add new reference link (or footnote link) after current paragraph. (This
 "" works better than the snipmate snippet for doing this.)

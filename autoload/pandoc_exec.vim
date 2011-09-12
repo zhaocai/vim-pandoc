@@ -1,3 +1,7 @@
+" autoload/pandoc_exe.vim
+"
+" Defines pandoc_execute and pandoc_exec#PandocExecute, for executors
+"
 python<<EOF
 import vim
 import sys
