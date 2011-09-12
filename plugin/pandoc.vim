@@ -2,7 +2,7 @@ python<<EOF
 import vim
 import sys
 import re, string
-from os.path import exists, relpath
+from os.path import exists, relpath, basename
 from subprocess import Popen, PIPE
 
 # platform dependent variables
@@ -18,7 +18,7 @@ def pandoc_execute(command, open_when_done=False):
 	command = command.split()
 	
 	# first, we evaluate the output extension
-	if command[0] == "markdown2pdf": # always outputs pdfs
+	if basename(command[0]) in ("markdown2pdf", "panbeamer.py"): # always outputs pdfs
 		out_extension = "pdf"
 	else:
 		try:
