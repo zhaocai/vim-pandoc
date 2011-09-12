@@ -146,8 +146,8 @@ python<<EOF
 for opener in pandoc_executors:
 	name, mapping, command = opener
 	if command not in ("", "None", None):
-		opening_executor = 'py pandoc_execute("' + command + '", True)'
-		nonopening_executor = 'py pandoc_execute("' + command + '", False)'
+		opening_executor = 'call pandoc_exec#PandocExecute("' + command + '", 1)'
+		nonopening_executor = 'call pandoc_exec#PandocExecute("' + command + '", 0)'
 		if name not in ("", "None", None):
 			vim.command("command! -buffer " + name + " exec '" + nonopening_executor + "'")
 			vim.command("command! -buffer " + name + "Open" + " exec '" + opening_executor + "'")
