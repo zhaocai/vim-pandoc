@@ -56,7 +56,7 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 				out_extension = output_type
 		out = vim.eval('expand("%:r")') + "." + out_extension
 		if len(outputter) > 1:
-			outputter.insert(-1, "-o " + out)
+			outputter.insert(len(outputter), "-o " + out)
 		else:
 			outputter.append("-o "+ out)
 	else:
@@ -75,7 +75,15 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 
 	# we buld the string we'll call
 	command_str = " ".join(real_command)
-	print command_str
+	
+	# we run the command
+	try:
+		retval = call(real_command, shell=True)
+	except OSError, e:
+		return
+
+	if exists(out):
+		tail = ">> Created " + out
 
 	# we create a temporary buffer where the command and its output will be shown
 	
@@ -86,7 +94,13 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 	
 	vim.command("5new")
 	vim.current.buffer[0] = "# Press <Esc> to close this"
-	vim.current.buffer.append("▶ " + " ".join(command))
+	vim.current.buffer.append("▶ " + command_str)
+	try:
+		vim.current.buffer.append(tail)
+	except:
+		pass
+	vim.command("setlocal nomodified")
+	vim.command("setlocal nomodifiable")
 	# pressing <esc> on the buffer will delete it
 	vim.command("map <buffer> <esc> :bd<cr>")
 	# we will highlight some elements in the buffer
@@ -100,19 +114,6 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 	# we revert splitbelow to its original value
 	if not splitbelow:
 		vim.command("set nosplitbelow")
-	
-	# we run the command
-	try:
-		retval = call(real_command, shell=True)
-	except OSError, e:
-		vim.current.buffer.append("Couldn't execute the command")
-		return
-	
-	if exists(out):
-		vim.current.buffer.append(">> Created " + out)
-	
-	vim.command("setlocal nomodified")
-	vim.command("setlocal nomodifiable")
 
 	# finally, we open the created file
 	if open_when_done:
