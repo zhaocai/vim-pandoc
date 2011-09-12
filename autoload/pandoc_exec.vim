@@ -7,7 +7,7 @@ import vim
 import sys
 import re, string
 from os.path import exists, relpath, basename
-from subprocess import call
+from subprocess import call, Popen, PIPE
 
 def pandoc_execute(command, output_type="html", open_when_done=False):
 	command = command.split()
@@ -129,7 +129,7 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 		else:
 			pandoc_open_command_tail = ''
 			
-		call(pandoc_open_command + out + pandoc_open_command_tail)
+		Popen([pandoc_open_command,  out + pandoc_open_command_tail], stdout=PIPE, stderr=PIPE)
 EOF
 
 function! pandoc_exec#PandocExecute(command, type, open_when_done)
