@@ -46,19 +46,14 @@ def pandoc_execute(command, open_when_done=False):
 
 	# we create a temporary buffer where the command and its output will be shown
 	
-	# this builds a list of lines we are going to write to the buffer
-	lines = []
-	lines.insert(0, "▶ " + " ".join(command))
-	lines.insert(0, "# Press <Esc> to close this ")
-
 	# we always splitbelow
 	splitbelow = bool(int(vim.eval("&splitbelow")))
 	if not splitbelow:
 		vim.command("set splitbelow")
 	
 	vim.command("5new")
-	vim.current.buffer.append(lines)
-	vim.command("normal! dd")
+	vim.current.buffer[0] = "# Press <Esc> to close this"
+	vim.current.buffer.append("▶ " + " ".join(command))
 	# pressing <esc> on the buffer will delete it
 	vim.command("map <buffer> <esc> :bd<cr>")
 	# we will highlight some elements in the buffer
@@ -74,10 +69,11 @@ def pandoc_execute(command, open_when_done=False):
 		vim.command("set nosplitbelow")
 	
 	# we run pandoc with our arguments
-	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()
-	lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
+	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()[0]
+	if output not in (None, ""):
+		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
+		vim.current.buffer.append(lines)
 	
-	vim.current.buffer.append(lines)
 	vim.command("setlocal nomodified")
 	vim.command("setlocal nomodifiable")
 
