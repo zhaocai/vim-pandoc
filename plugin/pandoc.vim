@@ -5,15 +5,6 @@ import re, string
 from os.path import exists, relpath, basename
 from subprocess import Popen, PIPE
 
-# platform dependent variables
-if sys.platform == "darwin":
-	pandoc_open_command = "open" #OSX
-elif sys.platform.startswith("linux"):
-	pandoc_open_command = "xdg-open" # freedesktop/linux
-elif sys.platform.startswith("win"):
-	pandoc_open_command = 'cmd /x \"start' # Windows
-
-
 def pandoc_execute(command, open_when_done=False):
 	command = command.split()
 	
@@ -92,12 +83,19 @@ def pandoc_execute(command, open_when_done=False):
 
 	# finally, we open the created file
 	if exists(out) and open_when_done:
+		if sys.platform == "darwin":
+			pandoc_open_command = "open" #OSX
+		elif sys.platform.startswith("linux"):
+			pandoc_open_command = "xdg-open" # freedesktop/linux
+		elif sys.platform.startswith("win"):
+			pandoc_open_command = 'cmd /x \"start' # Windows
 		# On windows, we pass commands as an argument to `start`, 
 		# which is a cmd.exe builtin, so we have to quote it
 		if sys.platform.startswith("win"):
 			pandoc_open_command_tail = '"'
 		else:
 			pandoc_open_command_tail = ''
+		
 		Popen([pandoc_open_command, out + pandoc_open_command_tail], stdout=PIPE, stderr=PIPE)
 
 # We register openers with PandocRegisterExecutor. 

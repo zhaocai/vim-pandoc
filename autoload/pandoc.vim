@@ -120,6 +120,7 @@ endfunction
 "
 python<<EOF
 import vim
+import sys
 import re, string
 from subprocess import Popen, PIPE
 
@@ -152,7 +153,6 @@ def pandoc_get_reflabel():
 				break
 
 	return label
-
 EOF
 
 function! pandoc#Pandoc_Open_URI()
@@ -170,6 +170,18 @@ for match in re.finditer(pat, line):
 		url = match.group()
 		break
 if url != '':
+	if sys.platform == "darwin":
+		pandoc_open_command = "open" #OSX
+	elif sys.platform.startswith("linux"):
+		pandoc_open_command = "xdg-open" # freedesktop/linux
+	elif sys.platform.startswith("win"):
+		pandoc_open_command = 'cmd /x \"start' # Windows
+	# On windows, we pass commands as an argument to `start`,
+	# which is a cmd.exe builtin, so we have to quote it
+	if sys.platform.startswith("win"):
+		pandoc_open_command_tail = '"'
+	else:
+		pandoc_open_command_tail = ''
 	Popen([pandoc_open_command, url + pandoc_open_command_tail], stdout=PIPE, stderr=PIPE)
 	print url
 else:
