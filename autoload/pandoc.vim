@@ -101,52 +101,11 @@ function! pandoc#Pandoc_Complete(findstart, base)
 		let suggestions = []
 		if s:completion_type == 'bib'
 			" suggest BibTeX entries
-			let suggestions = pandoc#Pandoc_BibKey(a:base)
+			"let suggestions = pandoc#Pandoc_BibKey(a:base)
+			let suggestions = pandoc_bib#PandocBibSuggestions(a:base)
 		endif
 		return suggestions
 	endif
-endfunction
-
-function! pandoc#Pandoc_BibKey(partkey) 
-python<<EOF
-import vim
-import re
-from os.path import basename
-from operator import itemgetter
-
-# we evaluate the local pandoc_bibfiles
-bibs = vim.eval("b:pandoc_bibfiles")
-string = vim.eval("a:partkey")
-
-matches = []
-
-for bib in bibs:
-	# we guess tye bibliography type from the filename
-	bib_type = basename(bib).split(".")[-1].lower()
-	with open(bib, 'r') as f:
-		text = f.read()
-
-	ids = []
-	if bib_type == "mods":
-		ids = re.findall("<mods ID=\"(?P<id>" + string + '.*)\"', text)
-	elif bib_type == "ris":
-		ids = re.findall("ID\s+-\s+(?P<id>" + string + ".*)", text)
-	elif bib_type == "json":
-		ids = scan("\"id\":\s+\"(?P<id>"+ string + ".*)\"", text)
-	else: # BibTeX file
-		ids = re.findall("\@.*{(?P<id>" + string + ".*),", text)
-
-	# we remove duplicates
-	ids = list(set(ids))
-	
-	for i in ids:
-		matches.append(i)
-
-# sort by key
-matches = sorted(matches)
-
-vim.command("return " + matches.__repr__())
-EOF
 endfunction
 
 function! pandoc#PandocContext()
@@ -163,6 +122,37 @@ python<<EOF
 import vim
 import re, string
 from subprocess import Popen, PIPE
+
+def pandoc_get_reflabel():
+	pos = vim.current.window.cursor
+	current_line = vim.current.line
+	cursor_idx = pos[1] - 1
+	label = None
+	ref = None
+	
+	# we first search for explicit and non empty implicit refs
+	label_regex = "\[.*\]"
+	for label_found in re.finditer(label_regex, current_line):
+		if label_found.start() -1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
+			label = label_found.group()
+			if re.match("\[.*?\]\[.*?]", label):
+				if ref == '':
+					ref = label.split("][")[0][1:]
+				else:
+					ref = label.split("][")[1][:-1]
+				label = "[" + ref  + "]"
+				break
+	
+	# we now search for empty implicit refs or footnotes
+	if not ref:
+		label_regex = "\[.*?\]"
+		for label_found in re.finditer(label_regex, current_line):
+			if label_found.start() - 1 <= cursor_idx and label_found.end() - 2 >= cursor_idx:
+				label = label_found.group()
+				break
+
+	return label
+
 EOF
 
 function! pandoc#Pandoc_Open_URI()
