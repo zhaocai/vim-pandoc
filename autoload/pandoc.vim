@@ -38,7 +38,8 @@ endfunction
 function! pandoc#Pandoc_Find_Bibfile()
 python<<EOF
 import vim
-from os.path import exists, relpath, expandvars
+import os
+from os.path import exists, relpath, expandvars, isdir
 from glob import glob
 from subprocess import Popen, PIPE
 
@@ -54,7 +55,7 @@ else:
 
 # we search for any bibliography in the current dir
 if bibfiles == []:
-	bibfiles = [f for f in glob("*") if f.split(".")[-1] in bib_extensions]
+	bibfiles = [f for f in glob("*.*") if f.split(".")[-1] in bib_extensions]
 
 # we seach in pandoc's local data dir
 if bibfiles == []:
@@ -76,6 +77,9 @@ if bibfiles == []:
 # we append the items in g:pandoc_bibfiles, if set
 if vim.eval("exists('g:pandoc_bibfiles')") != "0":
 	bibfiles.expand(vim.eval("g:pandoc_bibfiles"))
+
+# we check if the items in bibfiles are readable and not directories
+bibfiles = list(filter(lambda f : os.access(f, os.R_OK) and not isdir(f), bibfiles))
 
 vim.command("let b:pandoc_bibfiles = " + str(bibfiles))
 EOF
