@@ -75,8 +75,9 @@ def pandoc_execute(command, open_when_done=False):
 	# we run pandoc with our arguments
 	output = Popen(command, stdout=PIPE, stderr=PIPE).communicate()[0]
 	if output not in (None, ""):
-		lines = [">> " + line for line in "\n".join(output).split("\n") if line != '']
-		vim.current.buffer.append(lines)
+		lines = [">> " + line for line in output.split("\n") if line != '']
+		for line in lines:
+			vim.current.buffer.append(line)
 	
 	vim.command("setlocal nomodified")
 	vim.command("setlocal nomodifiable")
