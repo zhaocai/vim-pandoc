@@ -1,86 +1,94 @@
 #
 # Snipmate Snippets for Pandoc Markdown
 #
-# Pandoc-specific Snippets
-# ========================
-#
+# Many snippets have starred versions, i.e., versions
+# that end with an asterisk (`*`). These snippets use
+# vim's `"*` register---i.e., the contents of the 
+# system clipboard---to insert text.
+
 # Insert Title Block
 snippet %%
+	% ${1:`Filename('', 'title')`}
+	% ${2:`g:snips_author`}
+	% ${3:`strftime("%d %b %Y")`}
+
+	${4}
+snippet %%*
 	% ${1:`Filename('', @*)`}
 	% ${2:`g:snips_author`}
 	% ${3:`strftime("%d %b %Y")`}
 
 	${4}
 
-# Insert Definition list item
-# ===========================
+# Insert Definition List
 snippet ::
 	${1:term}
 	  ~  ${2:definition}
 
-# Insert Striked Out Text
-snippet ~~
-	~~${1}~~${2}
-#
-# ^[inline footnote]
-#
-# I've commented this out because it seems pretty useless...
-#
-#snippet ^[
-#	^[${1:note}]${2}
-#
+# Underline with `=`s
+snippet ===
+	`repeat('=', strlen(getline(line(".") - 1)))`
+	
+	${1}
 
+# Underline with `-`s
+snippet ---
+	`repeat('-', strlen(getline(line(".") - 1)))`
+	
+	${1}
 
 # Links and their kin
 # -------------------
 #
 # (These don't play very well with delimitMate)
 #
+# Where appropriate, snippets come in a standard version
+# and a starred (`*`) version. The starred version inserts
+# the contents of the `"*` register (the system clipboard)
+# in some appropriate place.
 
-# [link](url)
-snippet [
-	[${1:link}](${2:`@*`})${3}
 # [link](url "title")
-snippet ["
+snippet [
+	[${1:link}](${2:url} "${3:title}")${4}
+snippet [*
 	[${1:link}](${2:`@*`} "${3:title}")${4}
+
 # [id]: url "title"
 snippet [:
+	[${1:id}]: ${2:url} "${3:title}"
+snippet [:*
 	[${1:id}]: ${2:`@*`} "${3:title}"
 
 # [link](email)
 snippet [@
+	[${1:link}](mailto:${2:email})${3}
+snippet [@*
 	[${1:link}](mailto:${2:`@*`})${3}
+
 # [id]: email "title"
 snippet [:@
+	[${1:id}]: mailto:${2:email} "${3:title}"
+snippet [:@*
 	[${1:id}]: mailto:${2:`@*`} "${3:title}"
 
-# ![alt](url)
-snippet ![
-	![${1:alt}](${2:`@*`})${3}
 # ![alt](url "title")
-snippet !["
+snippet ![
+	![${1:alt}](${2:url} "${3:title}")${4}
+snippet ![*
 	![${1:alt}](${2:`@*`} "${3:title}")${4}
+
 # ![id]: url "title"
 snippet ![:
+	![${1:id}]: ${2:url} "${3:title}"
+snippet ![:*
 	![${1:id}]: ${2:`@*`} "${3:title}"
 
 # [^id]
 snippet [^
 	[^${1:id}]${3}
+
 # [^id]: note
 snippet [^:
-	[^$1]: ${2:note}
-
-# Styling
-# -------
-
-# underline with `=`---i.e., setext style level 1 headers
-snippet ===
-	`repeat('=', strlen(getline(line(".") - 1)))`
-	
-	${1}
-# underline with `=`---i.e., setext style level 2 headers
-snippet ---
-	`repeat('-', strlen(getline(line(".") - 1)))`
-	
-	${1}
+	[^${1:id}]: ${2:note}
+snippet [^:*
+	[^${1:id}]: ${2:`@*`}
