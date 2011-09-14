@@ -11,9 +11,14 @@ from os.path import exists, relpath, basename, splitext
 from subprocess import call, Popen, PIPE
 
 pandoc_variable_substitutions = {
+	# current file
 	"%%": lambda r: relpath(vim.current.buffer.name),
+	# current file, w/o extension
 	"%:r": lambda r: splitext(relpath(vim.current.buffer.name))[0],
-	"PANDOC#BIBS" : lambda r: " ".join(["--bibliography "+ i for i in	vim.eval('b:pandoc_bibfiles')])
+	# the values in b:pandoc_bibfiles, as arguments for a pandoc-compatible program
+	"PANDOC#P_BIBS" : lambda r: " ".join(["--bibliography "+ i for i in vim.eval('b:pandoc_bibfiles')]),
+	# the values in b:pandoc_bibfiles, as a list
+	"PANDOC#BIBS" : lambda r: " ".join(vim.eval("b:pandoc_bibfiles"))
 }
 
 def pandoc_execute(command, output_type="html", open_when_done=False):
