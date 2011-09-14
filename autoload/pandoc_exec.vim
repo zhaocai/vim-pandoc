@@ -11,9 +11,9 @@ from os.path import exists, relpath, basename, splitext
 from subprocess import call, Popen, PIPE
 
 pandoc_variable_substitutions = {
-	"%%": relpath(vim.current.buffer.name),
-	"%:r": splitext(relpath(vim.current.buffer.name))[0],
-	"PANDOC#BIBS" : " ".join(["--bibliography "+ i for i in	vim.eval('b:pandoc_bibfiles')])
+	"%%": lambda r: relpath(vim.current.buffer.name),
+	"%:r": lambda r: splitext(relpath(vim.current.buffer.name))[0],
+	"PANDOC#BIBS" : lambda r: " ".join(["--bibliography "+ i for i in	vim.eval('b:pandoc_bibfiles')])
 }
 
 def pandoc_execute(command, output_type="html", open_when_done=False):
