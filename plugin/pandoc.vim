@@ -24,9 +24,9 @@ command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<arg
 " commands in his .vimrc.
 "
 " Generate html and open in default html viewer
-PandocRegisterExecutor PandocHtml <LocalLeader>html html pandoc -t html -Ss
+PandocRegisterExecutor PandocHtml <LocalLeader>html html pandoc -t html -Ss -o %:r.html %%
 " Generate pdf w/ citeproc and open in default pdf viewer
-PandocRegisterExecutor PandocPdf <LocalLeader>pdf pdf markdown2pdf --bibliography b:pandoc_bibfiles
+PandocRegisterExecutor PandocPdf <LocalLeader>pdf pdf markdown2pdf PANDOC#BIBS -o %:r.pdf %%
 " Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterExecutor PandocOdt <LocalLeader>odt odt pandoc -t odt --bibliography b:pandoc_bibfiles
+PandocRegisterExecutor PandocOdt <LocalLeader>odt odt pandoc -t odt PANDOC#BIBS -o %:r.odt %%
 

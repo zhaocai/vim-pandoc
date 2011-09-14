@@ -6,84 +6,37 @@ python<<EOF
 import vim
 import sys
 import re, string
-from os.path import exists, relpath, basename
+import shlex
+from os.path import exists, relpath, basename, splitext
 from subprocess import call, Popen, PIPE
 
+pandoc_variable_substitutions = {
+	"%%": relpath(vim.current.buffer.name),
+	"%:r": splitext(relpath(vim.current.buffer.name))[0],
+	"PANDOC#BIBS" : " ".join(["--bibliography "+ i for i in	vim.eval('b:pandoc_bibfiles')])
+}
+
 def pandoc_execute(command, output_type="html", open_when_done=False):
-	command = command.split()
+	# first, we parse the command description as a list of strings
+	steps = []
+	for step in command.split("|"):
+		step = step.strip()
+		# we substitute some variables
+		for sub in pandoc_variable_substitutions:
+			step = re.sub(sub, pandoc_variable_substitutions[sub], step)
+		steps.append(step)
 
-	# first, we expand some tokens
-	v_idx = 0
-	for value in command:
-		if value.startswith("%"): # tokens derived on current buffer name
-			command[v_idx] = vim.eval("expand('" + value + "')")
-		elif value.startswith("b:") or value.startswith("g:"): # global or local variables
-			if int(vim.eval("exists('" + value + "')")) > 0:
-				val = vim.eval(value)
-				if val.__class__ is str:
-					command[v_idx] = val
-				elif val.__class__ is list:
-					# we only process b:pandoc_bibfiles
-					if value == "b:pandoc_bibfiles" and command[v_idx -1] == "--bibliography":
-						# we must rewrite the bibliography args, so every bibfile is passed
-						command[v_idx - 1] = ""
-						command[v_idx] = ""
-						for bib in reversed(val):
-							i = "--bibliography " + bib
-							command.insert(v_idx, i)
-				else:
-					commad[v_idx] = "" # anything else, we exclude
-			else:
-				# sometimes b:padoc_bibfiles is undefined
-				if command[v_idx - 1] == "--bibliography":
-					command[v_idx - 1] = ""
-				command[v_idx] = ""
-		v_idx += 1
+	out = splitext(vim.current.buffer.name)[0] + "." + output_type
 
-	# this is a list of every command in the pipe
-	pipe_elements = [line.strip() for line in " ".join([c for c in command if c != ""]).split("|")]
-	
-	# we must correct the output command so it writes the correct file
-	outputter = pipe_elements[-1].split()
-	prog = basename(outputter[0])
-	if prog in ("pandoc", "markdown2pdf", "panbeamer.py"):
-		if prog in ("markdown2pdf", "panbeamer.py"):
-			out_extension = "pdf"
-		else:
-			try:
-				out_extension = outputter[outputter.index("-t") + 1]
-			except ValueError:
-				out_extension = output_type
-		out = vim.eval('expand("%:r")') + "." + out_extension
-		if len(outputter) > 1:
-			outputter.insert(len(outputter), "-o " + out)
-		else:
-			outputter.append("-o "+ out)
-	else:
-		out_extension = output_type
-		out = vim.eval('expand("%:r")') + "." + out_extension
-		# we assume these commands print to stdout.
-		# we redirect to the output file.
-		outputter.apped("> " + out) 
-
-	pipe_elements[-1] = " ".join(outputter)
-
-	# if we haven't already specified the current buffer as the pipe input, we must add it
-	real_command = " | ".join(pipe_elements).split()
-	if vim.current.buffer.name not in real_command:
-		real_command.append(relpath(vim.current.buffer.name))
-
-	# we buld the string we'll call
-	command_str = " ".join(real_command)
-	
-	# we run the command
-	try:
-		retval = call(real_command, shell=True)
-	except OSError, e:
-		return
-
-	if exists(out):
-		tail = ">> Created " + out
+	# now, we run the pipe
+	procs = {}
+	procs[0] = Popen(shlex.split(steps[0]), stdout=PIPE)
+	if len(steps) > 1:
+		i = 1
+		for p in steps[1:]:
+			procs[i] = Popen(shlex.split(p), stdin=procs[i-1].stdout, stdout=PIPE)
+			procs[i-1].stdout.close()
+	output = procs[len(procs) - 1].communicate()[0]
 
 	# we create a temporary buffer where the command and its output will be shown
 	
@@ -94,9 +47,10 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 	
 	vim.command("5new")
 	vim.current.buffer[0] = "# Press <Esc> to close this"
-	vim.current.buffer.append("▶ " + command_str)
+	vim.current.buffer.append("▶ " + " | ".join(steps))
 	try:
-		vim.current.buffer.append(tail)
+		for line in output.split("\n"):
+			vim.current.buffer.append(line)
 	except:
 		pass
 	vim.command("setlocal nomodified")
@@ -116,7 +70,7 @@ def pandoc_execute(command, output_type="html", open_when_done=False):
 		vim.command("set nosplitbelow")
 
 	# finally, we open the created file
-	if open_when_done:
+	if exists(out) and open_when_done:
 		if sys.platform == "darwin":
 			pandoc_open_command = "open" #OSX
 		elif sys.platform.startswith("linux"):
