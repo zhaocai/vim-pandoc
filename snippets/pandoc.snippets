@@ -1,26 +1,26 @@
-#######################################################################
 #
-# Pandoc-specific snippets
+# Snipmate Snippets for Pandoc Markdown
 #
-#######################################################################
+# Pandoc-specific Snippets
+# ========================
 #
-# Definition list item
-#
+# Insert Title Block
+snippet %%
+	% ${1:`Filename('', @*)`}
+	% ${2:`g:snips_author`}
+	% ${3:`strftime("%d %b %Y")`}
+
+	${4}
+
+# Insert Definition list item
+# ===========================
 snippet ::
 	${1:term}
 	  ~  ${2:definition}
-#
-# Title Block
-#
-snippet %%
-	% ${1:`Filename('', 'title')`}
-	% ${2:`g:snips_author`}
-	% ${3:`strftime("%d %b %Y")`}
-#
-# Strikeout
-#
+
+# Insert Striked Out Text
 snippet ~~
-	~~${1}~~ ${2}
+	~~${1}~~${2}
 #
 # ^[inline footnote]
 #
@@ -29,72 +29,54 @@ snippet ~~
 #snippet ^[
 #	^[${1:note}]${2}
 #
-# [^reference style] footnote
-#
+# Insert [^reference style] footnote
+
 snippet [
-	[^${1:id}] ${3}
+	[^${1:id}]${3}
 
 	[^$1]: ${2:note}
 
-#######################################################################
+# Markdown snippets
+# =========================
+
+# Links
+# -----
 #
-# Generic Markdown snippets
+# These don't play very well with delimitMate
 #
-# Is there some way to source these from another file?
-#
-#######################################################################
-#
-#[link][]
-snippet []
-	[${1:link_id}][]${2}
-# [link][id]
-snippet [[
-	[${1:link}][${2:id}]${3}
+
 # [link](url)
-snippet [(
-	[${1:link}](${2:url})${3}
+snippet [[
+	[${1:link}](${2:`@*`})${3}
 # [link](email)
 snippet [@
-	[${1:link}](mailto:${2:email})${3}
+	[${1:link}](mailto:${2:`@*`})${3}
 # [link](url "title")
 snippet [("
-	[${1:link}](${2:url} "${3:title}")${4}
+	[${1:link}](${2:`@*`} "${3:title}")${4}
 # [id]: url "title"
 snippet [:
-	[${1:id}]: http://${2:url} "${3:title}"
+	[${1:id}]: ${2:`@*`} "${3:title}"
 # [id]: email "title"
 snippet [:@
-	[${1:id}]: mailto:${2:url} "${3:title}"
-# ![alt][id]
-snippet ![
-	![${1:alt}][${2:id}]${3}
+	[${1:id}]: mailto:${2:`@*`} "${3:title}"
 # ![alt](url)
 snippet !(
-	![${1:alt}](${2:url})${3}
+	![${1:alt}](${2:`@*`})${3}
 # ![alt](url "title")
 snippet !("
-	![${1:alt}](${2:url} "${3:title}")${4}
-# *emphasis* or _emphasis_
-# 
-# I've commented this out because I often use * for bullets 
-#
-#snippet *
-#	*${1}*${2}
-snippet _
-	_${1}_${2}
-# **strong** or __strong__
-snippet **
-	**${1}**${2}
-snippet __
-	__${1}__${2}
-# `code`
-snippet `
-	`${1}`${2}
-# ================== (H1)
+	![${1:alt}](${2:`@*`} "${3:title}")${4}
+
+# Styling
+# -------
+
+# underline with `=`---i.e., setext style level 1 headers
 snippet ===
-	===========================
+	`repeat('=', strlen(getline(line(".") - 1)))`
+	
 	${1}
-# ------------------ (H2)
+# underline with `=`---i.e., setext style level 2 headers
 snippet ---
-	---------------------------
+	`repeat('-', strlen(getline(line(".") - 1)))`
+	
 	${1}
