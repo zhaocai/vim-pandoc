@@ -29,43 +29,47 @@ snippet ~~
 #snippet ^[
 #	^[${1:note}]${2}
 #
-# Insert [^reference style] footnote
 
-snippet [
-	[^${1:id}]${3}
 
-	[^$1]: ${2:note}
-
-# Markdown snippets
-# =========================
-
-# Links
-# -----
+# Links and their kin
+# -------------------
 #
-# These don't play very well with delimitMate
+# (These don't play very well with delimitMate)
 #
 
 # [link](url)
-snippet [[
+snippet [
 	[${1:link}](${2:`@*`})${3}
-# [link](email)
-snippet [@
-	[${1:link}](mailto:${2:`@*`})${3}
 # [link](url "title")
-snippet [("
+snippet ["
 	[${1:link}](${2:`@*`} "${3:title}")${4}
 # [id]: url "title"
 snippet [:
 	[${1:id}]: ${2:`@*`} "${3:title}"
+
+# [link](email)
+snippet [@
+	[${1:link}](mailto:${2:`@*`})${3}
 # [id]: email "title"
 snippet [:@
 	[${1:id}]: mailto:${2:`@*`} "${3:title}"
+
 # ![alt](url)
-snippet !(
+snippet ![
 	![${1:alt}](${2:`@*`})${3}
 # ![alt](url "title")
-snippet !("
+snippet !["
 	![${1:alt}](${2:`@*`} "${3:title}")${4}
+# ![id]: url "title"
+snippet ![:
+	![${1:id}]: ${2:`@*`} "${3:title}"
+
+# [^id]
+snippet [^
+	[^${1:id}]${3}
+# [^id]: note
+snippet [^:
+	[^$1]: ${2:note}
 
 # Styling
 # -------
