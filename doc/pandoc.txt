@@ -477,7 +477,7 @@ look much like the original.
 
   [pandoc]: http://johnmacfarlane.net/pandoc/
   [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
-  [snipMate]: http://www.vim.org/scripts/script.php?script_id=2540
+  [snipMate]: https://github.com/garbas/vim-snipmate
   [Pathogen]: https://github.com/tpope/vim-pathogen
   [Vimmer]: https://github.com/densitypop/Vimmer
   [VOoM]: http://vim-voom.github.com/
