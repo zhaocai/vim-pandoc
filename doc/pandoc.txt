@@ -340,7 +340,7 @@ executors that can access those variables. For example:
 The value of command in PandocRegisterExecutor and pandoc_execute can describe
 an *NIX pipeline, like:
 
-    pandoc -t json | filter | pandoc -f json -t odt -o %:r.odt
+    pandoc -t json %% | filter | pandoc -f json -t odt -o %:r.odt
 
 Default executors
 -----------------
