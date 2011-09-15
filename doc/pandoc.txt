@@ -61,6 +61,25 @@ To return to the most recent development version,
 If you don't want to (or can't) use git, you can download a tarball from
 the github page and unzip it into \~/.vim/bundle.
 
+Filetype Detection and File Extensions
+======================================
+
+If you have this plugin installed alongside [vim-markdown][], be aware
+that both plugins attempt to claim the common markdown extensions for
+their own. We match the following extensions:
+
++    .markdown, .md, .mkd, .pd, .pdk, .pandoc, and .text
+
+In our experience, vim-pandoc trumps vim-markdown.
+
+We do not claim files with the `.txt` extension, since that would seem
+a bit presumptuous. If you want `.txt` files to be treated as pandoc
+files, add
+
+    au BufNewFile,BufRead *.txt   set filetype=pandoc
+
+to your `.vimrc`.
+
 *pandoc-writing-enviroment*
 ===========================
 
@@ -187,7 +206,7 @@ putting something like
 
     let g:pandoc_bibfiles = ['/the/path/to/your/bibtex/file.bib']
 
-in your vimrc. 
+in your vimrc.
 
 You can set b:pandoc_bibfiles and g:pandoc_bibfiles to any format citeproc-hs
 supports.
@@ -227,7 +246,7 @@ You can always check to see what we've settled on for the buffer by
     :echo b:pandoc_bibfiles
 
 Using Citation Completion
-=========================
+-------------------------
 
 To use completion, start typing a citekey, e.g.,
 
@@ -254,6 +273,24 @@ will want something like this in your vimrc:
 
 Then you can just hit `<TAB>` in the middle of typing a citation
 to complete the citation.
+
+|pandoc-use-bibtool|
+--------------------
+
+By default, citation completion only matches entries by citekey. If you
+have [bibtool][] installed, and your bibliography is a bibtex file, and
+you set
+
+    let g:pandoc_use_bibtool = 1
+
+we will match by all keyword in all fields, so that
+
+    @armstrong
+
+might return both
+
+    @armstrong1989    Armstrong, David M. - A Combinatorial Theory of Possibility
+    @lewis1992        Lewis, David - Armstrong on Combinatorial Possibility
 
 *pandoc-citation-dictionary*
 ----------------------------
@@ -446,17 +483,6 @@ and type `,nr` from somewhere within `[link][id]`, you will get
 Of course, when you are done filling in the link, you can hit `,br` to
 jump back to where you were.
 
-Notes
-=====
-
-If you have this plugin installed alongside [vim-markdown][], be aware
-that both plugins attempt to claim the common markdown extensions for
-their own. We match the following extensions:
-
-+    .markdown, .md, .mkd, .pd, .pdk, .pandoc, and .text
-
-In my experience, vim-pandoc trumps vim-markdown.
-
 Known Issues
 ============
 
@@ -502,6 +528,7 @@ look much like the original.
   [FoldList]: http://www.vim.org/scripts/script.php?script_id=500
   [vim-markdown]: http://plasticboy.com/markdown-vim-mode/
   [issues]: https://github.com/vim-pandoc/vim-pandoc/issues
+  [bibtool]: http://www.gerd-neugebauer.de/software/TeX/BibTool/index.en.html
 
 
  vim:tw=78:ts=8:ft=help:norl: 
