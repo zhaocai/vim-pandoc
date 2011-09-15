@@ -303,12 +303,13 @@ PandocRegisterExecutor command. It tells vim-pandoc to register some local comma
 and mappings for a certain set of pandoc parameters. We call this an executor.
 The syntax of `PandocRegisterExecutor` is
 
-    :PandocRegisterExecutor NAME MAP COMMAND
+    :PandocRegisterExecutor NAME MAP TYPE COMMAND
 
-where NAME is the name of the Command, MAP is the mapping for it, and COMMAND
-is a description of the command to create the document. For example:
+where NAME is the name of the Command, MAP is the mapping for it, TYPE is the
+extension of the created file, and COMMAND is a description of the command to
+create the document. For example:
 
-    :PandocRegisterExecutor PdcPdf <Leader>pdf markdown2pdf
+    :PandocRegisterExecutor PdcPdf <Leader>pdf pdf markdown2pdf %%
 
 should register a PdcPdf command that runs markdown2pdf on the current file,
 and a mapping to do the same, and a PdcPdfOpen command that also opens the
@@ -320,15 +321,26 @@ Executors are registered before opening a file.
 Executors depend on the `pandoc_execute` function, which can be called like
 this:
 
-    :py pandoc_execute(COMMAND, OPEN)
+    :py pandoc_execute(COMMAND, TYPE, OPEN)
 
-where COMMAND is a string describing some pandoc arguments, and OPEN isn flag
-determining wether to open the created file or not. COMMAND can include vim
-variables, like `g:pandoc_bibfile`. Those will be evaluated before executing
-the command, so the user can define executors that can access those variables.
-For example:
+where COMMAND is a string describing some pandoc arguments, TYPE is the
+extesion of the created file, and OPEN isn flag determining wether to open the
+created file or not. COMMAND can include some variables:
+1. `%%` for the current filename
+2. `%:r` for the current filename without the extension
+3. `PANDOC#P_BIBS` for a sequence of --bibliography arguments for every value in
+   `b:pandoc_bibfiles`.
+4. `PANDOC#BIBS` for a list of the values in `b:pandoc_bibfiles`.
 
-    :PandocRegisterExecutor PdcPdfB <Leader>pdfb markdown2pdf --bibliography g:pandoc_bibfile
+Those will be evaluated before executing the command, so the user can define
+executors that can access those variables. For example:
+
+    :PandocRegisterExecutor PdcPdfB <Leader>pdfb pdf markdown2pdf PANDOC#P_BIBS %%
+
+The value of command in PandocRegisterExecutor and pandoc_execute can describe
+an *NIX pipeline, like:
+
+    pandoc -t json %% | filter | pandoc -f json -t odt -o %:r.odt
 
 Default executors
 -----------------

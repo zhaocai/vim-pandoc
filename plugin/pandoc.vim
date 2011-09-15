@@ -13,8 +13,9 @@ def pandoc_register_executor(com_ref):
 	args = com_ref.split()
 	name = args[0]
 	mapping = args[1]
-	command = args[2:]
-	pandoc_executors.append((name, mapping, " ".join(command)))
+	type = args[2]
+	command = args[3:]
+	pandoc_executors.append((name, mapping, type, " ".join(command)))
 EOF
 
 command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<args>")'
@@ -23,9 +24,9 @@ command! -nargs=? PandocRegisterExecutor exec 'py pandoc_register_executor("<arg
 " commands in his .vimrc.
 "
 " Generate html and open in default html viewer
-PandocRegisterExecutor PandocHtml <LocalLeader>html pandoc -t html -Ss
+PandocRegisterExecutor PandocHtml <LocalLeader>html html pandoc -t html -Ss -o %:r.html %%
 " Generate pdf w/ citeproc and open in default pdf viewer
-PandocRegisterExecutor PandocPdf <LocalLeader>pdf markdown2pdf --bibliography b:pandoc_bibfiles
+PandocRegisterExecutor PandocPdf <LocalLeader>pdf pdf markdown2pdf PANDOC#P_BIBS -o %:r.pdf %%
 " Generate odt w/ citeproc and open in default odt viewer
-PandocRegisterExecutor PandocOdt <LocalLeader>odt pandoc -t odt --bibliography b:pandoc_bibfiles
+PandocRegisterExecutor PandocOdt <LocalLeader>odt odt pandoc -t odt PANDOC#P_BIBS -o %:r.odt %%
 
