@@ -142,9 +142,13 @@ html that doesn't end.
 =================
 
 If you use |snipMate|, take a look at snippets/pandoc.snippets to see what
-is available. One nice example: at the start of a document, type
-`%%<TAB>` to generate a title block, with the filename as title, the
-value of `g:snips-author` as author, and the current date.
+is available. Here are a couple of examples:
+
+-   type `%%<TAB>` to generate a title block, with the filename as
+    title, the value of `g:snips-author` as author, and the current
+    date.
+-   type `[*` to generate an inline link with the contents of the clipboard
+    as the url.
 
 *pandoc-section-folding*
 ========================
