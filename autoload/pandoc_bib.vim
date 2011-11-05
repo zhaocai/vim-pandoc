@@ -63,7 +63,8 @@ def pandoc_get_bibtex_suggestions(text, query, use_bibtool=False):
 					if i6:
 						author = "@" + i6.group("crossref")
 
-			entry_dict["menu"] = " - ".join([author, title])
+			#entry_dict["menu"] = " - ".join([author, title])
+			entry_dict["menu"] = title
 				
 			entries.append(entry_dict)
 	
