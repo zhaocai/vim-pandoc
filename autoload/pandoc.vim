@@ -68,7 +68,7 @@ if bibfiles == []:
 		bibfiles = [f for f in glob(b + "default.*") if f.split(".")[-1] in bib_extensions]
 
 # we search for bibliographies in texmf
-if bibfiles == []:
+if bibfiles == [] and vim.eval("executable('kpsewhich')") != '0':
 	texmf = Popen(["kpsewhich", "-var-value", "TEXMFHOME"], stdout=PIPE, stderr=PIPE).\
                 communicate()[0].strip()
 	if exists(texmf):
