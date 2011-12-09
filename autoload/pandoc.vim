@@ -57,7 +57,7 @@ else:
 if bibfiles == []:
 	bibfiles = [f for f in glob("*.*") if f.split(".")[-1] in bib_extensions]
 
-# we seach in pandoc's local data dir
+# we search in pandoc's local data dir
 if bibfiles == []:
 	b = ""
 	if exists(expandvars("$HOME/.pandoc/")):
@@ -76,7 +76,7 @@ if bibfiles == []:
 
 # we append the items in g:pandoc_bibfiles, if set
 if vim.eval("exists('g:pandoc_bibfiles')") != "0":
-	bibfiles.expand(vim.eval("g:pandoc_bibfiles"))
+	bibfiles.extend(vim.eval("g:pandoc_bibfiles"))
 
 # we check if the items in bibfiles are readable and not directories
 bibfiles = list(filter(lambda f : os.access(f, os.R_OK) and not isdir(f), bibfiles))
