@@ -46,8 +46,10 @@ else
 	" same goes for 0 and ^
 	nnoremap <buffer> 0 g0
 	nnoremap <buffer> ^ g^
+	nnoremap <buffer> $ g$
 	vnoremap <buffer> 0 g0
 	vnoremap <buffer> ^ g^
+	vnoremap <buffer> $ g$
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	" Show partial wrapped lines
