@@ -35,7 +35,6 @@ else
 	setlocal breakat-=*
         setlocal wrap     " soft wrap doesn't make sense without it
         setlocal nolist   " linebreak doesn't work if list is on
-        setlocal nonumber " do we need numbers?
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	" Remappings that make j and k behave properly with
 	" soft wrapping.
