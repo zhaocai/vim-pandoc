@@ -12,11 +12,12 @@ This is a bundle for writing and editing documents in [pandoc][]'s
 
 -   some settings to make vim a pleasant |pandoc-writing-environment|,
 -   |pandoc-syntax-highlighting|, with support for pandoc's extended
-     markdown,
+    markdown,
 -   |pandoc-snippets| for use with [snipMate][],
 -   |pandoc-section-folding|,
 -   |pandoc-citation-completion|,
--   some simple |pandoc-conversion-functions| and |pandoc-tidying-functions|,
+-   some simple |pandoc-conversion-functions| and
+    |pandoc-tidying-functions|,
 -   a few |pandoc-localleader-mappings|
 
 Download and Install
@@ -327,21 +328,22 @@ and then hitting CTRL-X CTRL-K (or via SuperTab).
 *pandoc-conversion-functions*
 =============================
 
-Pandoc can be used to perform lots of different conversions. We've
-made no attempt to provide functions that cover all these possibilities,
-since it is easy to do something like
+Pandoc can be used to perform lots of different conversions. For one-off
+conversions, it is easy to do something like
 
-    :!markdown2pdf %
-
-If there is a particular conversion that you do all the time with a
-particular set of options, you might want to define a leader mapping
-in your vimrc.
+    :!pandoc -o example.rtf %
 
 *PandocRegisterExecutor*
 ------------------------
 
-Better yet, you can define a command and a mapping using the
-PandocRegisterExecutor command. It tells vim-pandoc to register some
+For conversions you use regularly, you can define a leader mapping in your
+vimrc, e.g.,
+
+    nmap <leader>p !pandoc -o %:r.pdf % --latex-engine xelatex
+    --number-sections<CR>
+
+Alternatively, you can define a command and a mapping using the
+`PandocRegisterExecutor` command. It tells vim-pandoc to register some
 local commands and mappings for a certain set of pandoc parameters. We
 call this an executor. The syntax of `PandocRegisterExecutor` is
 
@@ -353,11 +355,8 @@ the command to create the document. For example:
 
     :PandocRegisterExecutor PdcPdf <Leader>pdf pdf markdown2pdf %%
 
-should register a PdcPdf command that runs markdown2pdf on the current
-file, and a mapping to do the same, and a PdcPdfOpen command that also
-opens the created file, and a mapping to do so, identical to that for
-PdcPdf, but followed by a plus sign (that is, the mapping is
-`<Leader>pdf+`).
+registers a command, named PdcPdf, that runs markdown2pdf on the current
+file, and it maps <Leader>pdf to that command. It also creates a command, PdcPdfOpen, that opens the generated pdf file using your default pdf viewer, and maps <Leader>pdf+ to that command.
 
 Executors are registered before opening a file.
 
@@ -392,13 +391,17 @@ Default executors
 
 By default, vim-pandoc provides some handy executors:
 
--   *PandocPdf* (`<localleader>pdf`), which runs markdown2pdf, passing
-    the value of `g:pandoc_bibfile` as the argument of `--bibliography`.
+-   *PandocPdf* (`<localleader>pdf`), which runs pandoc, passing the
+    value of `g:pandoc_bibfile` as the argument of `--bibliography`.
+-   *PandocPdfOpen* (<localleader>pdf+), same as above, but opens the
+    pdf using your default pdf viewer.
 -   *PandocHtml* (`<localleader>html`), which creates a standalone html.
+-   *PandocHtmlOpen* (<localleader>html+), same as above, but opens the
+    html file in your default browser.
 -   *PandocOdt* (`<localleader>odt`), which creates an ODT file, passing
     the value of `g:pandoc_bibfile` as the argument of `--bibliography`.
-
-with their opening variants.
+-   *PandocOdtOpen* (`<localleader>odt+`), same as above, but opens the
+    ODT in your default ODT viewer.
 
 For the mappings to work, you must have |maplocalleader| defined in your
 vimrc, e.g.,
@@ -406,7 +409,8 @@ vimrc, e.g.,
     let maplocalleader = ","
 
 Then, for example, you can type something like `,pdf` and a PDF version
-of your current buffer will be displayed.
+of your current buffer will be generated, or ,pdf+, and a PDF version of
+your current buffer will be generated and displayed.
 
 *pandoc-tidying-functions*
 ==========================
@@ -441,7 +445,7 @@ custom latex macros. So you might not want to do something like `ggvG=`.
 =============================
 
 If |maplocalleader| is defined, vim-pandoc defines a handful of
-localleader mappings in addition to |PandocHTMLOpen| et al.
+localleader mappings in addition to the mappings for the default executors.
 
 First,
 
@@ -495,6 +499,7 @@ Known Issues
 ============
 
 See the github [issues][] page for a current set of issues.
+
 
 Maintainers
 ===========
