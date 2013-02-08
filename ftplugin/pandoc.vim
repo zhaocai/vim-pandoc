@@ -38,18 +38,22 @@ else
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	" Remappings that make j and k behave properly with
 	" soft wrapping.
-	nnoremap <buffer> j gj
-	nnoremap <buffer> k gk
-	vnoremap <buffer> j gj
-	vnoremap <buffer> k gk
-	
-	" same goes for 0, ^ and $
-	nnoremap <buffer> 0 g0
-	nnoremap <buffer> ^ g^
-	nnoremap <buffer> $ g$
-	vnoremap <buffer> 0 g0
-	vnoremap <buffer> ^ g^
-	vnoremap <buffer> $ g$
+    "
+    " Commenting these out per issue 77: not appropriate to have this stuff
+    " in a ftplugin.
+    "
+	" nnoremap <buffer> j gj
+	" nnoremap <buffer> k gk
+	" vnoremap <buffer> j gj
+	" vnoremap <buffer> k gk
+	" 
+	" " same goes for 0, ^ and $
+	" nnoremap <buffer> 0 g0
+	" nnoremap <buffer> ^ g^
+	" nnoremap <buffer> $ g$
+	" vnoremap <buffer> 0 g0
+	" vnoremap <buffer> ^ g^
+	" vnoremap <buffer> $ g$
 
 	"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 	" Show partial wrapped lines
