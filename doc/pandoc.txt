@@ -101,14 +101,6 @@ pleasant writing environment:
 |linebreak| tells vim to break lines at word boundaries. The |breakat|
 setting is to account for asterisks used for emphasis.
 
-    nnoremap <buffer> j gj
-    nnoremap <buffer> k gk
-    vnoremap <buffer> j gj
-    vnoremap <buffer> k gk
-
-These mappings allow use of j and k to move up and down in the middle of
-a soft-wrapped line.
-
     setlocal display=lastline
 
 If you are using soft-wrapping, this will tell vim to go ahead and
