@@ -36,6 +36,12 @@ endfunction
 " Completion:
 
 function! pandoc#Pandoc_Find_Bibfile()
+    
+    if !has('python')
+        echo "Error: Required vim compiled with +python"
+        finish
+    endif
+    
 python<<EOF
 import vim
 import os
