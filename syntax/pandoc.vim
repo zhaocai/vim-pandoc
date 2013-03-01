@@ -92,6 +92,9 @@ if !exists("g:pandoc_no_empty_implicits") || !g:pandoc_no_empty_implicits
 " only [implicit links] will be highlighted.
 " If labels change, the file must be reloaded in order to highlight their
 " implicit reference links.
+
+if has('python')
+
 python <<EOF
 import re
 import vim
@@ -106,6 +109,7 @@ for line in vim.current.buffer:
 regex = "\(" + r"\|".join(["\[" + label + "\]" for label in labels]) + "\)"
 vim.command("syn match pandocLinkArea /" + regex + r"[ \.,;\t\n-]\@=/")
 EOF
+endif
 endif
 """""""""""""""""""""""""""""""""""""""""""""""
 " Definitions:

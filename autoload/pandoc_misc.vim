@@ -2,6 +2,12 @@
 "
 " Some miscelaneous functions
 
+    if !has('python')
+        echo "Error: Required vim compiled with +python"
+        finish
+    endif
+
+
 python<<EOF
 import vim
 import sys

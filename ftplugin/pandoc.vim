@@ -114,10 +114,12 @@ endif
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Autocomplete citationkeys using function
 "
-call pandoc#Pandoc_Find_Bibfile()
+if has('python')
+    call pandoc#Pandoc_Find_Bibfile()
 
-let s:completion_type = ""
-setlocal omnifunc=pandoc#Pandoc_Complete
+    let s:completion_type = ""
+    setlocal omnifunc=pandoc#Pandoc_Complete
+endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " # Supertab support
@@ -159,6 +161,9 @@ command! -buffer MarkdownTidy %!pandoc -t markdown --no-wrap -s
 
 " We create some commands and mappings from our list of executors. See
 " plugin/pandoc.vim
+
+if has('python')
+
 python<<EOF
 for opener in pandoc_executors:
 	name, mapping, type, command = opener
@@ -178,6 +183,8 @@ for opener in pandoc_executors:
 			vim.command("map <buffer><silent> " + mapping + "+" + \
 						" :" + opening_executor + "<cr>")
 EOF
+
+endif
 
 " While I'm at it, here are a few more functions mappings that are useful when
 " editing pandoc files.

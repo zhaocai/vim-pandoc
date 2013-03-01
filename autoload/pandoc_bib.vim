@@ -2,6 +2,13 @@
 "
 " bibliographic completions for vim-pandoc
 "
+
+if !has('python')
+        echo "Error: Required vim compiled with +python"
+        finish
+endif
+
+
 python<<EOF
 import vim
 import re
