@@ -2,6 +2,10 @@
 " ftplugin/pandoc.vim
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+if !has('python')
+    echo "vim-pandoc running without python: functions limited"
+endif
+
 
 " # Formatting options
 
