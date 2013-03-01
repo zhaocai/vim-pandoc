@@ -27,48 +27,41 @@ For the latest version, see <https://github.com/vim-pandoc/vim-pandoc>.
 
 There are many different ways to manage and install vim plugins. Use
 your favorite method. If you don't have a favorite method, we recommend
-using [Pathogen][].
+using [Vundle][] or [Pathogen][].
 
-Once you have Pathogen installed, clone this repository into your
-`~/.vim/bundle` directory,
+If using Vundle, add
+
+    Bundle 'vim-pandoc/vim-pandoc'
+
+to your `~/.vimrc` file.
+
+If using Pathogen,
 
     cd ~/.vim/bundle
     git clone git@github.com:vim-pandoc/vim-pandoc.git
 
-If you are already using git to syncronize your vim files and want to
-add this repository as a submodule instead, (see
-[this](http://vimcasts.org/episodes/synchronizing-plugins-with-git-submodules-and-pathogen/)
-for more information)
+If using Pathogen and managing plugins as submodules,
 
     cd ~/.vim
     git submodule add https://github.com/vim-pandoc/vim-pandoc.git bundle/vim-pandoc
 
-Or, if those seem too complicated, install Pathogen and then install
-[Vimmer][], a ruby gem for managing vim plugins, with
-
-    gem install vimmer
-
-Then run
-
-    vimmer install https://github.com/vim-pandoc/vim-pandoc.git
-
-Either way, this will install the bleeding edge development version
-of the plugin. If you want something more stable,
-
-    cd ~/.vim/bundle/vim-pandoc
-    git tag
-
-This should list the "tags" that correspond to released versions, e.g.,
-'2.0.' To use version 2.0,
-
-    git checkout 2.0
-
-To return to the most recent development version,
-
-    git checkout master
- 
 If you don't want to (or can't) use git, you can download a tarball from
 the github page and unzip it into \~/.vim/bundle.
+
+Dependencies
+============
+
+To run this plugin, your Vim needs to be compiled with python support. To see
+if your Vim has python support,
+
+    vim --version
+
+and look for `+python`.
+
+**Mac Users**: [MacVim](https://code.google.com/p/macvim/) is compiled with
+python support. But the system default `/usr/bin/vim` is not. For information
+about how to override the system vim, and have `vim` use MacVim's binary, see
+[this discussion on superuser.com](http://superuser.com/questions/334252/the-best-way-to-make-macvims-vim-console-not-mvim-the-default-instead-of-mac).
 
 Filetype Detection and File Extensions
 ======================================
@@ -521,6 +514,7 @@ look much like the original.
   [pandoc]: http://johnmacfarlane.net/pandoc/
   [extended markdown]: http://johnmacfarlane.net/pandoc/README.html#pandocs-markdown
   [snipMate]: https://github.com/garbas/vim-snipmate
+  [Vundle]: https://github.com/gmarik/vundle
   [Pathogen]: https://github.com/tpope/vim-pathogen
   [Vimmer]: https://github.com/densitypop/Vimmer
   [VOoM]: http://vim-voom.github.com/
