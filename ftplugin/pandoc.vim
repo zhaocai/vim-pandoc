@@ -3,7 +3,7 @@
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 if !has('python')
-    echo "vim-pandoc running without python: functions limited"
+    echoe "vim compiled without python support: vim-pandoc functions limited"
 endif
 
 

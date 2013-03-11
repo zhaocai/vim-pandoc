@@ -3,7 +3,7 @@
 " Defines pandoc_execute and pandoc_exec#PandocExecute, for executors
 "
     if !has('python')
-        echo "Error: Required vim compiled with +python"
+        echoe "Error: Requires vim compiled with +python"
         finish
     endif
 
