@@ -4,7 +4,6 @@
 "
 
 if !has('python')
-        echoe "Error: Requires vim compiled with +python"
         finish
 endif
 
